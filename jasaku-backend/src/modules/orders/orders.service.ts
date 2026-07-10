@@ -1,6 +1,7 @@
 import { prisma } from "../../config/prisma";
 import { NotificationService } from "../notifications/notifications.service";
 import { LocationService } from "../locations/locations.service";
+import { canOrderNow, isSameWitaDate, canTransitionWorkflow, canCompleteWork, getTodayWitaDate } from "../../utils/operating-hours";
 
 // State machine: status transisi yang valid
 const VALID_TRANSITIONS: Record<string, string[]> = {
@@ -67,8 +68,10 @@ export class OrdersService {
             throw new Error("Kuantitas pesanan harus lebih dari 0");
         }
 
-        const parsedDate = new Date(data.workDate);
-        if (isNaN(parsedDate.getTime()) || parsedDate < new Date()) {
+        const parsedDate = new Date(data.workDate + 'T00:00:00');
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (isNaN(parsedDate.getTime()) || parsedDate < today) {
             throw new Error("Tanggal pekerjaan tidak valid atau tidak boleh di masa lalu");
         }
 
@@ -78,9 +81,21 @@ export class OrdersService {
         if (!customerProfile) throw new Error("Profil customer tidak ditemukan");
 
         const providerProfile = await prisma.provider_profiles.findUnique({
-            where: { user_id: data.providerId }
+            where: { id: data.providerId }
         });
         if (!providerProfile) throw new Error("Profil provider tidak ditemukan");
+
+        // Validasi jam operasional untuk order hari ini
+        let orderWarning: string | undefined;
+        if (isSameWitaDate(parsedDate)) {
+            const orderCheck = canOrderNow();
+            if (!orderCheck.allowed) {
+                throw new Error(orderCheck.warning!);
+            }
+            if (orderCheck.warning) {
+                orderWarning = orderCheck.warning;
+            }
+        }
 
         const order = await prisma.$transaction(async (tx) => {
             const providerService = await tx.provider_services.findFirst({
@@ -98,7 +113,19 @@ export class OrdersService {
             const pricePerUnit = providerService.provider_service_prices[0].price;
             const totalPrice = Number(pricePerUnit) * data.quantity;
 
-            // Cek schedule: provider sudah ada booking di tanggal tsb?
+            // Cek apakah provider sudah punya order aktif di tanggal tsb
+            const activeOrder = await tx.orders.findFirst({
+                where: {
+                    provider_id: providerProfile.id,
+                    work_date: parsedDate,
+                    status: { in: ['pending_payment', 'pending', 'accepted', 'on_the_way', 'arrived', 'in_progress'] }
+                }
+            });
+            if (activeOrder) {
+                throw new Error("Ups, Jasa ini udah punya pesanan di tanggal ini. Coba pilih tanggal lain.");
+            }
+
+            // Cek schedule sebagai fallback
             const existingSchedule = await tx.provider_schedules.findUnique({
                 where: {
                     provider_id_work_date: {
@@ -108,7 +135,7 @@ export class OrdersService {
                 }
             });
             if (existingSchedule?.is_booked) {
-                throw new Error("Provider sudah memiliki pesanan di tanggal ini");
+                throw new Error("Ups, Jasa ini udah punya pesanan di tanggal ini. Coba pilih tanggal lain.");
             }
 
             const order = await tx.orders.create({
@@ -118,6 +145,7 @@ export class OrdersService {
                     total_price: totalPrice,
                     description: data.description,
                     work_date: parsedDate,
+                    end_date: parsedDate,
                     status: 'pending_payment',
                 }
             });
@@ -159,9 +187,37 @@ export class OrdersService {
             return order;
         });
 
-        return order;
+        return { order, warning: orderWarning };
     }
 
+
+    async getOrderExtensions(orderId: string) {
+        return await prisma.order_extensions.findMany({
+            where: { order_id: orderId },
+            orderBy: { created_at: 'desc' },
+            select: {
+                id: true,
+                extension_count: true,
+                additional_cost: true,
+                platform_fee_rate: true,
+                status: true,
+                response_note: true,
+                created_at: true,
+                provider_id: true,
+                customer_id: true,
+                orders: {
+                    select: {
+                        id: true,
+                        total_price: true,
+                        platform_fee: true,
+                        work_date: true,
+                        provider_profiles: { select: { full_name: true } },
+                        profiles_customer: { select: { full_name: true } }
+                    }
+                }
+            }
+        });
+    }
 
     async getOrderDetails(orderId: string) {
         return await prisma.orders.findUnique({
@@ -169,8 +225,10 @@ export class OrdersService {
             select: {
                 id: true,
                 total_price: true,
+                additional_fee: true,
                 description: true,
                 work_date: true,
+                end_date: true,
                 status: true,
                 created_at: true,
                 profiles_customer: {
@@ -229,6 +287,8 @@ export class OrdersService {
                 status: true,
                 customer_id: true,
                 provider_id: true,
+                assignment_type: true,
+                custom_task_id: true,
                 order_locations: {
                     select: { address: true }
                 }
@@ -245,6 +305,11 @@ export class OrdersService {
         const locationService = new LocationService();
         const providerLocation = await locationService.getProviderLocation(providerProfile.user_id);
 
+        let customerLat: number | null = null;
+        let customerLng: number | null = null;
+        let customerAddress: string | null = null;
+
+        // Coba ambil dari order_locations dulu
         const orderLocation = await prisma.$queryRaw<Array<{ lat: number; lng: number }>>`
             SELECT 
                 ST_Y(location::geometry) as lat,
@@ -254,15 +319,37 @@ export class OrdersService {
             LIMIT 1
         `;
 
+        if (orderLocation.length > 0) {
+            customerLat = orderLocation[0].lat;
+            customerLng = orderLocation[0].lng;
+            customerAddress = order.order_locations[0]?.address ?? null;
+        } else if (order.custom_task_id) {
+            // Custom task: ambil lokasi dari custom_tasks
+            const ctLoc = await prisma.$queryRaw<Array<{ lat: number; lng: number; address: string | null }>>`
+                SELECT 
+                    ST_Y(location::geometry) as lat,
+                    ST_X(location::geometry) as lng,
+                    address
+                FROM custom_tasks
+                WHERE id = ${order.custom_task_id}::uuid
+                LIMIT 1
+            `;
+            if (ctLoc.length > 0) {
+                customerLat = ctLoc[0].lat;
+                customerLng = ctLoc[0].lng;
+                customerAddress = ctLoc[0].address;
+            }
+        }
+
         return {
             orderId: order.id,
             status: order.status,
             providerName: providerProfile.full_name,
             providerLocation: providerLocation
-                ? { lat: providerLocation.lat, lng: providerLocation.lng, address: providerLocation.address, updatedAt: providerLocation.updated_at }
+                ? { lat: providerLocation.lat, lng: providerLocation.lng, address: providerLocation.address }
                 : null,
-            orderLocation: orderLocation.length > 0
-                ? { lat: orderLocation[0].lat, lng: orderLocation[0].lng, address: order.order_locations[0]?.address }
+            orderLocation: customerLat != null && customerLng != null
+                ? { lat: customerLat, lng: customerLng, address: customerAddress }
                 : null,
         };
     }
@@ -297,6 +384,8 @@ export class OrdersService {
             select: {
                 id: true,
                 work_date: true,
+                end_date: true,
+                additional_fee: true,
                 status: true,
                 total_price: true,
                 description: true,
@@ -308,7 +397,7 @@ export class OrdersService {
         });
     }
 
-    async getProviderOrders(userId: string, statusFilter?: string) {
+    async getProviderOrders(userId: string, statusFilter?: string, scope?: 'today' | 'upcoming' | 'history') {
         const profile = await prisma.provider_profiles.findUnique({
             where: { user_id: userId },
             select: { id: true }
@@ -320,14 +409,31 @@ export class OrdersService {
             whereClause.status = statusFilter;
         }
 
+        const todayStart = getTodayWitaDate();
+        const tomorrowStart = new Date(todayStart);
+        tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+
+        if (scope === 'today') {
+            whereClause.work_date = { gte: todayStart, lt: tomorrowStart };
+        } else if (scope === 'upcoming') {
+            whereClause.work_date = { gt: todayStart };
+        } else if (scope === 'history') {
+            whereClause.status = 'completed';
+        }
+
         const orders = await prisma.orders.findMany({
             where: whereClause,
             select: {
                 id: true,
                 total_price: true,
+                platform_fee: true,
+                additional_fee: true,
                 description: true,
                 work_date: true,
+                end_date: true,
                 status: true,
+                assignment_type: true,
+                custom_task_id: true,
                 created_at: true,
                 profiles_customer: {
                     select: { id: true, full_name: true, created_at: true }
@@ -362,6 +468,29 @@ export class OrdersService {
                 if (loc && order.order_locations.length > 0) {
                     (order.order_locations[0] as Record<string, unknown>).lat = loc.lat;
                     (order.order_locations[0] as Record<string, unknown>).lng = loc.lng;
+                }
+            }
+
+            // Custom tasks: ambil lat/lng dari custom_tasks untuk order ct tanpa order_locations
+            const ctOrderIds = orders
+                .filter((o: any) => o.custom_task_id && (!locMap.has(o.id) || (o.order_locations?.length ?? 0) === 0))
+                .map((o: any) => o.custom_task_id)
+                .filter(Boolean) as string[];
+            if (ctOrderIds.length > 0) {
+                const ctLocs = await prisma.$queryRaw<Array<{ id: string; lat: number | null; lng: number | null }>>`
+                    SELECT ct.id, ST_Y(ct.location::geometry) as lat, ST_X(ct.location::geometry) as lng
+                    FROM custom_tasks ct
+                    WHERE ct.id = ANY(${ctOrderIds}::uuid[])
+                `;
+                const ctLocMap = new Map(ctLocs.map(l => [l.id, l]));
+                for (const order of orders) {
+                    if ((order as any).custom_task_id && (!locMap.has(order.id) || (order as any).order_locations?.length === 0)) {
+                        const ctLoc = ctLocMap.get((order as any).custom_task_id!);
+                        if (ctLoc) {
+                            (order as Record<string, unknown>).ct_lat = ctLoc.lat;
+                            (order as Record<string, unknown>).ct_lng = ctLoc.lng;
+                        }
+                    }
                 }
             }
         }
@@ -525,6 +654,18 @@ export class OrdersService {
         const allowed = VALID_TRANSITIONS[current] || [];
         if (!allowed.includes(status)) throw new Error(`Status ${current} tidak bisa berubah ke ${status}`);
 
+        // Validasi jam operasional untuk transisi kerja hari ini
+        if (order.work_date && isSameWitaDate(order.work_date)) {
+            if (['on_the_way', 'arrived', 'in_progress'].includes(status)) {
+                const check = canTransitionWorkflow();
+                if (!check.allowed) throw new Error(check.message!);
+            }
+            if (status === 'completed') {
+                const check = canCompleteWork();
+                if (!check.allowed) throw new Error(check.message!);
+            }
+        }
+
         const updateData: any = { status };
         const updated = await prisma.orders.update({
             where: { id: orderId },
@@ -605,7 +746,7 @@ export class OrdersService {
 
     async getPublicProviderStatus(providerId: string) {
         const profile = await prisma.provider_profiles.findUnique({
-            where: { user_id: providerId },
+            where: { id: providerId },
             select: { id: true, is_active: true, task_available: true }
         });
         if (!profile) return { hasActiveOrder: false, is_active: false, task_available: false };
@@ -627,7 +768,7 @@ export class OrdersService {
 
     async getPublicProviderSchedule(providerId: string, startDate?: string, endDate?: string) {
         const profile = await prisma.provider_profiles.findUnique({
-            where: { user_id: providerId },
+            where: { id: providerId },
             select: { id: true }
         });
         if (!profile) return [];
@@ -736,7 +877,10 @@ export class OrdersService {
 
         const order = await prisma.orders.findUnique({
             where: { id: orderId },
-            include: { provider_profiles: { select: { user_id: true, id: true } } }
+            include: {
+                provider_profiles: { select: { user_id: true, id: true } },
+                profiles_customer: { select: { user_id: true } }
+            }
         });
         if (!order) throw new Error("Order tidak ditemukan");
 
@@ -762,6 +906,30 @@ export class OrdersService {
             throw new Error(`Total ekstensi maksimal 3 hari. Sudah terpakai ${totalExistingDays} hari`);
         }
 
+        // Cek apakah masih ada ekstensi yang belum selesai
+        const pendingExt = existingExtensions.find(e =>
+            ['pending_customer', 'pending_payment', 'pending'].includes(e.status)
+        );
+        if (pendingExt) {
+            throw new Error("Sudah ada permintaan ekstensi yang menunggu, selesaikan dulu");
+        }
+
+        // Cek apakah provider punya order aktif di hari berikutnya (H+1, H+2, dst)
+        const futureOrder = await prisma.orders.findFirst({
+            where: {
+                provider_id: profile.id,
+                work_date: { gt: getTodayWitaDate() },
+                status: { notIn: ['completed', 'cancelled', 'rejected'] },
+                NOT: { id: orderId }
+            }
+        });
+        if (futureOrder) {
+            throw new Error(
+                "Anda memiliki orderan untuk hari berikutnya. Tidak bisa mengajukan tambahan waktu. " +
+                "Selesaikan order hari ini dan buat order baru nanti."
+            );
+        }
+
         // Fee: 2% per hari ekstensi, max 5% total
         const platformFeeRate = Math.min(totalRequestedDays * 2, 5);
         const additionalCost = Number(order.total_price) * platformFeeRate / 100;
@@ -775,24 +943,18 @@ export class OrdersService {
                 additional_cost: additionalCost,
                 platform_fee_rate: platformFeeRate,
                 extension_count: extensionDays,
-                status: 'pending',
+                status: 'pending_customer',
             }
         });
 
-        // Notifikasi ke admin
+        // Notifikasi ke customer
         try {
-            const adminUsers = await prisma.users.findMany({
-                where: { roles: { name: 'admin' } },
-                select: { id: true }
-            });
-            for (const admin of adminUsers) {
-                await NotificationService.sendToUser(
-                    admin.id,
-                    "Request Ekstensi Order",
-                    `Provider meminta ekstensi ${extensionDays} hari untuk order ${orderId}`,
-                    { orderId, type: "EXTENSION_REQUEST" }
-                );
-            }
+            await NotificationService.sendToUser(
+                order.profiles_customer.user_id,
+                "Request Ekstensi Order",
+                `Mitra meminta tambahan ${extensionDays} hari untuk order Anda`,
+                { orderId, type: "EXTENSION_REQUEST" }
+            );
         } catch (_) {}
 
         return extension;
@@ -893,6 +1055,179 @@ export class OrdersService {
         } catch (_) {}
 
         return updated;
+    }
+
+    async respondToExtension(extensionId: string, userId: string, action: 'approved' | 'rejected', note?: string) {
+        const ext = await prisma.order_extensions.findUnique({
+            where: { id: extensionId },
+            include: {
+                orders: {
+                    include: {
+                        profiles_customer: { select: { user_id: true } },
+                        provider_profiles: { select: { user_id: true } }
+                    }
+                }
+            }
+        });
+        if (!ext) throw new Error("Extension tidak ditemukan");
+        if (ext.status !== 'pending_customer') {
+            throw new Error("Extension sudah direspon sebelumnya");
+        }
+        if (ext.orders.profiles_customer.user_id !== userId) {
+            throw new Error("Anda bukan customer order ini");
+        }
+
+        if (action === 'rejected') {
+            const updated = await prisma.order_extensions.update({
+                where: { id: extensionId },
+                data: { status: 'rejected', response_note: note || null }
+            });
+            try {
+                await NotificationService.sendToUser(
+                    ext.orders.provider_profiles.user_id,
+                    "Ekstensi Ditolak",
+                    `Customer menolak request ekstensi ${ext.extension_count} hari`,
+                    { orderId: ext.order_id, type: "EXTENSION_REJECTED" }
+                );
+            } catch (_) {}
+            return updated;
+        }
+
+        // Approved: create payment + status pending_payment
+        await prisma.payments.create({
+            data: {
+                order_id: ext.order_id,
+                method: 'extension',
+                status: 'pending',
+                amount: ext.additional_cost,
+            }
+        });
+
+        const updated = await prisma.order_extensions.update({
+            where: { id: extensionId },
+            data: { status: 'pending_payment', response_note: note || null }
+        });
+
+        try {
+            await NotificationService.sendToUser(
+                ext.orders.provider_profiles.user_id,
+                "Ekstensi Disetujui Customer",
+                "Customer menyetujui ekstensi, menunggu pembayaran",
+                { orderId: ext.order_id, type: "EXTENSION_APPROVED" }
+            );
+        } catch (_) {}
+
+        // Notifikasi admin untuk konfirmasi payment
+        try {
+            const adminUsers = await prisma.users.findMany({
+                where: { roles: { name: 'admin' } },
+                select: { id: true }
+            });
+            for (const admin of adminUsers) {
+                await NotificationService.sendToUser(
+                    admin.id,
+                    "Pembayaran Ekstensi",
+                    `Customer telah menyetujui ekstensi. Konfirmasi pembayaran Rp ${Number(ext.additional_cost).toLocaleString('id-ID')}`,
+                    { orderId: ext.order_id, type: "EXTENSION_PENDING_PAYMENT" }
+                );
+            }
+        } catch (_) {}
+
+        return updated;
+    }
+
+    async activateExtension(extensionId: string) {
+        const ext = await prisma.order_extensions.findUnique({
+            where: { id: extensionId },
+            include: {
+                orders: {
+                    include: {
+                        provider_profiles: { select: { user_id: true, id: true } },
+                        profiles_customer: { select: { user_id: true } }
+                    }
+                }
+            }
+        });
+        if (!ext) throw new Error("Extension tidak ditemukan");
+        if (ext.status !== 'pending_payment') {
+            throw new Error("Extension belum dalam status pembayaran");
+        }
+
+        const payment = await prisma.payments.findFirst({
+            where: { order_id: ext.order_id, method: 'extension', status: 'pending' }
+        });
+        if (!payment) throw new Error("Pembayaran tidak ditemukan");
+
+        await prisma.$transaction(async (tx) => {
+            await tx.payments.update({
+                where: { id: payment.id },
+                data: { status: 'paid', paid_at: new Date() }
+            });
+
+            await tx.order_extensions.update({
+                where: { id: extensionId },
+                data: { status: 'active' }
+            });
+
+            // Hitung total hari ekstensi (semua yg sudah active + yg baru)
+            const allActive = await tx.order_extensions.findMany({
+                where: { order_id: ext.order_id, status: 'active' },
+                select: { extension_count: true }
+            });
+            const totalDays = allActive.reduce((sum, e) => sum + e.extension_count, 0);
+            const newEndDate = ext.orders.work_date
+                ? new Date(ext.orders.work_date.getTime() + totalDays * 86400000)
+                : null;
+
+            await tx.orders.update({
+                where: { id: ext.order_id },
+                data: {
+                    additional_fee: { increment: ext.additional_cost },
+                    end_date: newEndDate,
+                }
+            });
+
+            if (ext.orders?.work_date) {
+                for (let i = 1; i <= ext.extension_count; i++) {
+                    const extDate = new Date(ext.orders.work_date);
+                    extDate.setDate(extDate.getDate() + i);
+                    await tx.provider_schedules.upsert({
+                        where: {
+                            provider_id_work_date: {
+                                provider_id: ext.orders.provider_id,
+                                work_date: extDate,
+                            }
+                        },
+                        update: { is_booked: true, order_id: ext.order_id },
+                        create: {
+                            provider_id: ext.orders.provider_id,
+                            work_date: extDate,
+                            is_booked: true,
+                            order_id: ext.order_id,
+                        }
+                    });
+                }
+            }
+        });
+
+        try {
+            await NotificationService.sendToUser(
+                ext.orders.provider_profiles.user_id,
+                "Ekstensi Aktif",
+                `Ekstensi ${ext.extension_count} hari telah aktif`,
+                { orderId: ext.order_id, type: "EXTENSION_ACTIVATED" }
+            );
+        } catch (_) {}
+        try {
+            await NotificationService.sendToUser(
+                ext.orders.profiles_customer.user_id,
+                "Ekstensi Aktif",
+                `Penambahan ${ext.extension_count} hari telah aktif`,
+                { orderId: ext.order_id, type: "EXTENSION_ACTIVATED" }
+            );
+        } catch (_) {}
+
+        return { message: "Ekstensi berhasil diaktifkan" };
     }
 
     async confirmPaymentByAdmin(orderId: string) {

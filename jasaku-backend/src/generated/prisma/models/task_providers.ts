@@ -29,6 +29,7 @@ export type Task_providersMinAggregateOutputType = {
   task_id: string | null
   provider_id: string | null
   status: string | null
+  work_status: string | null
   accepted_at: Date | null
   completed_at: Date | null
   payout_confirmed: boolean | null
@@ -40,6 +41,7 @@ export type Task_providersMaxAggregateOutputType = {
   task_id: string | null
   provider_id: string | null
   status: string | null
+  work_status: string | null
   accepted_at: Date | null
   completed_at: Date | null
   payout_confirmed: boolean | null
@@ -51,6 +53,7 @@ export type Task_providersCountAggregateOutputType = {
   task_id: number
   provider_id: number
   status: number
+  work_status: number
   accepted_at: number
   completed_at: number
   payout_confirmed: number
@@ -64,6 +67,7 @@ export type Task_providersMinAggregateInputType = {
   task_id?: true
   provider_id?: true
   status?: true
+  work_status?: true
   accepted_at?: true
   completed_at?: true
   payout_confirmed?: true
@@ -75,6 +79,7 @@ export type Task_providersMaxAggregateInputType = {
   task_id?: true
   provider_id?: true
   status?: true
+  work_status?: true
   accepted_at?: true
   completed_at?: true
   payout_confirmed?: true
@@ -86,6 +91,7 @@ export type Task_providersCountAggregateInputType = {
   task_id?: true
   provider_id?: true
   status?: true
+  work_status?: true
   accepted_at?: true
   completed_at?: true
   payout_confirmed?: true
@@ -170,6 +176,7 @@ export type Task_providersGroupByOutputType = {
   task_id: string
   provider_id: string
   status: string
+  work_status: string | null
   accepted_at: Date
   completed_at: Date | null
   payout_confirmed: boolean
@@ -202,6 +209,7 @@ export type task_providersWhereInput = {
   task_id?: Prisma.UuidFilter<"task_providers"> | string
   provider_id?: Prisma.UuidFilter<"task_providers"> | string
   status?: Prisma.StringFilter<"task_providers"> | string
+  work_status?: Prisma.StringNullableFilter<"task_providers"> | string | null
   accepted_at?: Prisma.DateTimeFilter<"task_providers"> | Date | string
   completed_at?: Prisma.DateTimeNullableFilter<"task_providers"> | Date | string | null
   payout_confirmed?: Prisma.BoolFilter<"task_providers"> | boolean
@@ -216,6 +224,7 @@ export type task_providersOrderByWithRelationInput = {
   task_id?: Prisma.SortOrder
   provider_id?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  work_status?: Prisma.SortOrderInput | Prisma.SortOrder
   accepted_at?: Prisma.SortOrder
   completed_at?: Prisma.SortOrderInput | Prisma.SortOrder
   payout_confirmed?: Prisma.SortOrder
@@ -234,6 +243,7 @@ export type task_providersWhereUniqueInput = Prisma.AtLeast<{
   task_id?: Prisma.UuidFilter<"task_providers"> | string
   provider_id?: Prisma.UuidFilter<"task_providers"> | string
   status?: Prisma.StringFilter<"task_providers"> | string
+  work_status?: Prisma.StringNullableFilter<"task_providers"> | string | null
   accepted_at?: Prisma.DateTimeFilter<"task_providers"> | Date | string
   completed_at?: Prisma.DateTimeNullableFilter<"task_providers"> | Date | string | null
   payout_confirmed?: Prisma.BoolFilter<"task_providers"> | boolean
@@ -248,6 +258,7 @@ export type task_providersOrderByWithAggregationInput = {
   task_id?: Prisma.SortOrder
   provider_id?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  work_status?: Prisma.SortOrderInput | Prisma.SortOrder
   accepted_at?: Prisma.SortOrder
   completed_at?: Prisma.SortOrderInput | Prisma.SortOrder
   payout_confirmed?: Prisma.SortOrder
@@ -265,6 +276,7 @@ export type task_providersScalarWhereWithAggregatesInput = {
   task_id?: Prisma.UuidWithAggregatesFilter<"task_providers"> | string
   provider_id?: Prisma.UuidWithAggregatesFilter<"task_providers"> | string
   status?: Prisma.StringWithAggregatesFilter<"task_providers"> | string
+  work_status?: Prisma.StringNullableWithAggregatesFilter<"task_providers"> | string | null
   accepted_at?: Prisma.DateTimeWithAggregatesFilter<"task_providers"> | Date | string
   completed_at?: Prisma.DateTimeNullableWithAggregatesFilter<"task_providers"> | Date | string | null
   payout_confirmed?: Prisma.BoolWithAggregatesFilter<"task_providers"> | boolean
@@ -274,6 +286,7 @@ export type task_providersScalarWhereWithAggregatesInput = {
 export type task_providersCreateInput = {
   id?: string
   status?: string
+  work_status?: string | null
   accepted_at?: Date | string
   completed_at?: Date | string | null
   payout_confirmed?: boolean
@@ -288,6 +301,7 @@ export type task_providersUncheckedCreateInput = {
   task_id: string
   provider_id: string
   status?: string
+  work_status?: string | null
   accepted_at?: Date | string
   completed_at?: Date | string | null
   payout_confirmed?: boolean
@@ -298,6 +312,7 @@ export type task_providersUncheckedCreateInput = {
 export type task_providersUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  work_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accepted_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -312,6 +327,7 @@ export type task_providersUncheckedUpdateInput = {
   task_id?: Prisma.StringFieldUpdateOperationsInput | string
   provider_id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  work_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accepted_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -324,6 +340,7 @@ export type task_providersCreateManyInput = {
   task_id: string
   provider_id: string
   status?: string
+  work_status?: string | null
   accepted_at?: Date | string
   completed_at?: Date | string | null
   payout_confirmed?: boolean
@@ -333,6 +350,7 @@ export type task_providersCreateManyInput = {
 export type task_providersUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  work_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accepted_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -344,6 +362,7 @@ export type task_providersUncheckedUpdateManyInput = {
   task_id?: Prisma.StringFieldUpdateOperationsInput | string
   provider_id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  work_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accepted_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -370,6 +389,7 @@ export type task_providersCountOrderByAggregateInput = {
   task_id?: Prisma.SortOrder
   provider_id?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  work_status?: Prisma.SortOrder
   accepted_at?: Prisma.SortOrder
   completed_at?: Prisma.SortOrder
   payout_confirmed?: Prisma.SortOrder
@@ -381,6 +401,7 @@ export type task_providersMaxOrderByAggregateInput = {
   task_id?: Prisma.SortOrder
   provider_id?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  work_status?: Prisma.SortOrder
   accepted_at?: Prisma.SortOrder
   completed_at?: Prisma.SortOrder
   payout_confirmed?: Prisma.SortOrder
@@ -392,6 +413,7 @@ export type task_providersMinOrderByAggregateInput = {
   task_id?: Prisma.SortOrder
   provider_id?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  work_status?: Prisma.SortOrder
   accepted_at?: Prisma.SortOrder
   completed_at?: Prisma.SortOrder
   payout_confirmed?: Prisma.SortOrder
@@ -510,6 +532,7 @@ export type task_providersUncheckedUpdateManyWithoutProvider_profilesNestedInput
 export type task_providersCreateWithoutCustom_tasksInput = {
   id?: string
   status?: string
+  work_status?: string | null
   accepted_at?: Date | string
   completed_at?: Date | string | null
   payout_confirmed?: boolean
@@ -522,6 +545,7 @@ export type task_providersUncheckedCreateWithoutCustom_tasksInput = {
   id?: string
   provider_id: string
   status?: string
+  work_status?: string | null
   accepted_at?: Date | string
   completed_at?: Date | string | null
   payout_confirmed?: boolean
@@ -563,6 +587,7 @@ export type task_providersScalarWhereInput = {
   task_id?: Prisma.UuidFilter<"task_providers"> | string
   provider_id?: Prisma.UuidFilter<"task_providers"> | string
   status?: Prisma.StringFilter<"task_providers"> | string
+  work_status?: Prisma.StringNullableFilter<"task_providers"> | string | null
   accepted_at?: Prisma.DateTimeFilter<"task_providers"> | Date | string
   completed_at?: Prisma.DateTimeNullableFilter<"task_providers"> | Date | string | null
   payout_confirmed?: Prisma.BoolFilter<"task_providers"> | boolean
@@ -572,6 +597,7 @@ export type task_providersScalarWhereInput = {
 export type task_providersCreateWithoutOrdersInput = {
   id?: string
   status?: string
+  work_status?: string | null
   accepted_at?: Date | string
   completed_at?: Date | string | null
   payout_confirmed?: boolean
@@ -585,6 +611,7 @@ export type task_providersUncheckedCreateWithoutOrdersInput = {
   task_id: string
   provider_id: string
   status?: string
+  work_status?: string | null
   accepted_at?: Date | string
   completed_at?: Date | string | null
   payout_confirmed?: boolean
@@ -610,6 +637,7 @@ export type task_providersUpdateToOneWithWhereWithoutOrdersInput = {
 export type task_providersUpdateWithoutOrdersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  work_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accepted_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -623,6 +651,7 @@ export type task_providersUncheckedUpdateWithoutOrdersInput = {
   task_id?: Prisma.StringFieldUpdateOperationsInput | string
   provider_id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  work_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accepted_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -632,6 +661,7 @@ export type task_providersUncheckedUpdateWithoutOrdersInput = {
 export type task_providersCreateWithoutProvider_profilesInput = {
   id?: string
   status?: string
+  work_status?: string | null
   accepted_at?: Date | string
   completed_at?: Date | string | null
   payout_confirmed?: boolean
@@ -644,6 +674,7 @@ export type task_providersUncheckedCreateWithoutProvider_profilesInput = {
   id?: string
   task_id: string
   status?: string
+  work_status?: string | null
   accepted_at?: Date | string
   completed_at?: Date | string | null
   payout_confirmed?: boolean
@@ -681,6 +712,7 @@ export type task_providersCreateManyCustom_tasksInput = {
   id?: string
   provider_id: string
   status?: string
+  work_status?: string | null
   accepted_at?: Date | string
   completed_at?: Date | string | null
   payout_confirmed?: boolean
@@ -690,6 +722,7 @@ export type task_providersCreateManyCustom_tasksInput = {
 export type task_providersUpdateWithoutCustom_tasksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  work_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accepted_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -702,6 +735,7 @@ export type task_providersUncheckedUpdateWithoutCustom_tasksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   provider_id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  work_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accepted_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -713,6 +747,7 @@ export type task_providersUncheckedUpdateManyWithoutCustom_tasksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   provider_id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  work_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accepted_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -723,6 +758,7 @@ export type task_providersCreateManyProvider_profilesInput = {
   id?: string
   task_id: string
   status?: string
+  work_status?: string | null
   accepted_at?: Date | string
   completed_at?: Date | string | null
   payout_confirmed?: boolean
@@ -732,6 +768,7 @@ export type task_providersCreateManyProvider_profilesInput = {
 export type task_providersUpdateWithoutProvider_profilesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  work_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accepted_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -744,6 +781,7 @@ export type task_providersUncheckedUpdateWithoutProvider_profilesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   task_id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  work_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accepted_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -755,6 +793,7 @@ export type task_providersUncheckedUpdateManyWithoutProvider_profilesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   task_id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  work_status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accepted_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   payout_confirmed?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -797,6 +836,7 @@ export type task_providersSelect<ExtArgs extends runtime.Types.Extensions.Intern
   task_id?: boolean
   provider_id?: boolean
   status?: boolean
+  work_status?: boolean
   accepted_at?: boolean
   completed_at?: boolean
   payout_confirmed?: boolean
@@ -812,6 +852,7 @@ export type task_providersSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   task_id?: boolean
   provider_id?: boolean
   status?: boolean
+  work_status?: boolean
   accepted_at?: boolean
   completed_at?: boolean
   payout_confirmed?: boolean
@@ -825,6 +866,7 @@ export type task_providersSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   task_id?: boolean
   provider_id?: boolean
   status?: boolean
+  work_status?: boolean
   accepted_at?: boolean
   completed_at?: boolean
   payout_confirmed?: boolean
@@ -838,13 +880,14 @@ export type task_providersSelectScalar = {
   task_id?: boolean
   provider_id?: boolean
   status?: boolean
+  work_status?: boolean
   accepted_at?: boolean
   completed_at?: boolean
   payout_confirmed?: boolean
   payout_at?: boolean
 }
 
-export type task_providersOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "task_id" | "provider_id" | "status" | "accepted_at" | "completed_at" | "payout_confirmed" | "payout_at", ExtArgs["result"]["task_providers"]>
+export type task_providersOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "task_id" | "provider_id" | "status" | "work_status" | "accepted_at" | "completed_at" | "payout_confirmed" | "payout_at", ExtArgs["result"]["task_providers"]>
 export type task_providersInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   custom_tasks?: boolean | Prisma.custom_tasksDefaultArgs<ExtArgs>
   provider_profiles?: boolean | Prisma.provider_profilesDefaultArgs<ExtArgs>
@@ -872,6 +915,7 @@ export type $task_providersPayload<ExtArgs extends runtime.Types.Extensions.Inte
     task_id: string
     provider_id: string
     status: string
+    work_status: string | null
     accepted_at: Date
     completed_at: Date | null
     payout_confirmed: boolean
@@ -1306,6 +1350,7 @@ export interface task_providersFieldRefs {
   readonly task_id: Prisma.FieldRef<"task_providers", 'String'>
   readonly provider_id: Prisma.FieldRef<"task_providers", 'String'>
   readonly status: Prisma.FieldRef<"task_providers", 'String'>
+  readonly work_status: Prisma.FieldRef<"task_providers", 'String'>
   readonly accepted_at: Prisma.FieldRef<"task_providers", 'DateTime'>
   readonly completed_at: Prisma.FieldRef<"task_providers", 'DateTime'>
   readonly payout_confirmed: Prisma.FieldRef<"task_providers", 'Boolean'>

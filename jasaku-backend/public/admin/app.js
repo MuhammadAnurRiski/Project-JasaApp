@@ -68,7 +68,8 @@ function confirmModal(msg) {
 function getFileUrl(path) {
   if (!path) return '#';
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
-  return window.location.origin + '/' + path.replace(/\\/g, '/');
+  const cleaned = path.replace(/\\/g, '/').replace(/^\//, '');
+  return window.location.origin + '/' + cleaned;
 }
 
 function promptModal(msg) {
@@ -290,6 +291,31 @@ document.addEventListener('alpine:init', () => {
     }
   }));
 
+  Alpine.data('confirmExtensionPage', () => ({
+    loading: true,
+    extensions: [],
+    activating: null,
+    init() { requireAuth(); this.load(); },
+    async load() {
+      this.loading = true;
+      try {
+        this.extensions = await apiFetch('/admin/extensions/pending-payment');
+      } catch (e) { toast(e.message, 'error'); }
+      finally { this.loading = false; }
+    },
+    async activateExtension(extensionId) {
+      const ok = await confirmModal('Aktifkan ekstensi ini?');
+      if (!ok) return;
+      this.activating = extensionId;
+      try {
+        await apiFetch('/admin/extensions/' + extensionId + '/activate', { method: 'PATCH' });
+        toast('Ekstensi berhasil diaktifkan');
+        this.load();
+      } catch (e) { toast(e.message, 'error'); }
+      finally { this.activating = null; }
+    }
+  }));
+
   Alpine.data('adminApp', () => ({
     init() {
       if (Alpine.store('theme').dark) document.documentElement.classList.add('dark');
@@ -302,7 +328,7 @@ document.addEventListener('alpine:init', () => {
     },
     menu: sidebarMenu,
     get pageTitle() {
-      const map = { dashboard: 'Beranda', 'confirm-payment': 'Konfirmasi Bayar', 'custom-tasks': 'Custom Task', extensions: 'Ekstensi', providers: 'Mitra', 'provider-detail': 'Detail Mitra', customers: 'Pelanggan', categories: 'Kategori', services: 'Layanan', payments: 'Pembayaran', 'pricing-types': 'Tipe Harga', reports: 'Laporan' };
+      const map = { dashboard: 'Beranda', 'confirm-payment': 'Konfirmasi Bayar', 'confirm-extension': 'Konfirmasi Ekstensi', 'custom-tasks': 'Custom Task', providers: 'Mitra', 'provider-detail': 'Detail Mitra', customers: 'Pelanggan', categories: 'Kategori', services: 'Layanan', payments: 'Pembayaran', 'pricing-types': 'Tipe Harga', reports: 'Laporan' };
       return map[Alpine.store('nav').page] || '';
     }
   }));

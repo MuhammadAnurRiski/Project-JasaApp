@@ -212,7 +212,9 @@
 .badge-success { background-color: #d1fae5; color: #047857; }
 .badge-warning { background-color: #fef3c7; color: #b45309; }
 .badge-danger { background-color: #fee2e2; color: #b91c1c; }
+.badge-primary { background-color: #dbeafe; color: #1d4ed8; }
 .badge-info { background-color: #e0f2fe; color: #0369a1; }
+.badge-gray { background-color: #f3f4f6; color: #6b7280; }
 
 /* Toast */
 .toast-enter {
@@ -360,7 +362,9 @@ html.dark body { background-color: #0f172a; }
 .dark .badge-success { background-color: rgba(4,120,87,0.2); color: #34d399; }
 .dark .badge-warning { background-color: rgba(180,83,9,0.2); color: #fbbf24; }
 .dark .badge-danger { background-color: rgba(185,28,28,0.2); color: #f87171; }
+.dark .badge-primary { background-color: rgba(29,78,216,0.2); color: #60a5fa; }
 .dark .badge-info { background-color: rgba(3,105,161,0.2); color: #38bdf8; }
+.dark .badge-gray { background-color: rgba(107,114,128,0.2); color: #9ca3af; }
 .dark .skeleton { background-color: #1e293b; }
 .dark .filter-tab { color: #64748b; }
 .dark .filter-tab.bg-white { background-color: #334155 !important; color: #e2e8f0 !important; }

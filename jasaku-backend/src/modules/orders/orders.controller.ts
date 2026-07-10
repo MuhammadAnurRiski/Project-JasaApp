@@ -1,5 +1,6 @@
 import { Response } from "express";
 import { OrdersService } from "./orders.service";
+import { AdminService } from "../admin/admin.service";
 import { successResponse, errorResponse } from "../../utils/response";
 
 const createOrder = async (req: any, res: Response) => {
@@ -7,7 +8,7 @@ const createOrder = async (req: any, res: Response) => {
         const { providerId, serviceId, pricingTypeId, quantity, description, workDate, address, lat, lng, attachments } = req.body;
         const customerId = req.user.userId;
         const ordersService = new OrdersService();
-        const result = await ordersService.createOrder({
+        const { order, warning } = await ordersService.createOrder({
             customerId,
             providerId,
             serviceId,
@@ -20,7 +21,7 @@ const createOrder = async (req: any, res: Response) => {
             lng,
             attachments: attachments || [],
         });
-        return successResponse(res, result, 'Order berhasil dibuat', 201);
+        return successResponse(res, { order, warning: warning || null }, 'Order berhasil dibuat', 201);
     }
     catch (err: any) {
         return errorResponse(res, err.message);
@@ -42,6 +43,18 @@ const getOrderDetails = async (req: any, res: Response) => {
     }
 };
 
+const getOrderExtensions = async (req: any, res: Response) => {
+    try {
+        const { orderId } = req.params;
+        const ordersService = new OrdersService();
+        const result = await ordersService.getOrderExtensions(orderId);
+        return successResponse(res, result, 'Ekstensi order berhasil diambil');
+    }
+    catch (err: any) {
+        return errorResponse(res, err.message);
+    }
+};
+
 const getOrderTracking = async (req: any, res: Response) => {
     try {
         const { orderId } = req.params;
@@ -53,6 +66,7 @@ const getOrderTracking = async (req: any, res: Response) => {
         return successResponse(res, result, 'Data tracking berhasil diambil');
     }
     catch (err: any) {
+        console.error('[TRACKING ERROR]', { orderId: req.params.orderId, message: err.message, stack: err.stack });
         return errorResponse(res, err.message);
     }
 };
@@ -74,8 +88,9 @@ const getProviderOrders = async (req: any, res: Response) => {
     try {
         const providerId = req.user.userId;
         const statusFilter = req.query.status as string | undefined;
+        const scope = req.query.scope as string | undefined;
         const ordersService = new OrdersService();
-        const result = await ordersService.getProviderOrders(providerId, statusFilter);
+        const result = await ordersService.getProviderOrders(providerId, statusFilter, scope as any);
         return successResponse(res, result, 'Daftar order provider berhasil diambil');
     }
     catch (err: any) {
@@ -211,4 +226,40 @@ const approveExtension = async (req: any, res: Response) => {
     }
 };
 
-export { createOrder, getOrderDetails, getCustomerOrders, getProviderOrders, receiveOrderStatus, cancelOrder, getTodayOrders, getProviderSchedule, getProviderRequests, getOrderTracking, confirmPaymentByAdmin, requestExtension, approveExtension, getPublicProviderStatus, getPublicProviderSchedule };
+const respondToExtension = async (req: any, res: Response) => {
+    try {
+        const { extensionId } = req.params;
+        const { action, note } = req.body;
+        const userId = req.user.userId;
+        const ordersService = new OrdersService();
+        const result = await ordersService.respondToExtension(extensionId, userId, action, note);
+        return successResponse(res, result, action === 'approved' ? 'Ekstensi disetujui, lanjut pembayaran' : 'Ekstensi ditolak');
+    }
+    catch (err: any) {
+        return errorResponse(res, err.message);
+    }
+};
+
+const activateExtension = async (req: any, res: Response) => {
+    try {
+        const { extensionId } = req.params;
+        const ordersService = new OrdersService();
+        const result = await ordersService.activateExtension(extensionId);
+        return successResponse(res, result, 'Ekstensi berhasil diaktifkan');
+    }
+    catch (err: any) {
+        return errorResponse(res, err.message);
+    }
+};
+
+const getPaymentAccounts = async (req: any, res: Response) => {
+    try {
+        const result = await new AdminService().getPaymentAccounts();
+        return successResponse(res, result, 'Akun pembayaran berhasil diambil');
+    }
+    catch (err: any) {
+        return errorResponse(res, err.message);
+    }
+};
+
+export { createOrder, getOrderDetails, getOrderExtensions, getCustomerOrders, getProviderOrders, receiveOrderStatus, cancelOrder, getTodayOrders, getProviderSchedule, getProviderRequests, getOrderTracking, confirmPaymentByAdmin, requestExtension, approveExtension, respondToExtension, activateExtension, getPaymentAccounts, getPublicProviderStatus, getPublicProviderSchedule };

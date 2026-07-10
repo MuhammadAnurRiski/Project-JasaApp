@@ -5,8 +5,9 @@
   "main": "app.ts",
   "scripts": {
     "dev": "tsx watch -r dotenv/config src/app.ts",
-    "build": "tsc",
-    "start": "node dist/app.ts",
+    "build": "npx prisma generate && mkdir -p uploads",
+    "start": "tsx src/app.ts",
+    "postinstall": "npx prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

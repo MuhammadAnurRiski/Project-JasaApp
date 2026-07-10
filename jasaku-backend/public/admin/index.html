@@ -416,9 +416,9 @@
               <template x-if="!loading && !selectedCategoryId"><div class="text-center py-12"><div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-tools text-gray-300 text-2xl"></i></div><p class="text-gray-400 text-sm font-medium">Pilih kategori</p><p class="text-gray-300 text-xs mt-1">Pilih kategori untuk melihat layanan di dalamnya</p></div></template>
               <template x-if="!loading && selectedCategoryId && services.length === 0"><div class="text-center py-12"><div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-box-open text-gray-300 text-2xl"></i></div><p class="text-gray-400 text-sm font-medium">Belum ada layanan</p><p class="text-gray-300 text-xs mt-1">Klik "Tambah" untuk membuat layanan baru</p></div></template>
               <template x-if="!loading && services.length > 0">
-                <div class="table-wrap"><table><thead><tr><th>Nama</th><th>Deskripsi</th><th>Harga</th><th>Durasi</th><th class="text-right">Aksi</th></tr></thead><tbody>
+                <div class="table-wrap"><table><thead><tr><th>Nama</th><th class="text-right">Aksi</th></tr></thead><tbody>
                   <template x-for="s in services" :key="s.id">
-                    <tr><td class="font-medium text-gray-800" x-text="s.name"></td><td class="text-gray-500 max-w-[200px] truncate" x-text="s.description || '-'"></td><td class="font-medium tabular-nums" x-text="'Rp ' + Number(s.price).toLocaleString('id-ID')"></td><td class="text-gray-500" x-text="s.duration ? s.duration + ' menit' : '-'"></td><td class="text-right"><button @click="openEdit(s)" class="text-indigo-600 hover:text-indigo-800 mr-3 transition-colors"><i class="fas fa-edit"></i></button><button @click="confirmDelete(s.id)" class="text-red-400 hover:text-red-600 transition-colors"><i class="fas fa-trash"></i></button></td></tr>
+                    <tr><td class="font-medium text-gray-800" x-text="s.name"></td><td class="text-right"><button @click="openEdit(s)" class="text-indigo-600 hover:text-indigo-800 mr-3 transition-colors"><i class="fas fa-edit"></i></button><button @click="confirmDelete(s.id)" class="text-red-400 hover:text-red-600 transition-colors"><i class="fas fa-trash"></i></button></td></tr>
                   </template>
                 </tbody></table></div>
               </template>
@@ -475,33 +475,77 @@
         <!-- CONFIRM PAYMENT (REKBER) -->
         <div x-data="confirmPaymentPage" x-init="init()" x-show="$store.nav.page === 'confirm-payment'" class="page-enter">
           <div class="card p-0 overflow-hidden">
-            <div class="p-5 pb-0 flex items-center justify-between gap-3">
-              <span class="text-xs text-gray-400" x-text="orders.length + ' menunggu konfirmasi'"></span>
-              <button @click="load()" class="btn-secondary btn-sm" :disabled="loading"><i class="fas fa-sync-alt mr-1" :class="loading ? 'fa-spin' : ''"></i>Refresh</button>
+            <div class="p-5 pb-0 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <select x-model="statusFilter" @change="filterOrders()" class="form-select max-w-[180px] text-sm">
+                  <option value="">Semua Status</option>
+                  <option value="pending_payment">Menunggu Pembayaran</option>
+                  <option value="pending">Menunggu Mitra</option>
+                  <option value="accepted">Sedang Bekerja</option>
+                  <option value="in_progress">Sedang Bekerja</option>
+                  <option value="completed">Selesai</option>
+                  <option value="rejected">Ditolak</option>
+                  <option value="cancelled">Dibatalkan</option>
+                </select>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-xs text-gray-400" x-text="filteredOrders.length + ' pesanan'"></span>
+                <button @click="load()" class="btn-secondary btn-sm" :disabled="loading"><i class="fas fa-sync-alt mr-1" :class="loading ? 'fa-spin' : ''"></i>Refresh</button>
+              </div>
             </div>
             <div class="p-5 pt-3">
               <template x-if="loading"><div class="space-y-3"><template x-for="i in 4"><div class="skeleton h-16 rounded-xl"></div></template></div></template>
-              <template x-if="!loading && orders.length === 0">
+              <template x-if="!loading && filteredOrders.length === 0">
                 <div class="text-center py-12">
-                  <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-check-circle text-emerald-500 text-2xl"></i></div>
-                  <p class="text-gray-400 text-sm font-medium">Tidak ada pembayaran pending</p>
-                  <p class="text-gray-300 text-xs mt-1">Semua pembayaran sudah dikonfirmasi</p>
+                  <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-inbox text-gray-300 text-2xl"></i></div>
+                  <p class="text-gray-400 text-sm font-medium">Tidak ada pesanan</p>
                 </div>
               </template>
-              <template x-if="!loading && orders.length > 0">
-                <div class="table-wrap"><table><thead><tr><th>Pelanggan</th><th>Tanggal</th><th>Total</th><th>Metode</th><th class="text-center">Aksi</th></tr></thead><tbody>
-                  <template x-for="o in orders" :key="o.id">
+              <template x-if="!loading && filteredOrders.length > 0">
+                <div class="table-wrap"><table><thead><tr><th>Pelanggan</th><th>Mitra</th><th>Rekening Tujuan</th><th>No. Rekening</th><th>A/N</th><th>Total</th><th>Metode</th><th>Status</th><th class="text-center">Aksi</th></tr></thead><tbody>
+                  <template x-for="o in filteredOrders" :key="o.id">
                     <tr>
                       <td><div><span class="font-medium text-gray-800" x-text="o.profiles_customer?.full_name || '-'"></span><span class="text-xs text-gray-400 block" x-text="o.profiles_customer?.nickname ? '@' + o.profiles_customer.nickname : ''"></span></div></td>
-                      <td class="text-gray-500 text-sm" x-text="formatDate(o.created_at)"></td>
+                      <td class="text-gray-600" x-text="o.provider_profiles?.full_name || '-'"></td>
+                      <td>
+                        <template x-if="o.provider_payout?.provider_name">
+                          <div>
+                            <span class="text-xs font-medium" x-text="o.provider_payout.provider_name"></span>
+                            <span x-show="o.provider_payout.type" class="ml-1 badge"
+                                  :class="o.provider_payout.type === 'bank' ? 'badge-primary' : 'badge-info'"
+                                  x-text="o.provider_payout.type === 'bank' ? 'Bank' : 'E-Wallet'"></span>
+                          </div>
+                        </template>
+                        <template x-if="!o.provider_payout?.provider_name">
+                          <span class="text-xs text-red-400">Belum diatur</span>
+                        </template>
+                      </td>
+                      <td>
+                        <template x-if="o.provider_payout?.account_number">
+                          <span class="tabular-nums text-sm font-medium" x-text="o.provider_payout.account_number"></span>
+                        </template>
+                        <template x-if="!o.provider_payout?.account_number">
+                          <span class="text-xs text-red-400">-</span>
+                        </template>
+                      </td>
+                      <td>
+                        <template x-if="o.provider_payout?.account_name">
+                          <span class="text-sm" x-text="o.provider_payout.account_name"></span>
+                        </template>
+                        <template x-if="!o.provider_payout?.account_name">
+                          <span class="text-xs text-red-400">-</span>
+                        </template>
+                      </td>
                       <td class="font-medium tabular-nums" x-text="'Rp ' + Number(o.total_price).toLocaleString('id-ID')"></td>
                       <td><span class="badge badge-warning" x-text="o.payments?.length ? (o.payments[0].method || '-') : '-'"></span></td>
+                      <td><span class="badge" :class="statusBadge(o.status)" x-text="statusLabel(o.status)"></span></td>
                       <td class="text-center">
-                        <button @click="confirmPayment(o.id)" :disabled="confirming === o.id" class="btn-success btn-sm">
+                        <button x-show="o.status === 'pending_payment'" @click="confirmPayment(o.id)" :disabled="confirming === o.id" class="btn-success btn-sm">
                           <i x-show="confirming === o.id" class="fas fa-spinner fa-spin mr-1"></i>
                           <i x-show="confirming !== o.id" class="fas fa-check mr-1"></i>
                           <span x-text="confirming === o.id ? 'Memproses...' : 'Konfirmasi'"></span>
                         </button>
+                        <span x-show="o.status !== 'pending_payment'" class="text-xs text-gray-400 italic">-</span>
                       </td>
                     </tr>
                   </template>
@@ -511,39 +555,42 @@
           </div>
         </div>
 
-        <!-- EXTENSIONS -->
-        <div x-data="extensionsPage" x-init="init()" x-show="$store.nav.page === 'extensions'" class="page-enter">
+        <!-- CONFIRM EXTENSION PAYMENT -->
+        <div x-data="confirmExtensionPage" x-init="init()" x-show="$store.nav.page === 'confirm-extension'" class="page-enter">
           <div class="card p-0 overflow-hidden">
-            <div class="p-5 pb-0 flex items-center justify-between gap-3">
-              <span class="text-xs text-gray-400" x-text="items.length + ' menunggu persetujuan'"></span>
-              <button @click="load()" class="btn-secondary btn-sm" :disabled="loading"><i class="fas fa-sync-alt mr-1" :class="loading ? 'fa-spin' : ''"></i>Refresh</button>
+            <div class="p-5 pb-0 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <h2 class="text-lg font-semibold">Konfirmasi Pembayaran Ekstensi</h2>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-xs text-gray-400" x-text="extensions.length + ' ekstensi'"></span>
+                <button @click="load()" class="btn-secondary btn-sm" :disabled="loading"><i class="fas fa-sync-alt mr-1" :class="loading ? 'fa-spin' : ''"></i>Refresh</button>
+              </div>
             </div>
             <div class="p-5 pt-3">
               <template x-if="loading"><div class="space-y-3"><template x-for="i in 4"><div class="skeleton h-16 rounded-xl"></div></template></div></template>
-              <template x-if="!loading && items.length === 0">
+              <template x-if="!loading && extensions.length === 0">
                 <div class="text-center py-12">
-                  <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-clock text-blue-500 text-2xl"></i></div>
-                  <p class="text-gray-400 text-sm font-medium">Tidak ada permintaan ekstensi</p>
-                  <p class="text-gray-300 text-xs mt-1">Semua ekstensi sudah diproses</p>
+                  <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-calendar-check text-gray-300 text-2xl"></i></div>
+                  <p class="text-gray-400 text-sm font-medium">Tidak ada ekstensi menunggu pembayaran</p>
                 </div>
               </template>
-              <template x-if="!loading && items.length > 0">
-                <div class="table-wrap"><table><thead><tr><th>Mitra</th><th>Pelanggan</th><th>Hari Ditambah</th><th>Biaya Tambahan</th><th>Status</th><th class="text-right">Aksi</th></tr></thead><tbody>
-                  <template x-for="e in items" :key="e.id">
+              <template x-if="!loading && extensions.length > 0">
+                <div class="table-wrap"><table><thead><tr><th>Pelanggan</th><th>Mitra</th><th>Biaya Ekstensi</th><th>Hari</th><th>Total Order</th><th>Status</th><th class="text-center">Aksi</th></tr></thead><tbody>
+                  <template x-for="e in extensions" :key="e.id">
                     <tr>
-                      <td><span class="font-medium text-gray-800" x-text="e.orders?.provider_profiles?.full_name || '-'"></span></td>
-                      <td><span class="text-gray-600" x-text="e.orders?.profiles_customer?.full_name || '-'"></span></td>
-                      <td class="tabular-nums" x-text="e.extension_count + ' hari'"></td>
-                      <td class="font-medium tabular-nums" x-text="'Rp ' + Number(e.additional_cost).toLocaleString('id-ID')"></td>
-                      <td><span class="badge" :class="{'badge-warning': e.status === 'pending', 'badge-success': e.status === 'approved', 'badge-danger': e.status === 'rejected'}" x-text="e.status"></span></td>
-                      <td class="text-right">
-                        <template x-if="e.status === 'pending'">
-                          <div class="flex gap-2 justify-end">
-                            <button @click="approve(e.id)" :disabled="processing === e.id" class="btn-success btn-sm"><i class="fas fa-check mr-1"></i>Setujui</button>
-                            <button @click="reject(e.id)" :disabled="processing === e.id" class="btn-danger btn-sm"><i class="fas fa-times mr-1"></i>Tolak</button>
-                          </div>
-                        </template>
-                        <span x-show="e.status !== 'pending'" class="text-xs text-gray-400 italic">Selesai</span>
+                      <td><span class="font-medium text-gray-800" x-text="e.orders?.profiles_customer?.full_name || '-'"></span></td>
+                      <td class="text-gray-600" x-text="e.orders?.provider_profiles?.full_name || '-'"></td>
+                      <td class="font-medium tabular-nums text-emerald-600" x-text="'Rp ' + Number(e.additional_cost).toLocaleString('id-ID')"></td>
+                      <td><span class="badge badge-info" x-text="e.extension_count + ' hari'"></span></td>
+                      <td class="tabular-nums" x-text="'Rp ' + Number(e.orders?.total_price).toLocaleString('id-ID')"></td>
+                      <td><span class="badge badge-warning">Menunggu Pembayaran</span></td>
+                      <td class="text-center">
+                        <button @click="activateExtension(e.id)" :disabled="activating === e.id" class="btn-success btn-sm">
+                          <i x-show="activating === e.id" class="fas fa-spinner fa-spin mr-1"></i>
+                          <i x-show="activating !== e.id" class="fas fa-check mr-1"></i>
+                          <span x-text="activating === e.id ? 'Memproses...' : 'Aktifkan'"></span>
+                        </button>
                       </td>
                     </tr>
                   </template>
@@ -579,18 +626,26 @@
                   </div>
                 </template>
                 <template x-if="!loading && pendingPaymentTasks.length > 0">
-                  <div class="table-wrap"><table><thead><tr><th>Task</th><th>Mitra</th><th>Total</th><th class="text-center">Aksi</th></tr></thead><tbody>
-                    <template x-for="tp in pendingPaymentTasks" :key="tp.id">
+                  <div class="table-wrap"><table><thead><tr><th>Task</th><th>Pelanggan</th><th>Mitra</th><th>Total</th><th>Bukti</th><th>Status</th><th class="text-center">Aksi</th></tr></thead><tbody>
+                    <template x-for="tp in pendingPaymentTasks" :key="tp.tp_id">
                       <tr>
-                        <td><span class="font-medium text-gray-800" x-text="tp.custom_tasks?.title || '-'"></span></td>
-                        <td><span class="text-gray-600" x-text="tp.provider_profiles?.full_name || '-'"></span></td>
-                        <td class="font-medium tabular-nums" x-text="'Rp ' + (tp.custom_tasks?.budget_per_person || 0).toLocaleString('id-ID')"></td>
+                        <td><span class="font-medium text-gray-800" x-text="tp.title || '-'"></span></td>
+                        <td class="text-gray-600" x-text="tp.customer_name || '-'"></td>
+                        <td><span class="text-gray-600" x-text="tp.provider_name || '-'"></span></td>
+                        <td class="font-medium tabular-nums" x-text="'Rp ' + (tp.total_price || 0).toLocaleString('id-ID')"></td>
+                        <td><template x-if="tp.payment_proof"><button @click="Alpine.store('proofModal').open(getFileUrl(tp.payment_proof), tp.title)" class="text-indigo-600 hover:text-indigo-800 underline text-xs font-medium"><i class="fas fa-image mr-1"></i>Lihat</button></template><template x-if="!tp.payment_proof"><span class="text-xs text-gray-400">-</span></template></td>
+                        <td><span x-show="tp.order_status === 'accepted'" class="badge badge-success">Sudah Dibayar</span><span x-show="tp.order_status !== 'accepted'" class="badge badge-warning">Menunggu Bayar</span></td>
                         <td class="text-center">
-                          <button @click="confirmPayment(tp.id)" :disabled="processing === tp.id" class="btn-success btn-sm">
-                            <i x-show="processing === tp.id" class="fas fa-spinner fa-spin mr-1"></i>
-                            <i x-show="processing !== tp.id" class="fas fa-check mr-1"></i>
-                            <span x-text="processing === tp.id ? 'Memproses...' : 'Konfirmasi Bayar'"></span>
-                          </button>
+                          <template x-if="tp.order_status !== 'accepted'">
+                            <button @click="confirmPayment(tp.tp_id)" :disabled="processing === tp.tp_id" class="btn-success btn-sm">
+                              <i x-show="processing === tp.tp_id" class="fas fa-spinner fa-spin mr-1"></i>
+                              <i x-show="processing !== tp.tp_id" class="fas fa-check mr-1"></i>
+                              <span x-text="processing === tp.tp_id ? 'Memproses...' : 'Konfirmasi Bayar'"></span>
+                            </button>
+                          </template>
+                          <template x-if="tp.order_status === 'accepted'">
+                            <span class="text-xs text-emerald-600 font-medium"><i class="fas fa-check-circle mr-1"></i>Selesai</span>
+                          </template>
                         </td>
                       </tr>
                     </template>
@@ -616,18 +671,28 @@
                   </div>
                 </template>
                 <template x-if="!loading && pendingPayoutTasks.length > 0">
-                  <div class="table-wrap"><table><thead><tr><th>Task</th><th>Mitra</th><th>Total</th><th class="text-center">Aksi</th></tr></thead><tbody>
-                    <template x-for="tp in pendingPayoutTasks" :key="tp.id">
+                  <div class="table-wrap"><table><thead><tr><th>Task</th><th>Pelanggan</th><th>Mitra</th><th>Total</th><th>Rekening Tujuan</th><th>No. Rekening</th><th>A/N</th><th>Bukti</th><th class="text-center">Aksi</th></tr></thead><tbody>
+                    <template x-for="tp in pendingPayoutTasks" :key="tp.tp_id">
                       <tr>
-                        <td><span class="font-medium text-gray-800" x-text="tp.custom_tasks?.title || '-'"></span></td>
-                        <td><span class="text-gray-600" x-text="tp.provider_profiles?.full_name || '-'"></span></td>
-                        <td class="font-medium tabular-nums" x-text="'Rp ' + (tp.custom_tasks?.budget_per_person || 0).toLocaleString('id-ID')"></td>
+                        <td><span class="font-medium text-gray-800" x-text="tp.title || '-'"></span></td>
+                        <td class="text-gray-600" x-text="tp.customer_name || '-'"></td>
+                        <td><span class="text-gray-600" x-text="tp.provider_name || '-'"></span></td>
+                        <td class="font-medium tabular-nums" x-text="'Rp ' + (tp.total_price || 0).toLocaleString('id-ID')"></td>
+                        <td><template x-if="tp.bank_name"><span class="text-xs font-medium" x-text="tp.bank_name"></span><span x-show="tp.payout_type" class="ml-1 badge" :class="tp.payout_type === 'bank' ? 'badge-primary' : 'badge-info'" x-text="tp.payout_type === 'bank' ? 'Bank' : 'E-Wallet'"></span></template><template x-if="!tp.bank_name"><span class="text-xs text-red-400">-</span></template></td>
+                        <td><template x-if="tp.account_number"><span class="tabular-nums text-sm font-medium" x-text="tp.account_number"></span></template><template x-if="!tp.account_number"><span class="text-xs text-red-400">-</span></template></td>
+                        <td><template x-if="tp.account_name"><span class="text-sm" x-text="tp.account_name"></span></template><template x-if="!tp.account_name"><span class="text-xs text-red-400">-</span></template></td>
+                        <td><template x-if="tp.payment_proof"><button @click="Alpine.store('proofModal').open(getFileUrl(tp.payment_proof), tp.title)" class="text-indigo-600 hover:text-indigo-800 underline text-xs font-medium"><i class="fas fa-image mr-1"></i>Lihat</button></template><template x-if="!tp.payment_proof"><span class="text-xs text-gray-400">-</span></template></td>
                         <td class="text-center">
-                          <button @click="confirmPayout(tp.id)" :disabled="processing === tp.id" class="btn-success btn-sm">
-                            <i x-show="processing === tp.id" class="fas fa-spinner fa-spin mr-1"></i>
-                            <i x-show="processing !== tp.id" class="fas fa-check mr-1"></i>
-                            <span x-text="processing === tp.id ? 'Memproses...' : 'Release Dana'"></span>
-                          </button>
+                          <template x-if="!tp.payout_confirmed">
+                            <button @click="confirmPayout(tp.tp_id)" :disabled="processing === tp.tp_id" class="btn-success btn-sm">
+                              <i x-show="processing === tp.tp_id" class="fas fa-spinner fa-spin mr-1"></i>
+                              <i x-show="processing !== tp.tp_id" class="fas fa-check mr-1"></i>
+                              <span x-text="processing === tp.tp_id ? 'Memproses...' : 'Release Dana'"></span>
+                            </button>
+                          </template>
+                          <template x-if="tp.payout_confirmed">
+                            <span class="text-xs text-emerald-600 font-medium"><i class="fas fa-check-circle mr-1"></i>Sudah Dicairkan</span>
+                          </template>
                         </td>
                       </tr>
                     </template>
@@ -706,8 +771,6 @@
       <div class="flex items-center justify-between mb-6"><h3 class="text-lg font-semibold text-gray-800" x-text="isEdit ? 'Edit Layanan' : 'Tambah Layanan'"></h3><button @click="close()" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times"></i></button></div>
       <form @submit.prevent="save" class="space-y-4">
         <div><label class="form-label">Nama Layanan</label><input type="text" x-model="form.name" class="form-input" placeholder="cth: Service AC" required></div>
-        <div><label class="form-label">Deskripsi</label><textarea x-model="form.description" class="form-input" rows="3" placeholder="Deskripsi layanan..."></textarea></div>
-        <div class="grid grid-cols-2 gap-4"><div><label class="form-label">Harga (Rp)</label><input type="number" x-model="form.price" class="form-input" placeholder="0" required></div><div><label class="form-label">Durasi (menit)</label><input type="number" x-model="form.duration" class="form-input" placeholder="60"></div></div>
         <div class="flex gap-3 justify-end pt-2"><button type="button" class="btn-secondary" @click="close()">Batal</button><button type="submit" class="btn-primary"><i class="fas fa-save mr-1"></i>Simpan</button></div>
       </form>
     </div></div>
@@ -735,6 +798,17 @@
       <div class="flex items-center justify-between mb-4"><h3 class="text-lg font-semibold text-gray-800">QRIS</h3><button @click="close()" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times"></i></button></div>
       <img :src="url" class="max-w-full mx-auto rounded-xl shadow-md border border-gray-100">
       <p class="text-xs text-gray-400 mt-3 font-medium" x-text="name"></p>
+    </div></div>
+  </div>
+
+  <!-- PROOF MODAL -->
+  <div x-data="proofModal" x-show="show" x-cloak>
+    <div class="modal-backdrop" @click="close()"></div>
+    <div class="modal-content"><div class="modal-box max-w-lg text-center">
+      <div class="flex items-center justify-between mb-4"><h3 class="text-lg font-semibold text-gray-800" x-text="title"></h3><button @click="close()" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times"></i></button></div>
+      <img :src="url" class="max-w-full mx-auto rounded-xl shadow-md border border-gray-100" @load="loading = false" @error="error = true; loading = false" :class="error ? 'hidden' : ''">
+      <div x-show="loading" class="py-12 text-gray-400"><i class="fas fa-spinner fa-spin text-2xl"></i><p class="mt-2 text-sm">Memuat gambar...</p></div>
+      <div x-show="error" class="py-12 text-red-400"><i class="fas fa-exclamation-triangle text-3xl"></i><p class="mt-2 text-sm font-medium">Gambar tidak dapat dimuat</p><p class="text-xs text-gray-400 mt-1" x-text="url"></p></div>
     </div></div>
   </div>
 
@@ -799,8 +873,8 @@
     const sidebarMenu = [
       { id: 'dashboard', label: 'Beranda', icon: 'fa-chart-pie', header: 'Utama' },
       { id: 'confirm-payment', label: 'Konfirmasi Bayar', icon: 'fa-hand-holding-usd', header: 'Transaksi' },
+      { id: 'confirm-extension', label: 'Konfirmasi Ekstensi', icon: 'fa-calendar-plus' },
       { id: 'custom-tasks', label: 'Custom Task', icon: 'fa-tasks' },
-      { id: 'extensions', label: 'Ekstensi', icon: 'fa-clock' },
       { id: 'providers', label: 'Mitra', icon: 'fa-hard-hat', header: 'Manajemen' },
       { id: 'customers', label: 'Pelanggan', icon: 'fa-users' },
       { id: 'categories', label: 'Kategori', icon: 'fa-tags', header: 'Konten' },
@@ -879,12 +953,12 @@
         async confirmDelete(id) { const ok = await confirmModal('Hapus layanan ini?'); if (!ok) return; try { await apiFetch('/admin/services/' + id, { method: 'DELETE' }); toast('Layanan dihapus'); this.load(); } catch (e) { toast(e.message, 'error'); } }
       }));
 
-      Alpine.store('serviceModal', { show: false, isEdit: false, editId: null, form: { name: '', description: '', price: '', duration: '', category_id: '' } });
+      Alpine.store('serviceModal', { show: false, isEdit: false, editId: null, form: { name: '', category_id: '' } });
       Alpine.data('serviceModal', () => ({
-        show: false, isEdit: false, editId: null, form: { name: '', description: '', price: '', duration: '', category_id: '' },
+        show: false, isEdit: false, editId: null, form: { name: '', category_id: '' },
         init() { this.$store.serviceModal = this; },
-        openCreate(categoryId) { this.isEdit = false; this.editId = null; this.form = { name: '', description: '', price: '', duration: '', category_id: categoryId }; this.show = true; },
-        openEdit(s) { this.isEdit = true; this.editId = s.id; this.form = { name: s.name, description: s.description || '', price: Number(s.price).toString(), duration: s.duration ? Number(s.duration).toString() : '', category_id: s.category_id }; this.show = true; },
+        openCreate(categoryId) { this.isEdit = false; this.editId = null; this.form = { name: '', category_id: categoryId }; this.show = true; },
+        openEdit(s) { this.isEdit = true; this.editId = s.id; this.form = { name: s.name, category_id: s.category_id }; this.show = true; },
         close() { this.show = false; },
         async save() {
           try {
@@ -933,6 +1007,14 @@
         close() { this.show = false; }
       }));
 
+      Alpine.store('proofModal', { show: false, url: '', title: '' });
+      Alpine.data('proofModal', () => ({
+        show: false, url: '', title: '', loading: false, error: false,
+        init() { this.$store.proofModal = this; },
+        open(url, title) { this.url = url; this.title = title; this.loading = true; this.error = false; this.show = true; },
+        close() { this.show = false; }
+      }));
+
       Alpine.data('pricingPage', () => ({
         loading: false, types: [], categories: [], selectedCategoryId: '',
         init() { requireAuth(); this.loadCategories(); },
@@ -943,12 +1025,16 @@
       }));
 
       Alpine.data('confirmPaymentPage', () => ({
-        loading: true, orders: [], confirming: null,
+        loading: true, orders: [], filteredOrders: [], confirming: null, statusFilter: '',
         init() { requireAuth(); this.load(); },
         async load() {
           this.loading = true;
-          try { this.orders = await apiFetch('/admin/orders/pending-payment'); } catch (e) { toast(e.message, 'error'); }
+          try { this.orders = await apiFetch('/admin/orders/all'); this.filterOrders(); } catch (e) { toast(e.message, 'error'); }
           finally { this.loading = false; }
+        },
+        filterOrders() {
+          if (!this.statusFilter) { this.filteredOrders = this.orders; return; }
+          this.filteredOrders = this.orders.filter(o => o.status === this.statusFilter);
         },
         formatDate(dateStr) {
           if (!dateStr) return '-';
@@ -963,30 +1049,34 @@
             this.load();
           } catch (e) { toast(e.message, 'error'); }
           finally { this.confirming = null; }
-        }
-      }));
-
-      Alpine.data('extensionsPage', () => ({
-        loading: true, items: [], processing: null,
-        init() { requireAuth(); this.load(); },
-        async load() {
-          this.loading = true;
-          try { this.items = await apiFetch('/admin/extensions/pending'); } catch (e) { toast(e.message, 'error'); }
-          finally { this.loading = false; }
         },
-        async approve(id) {
-          const ok = await confirmModal('Setujui permintaan ekstensi ini?');
-          if (!ok) return;
-          this.processing = id;
-          try { await apiFetch('/admin/extensions/' + id + '/approve', { method: 'PATCH', body: JSON.stringify({ status: 'approved' }) }); toast('Ekstensi disetujui'); this.load(); } catch (e) { toast(e.message, 'error'); }
-          finally { this.processing = null; }
+        statusLabel(status) {
+          const labels = {
+            'pending_payment': 'Menunggu Bayar',
+            'pending': 'Menunggu Mitra',
+            'accepted': 'Sedang Bekerja',
+            'on_the_way': 'Dalam Perjalanan',
+            'arrived': 'Sudah Tiba',
+            'in_progress': 'Sedang Bekerja',
+            'completed': 'Selesai',
+            'rejected': 'Ditolak',
+            'cancelled': 'Dibatalkan'
+          };
+          return labels[status] || status;
         },
-        async reject(id) {
-          const ok = await confirmModal('Tolak permintaan ekstensi ini?');
-          if (!ok) return;
-          this.processing = id;
-          try { await apiFetch('/admin/extensions/' + id + '/approve', { method: 'PATCH', body: JSON.stringify({ status: 'rejected' }) }); toast('Ekstensi ditolak'); this.load(); } catch (e) { toast(e.message, 'error'); }
-          finally { this.processing = null; }
+        statusBadge(status) {
+          const classes = {
+            'pending_payment': 'badge-warning',
+            'pending': 'badge-warning',
+            'accepted': 'badge-info',
+            'on_the_way': 'badge-info',
+            'arrived': 'badge-info',
+            'in_progress': 'badge-info',
+            'completed': 'badge-success',
+            'rejected': 'badge-danger',
+            'cancelled': 'badge-gray'
+          };
+          return classes[status] || 'badge-gray';
         }
       }));
 

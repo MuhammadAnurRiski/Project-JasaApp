@@ -1,0 +1,3 @@
+ALTER TABLE custom_tasks
+  ADD COLUMN IF NOT EXISTS payment_proof TEXT,
+  ADD COLUMN IF NOT EXISTS payment_status VARCHAR(30) NOT NULL DEFAULT 'unpaid';

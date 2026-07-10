@@ -52,7 +52,9 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   categories: 'categories',
-  admin_payment_accounts: 'admin_payment_accounts',
+  admin_bank_accounts: 'admin_bank_accounts',
+  admin_ewallet_accounts: 'admin_ewallet_accounts',
+  admin_qris_accounts: 'admin_qris_accounts',
   custom_tasks: 'custom_tasks',
   task_locations: 'task_locations',
   task_providers: 'task_providers',
@@ -108,11 +110,34 @@ export const CategoriesScalarFieldEnum = {
 export type CategoriesScalarFieldEnum = (typeof CategoriesScalarFieldEnum)[keyof typeof CategoriesScalarFieldEnum]
 
 
-export const Admin_payment_accountsScalarFieldEnum = {
+export const Admin_bank_accountsScalarFieldEnum = {
   id: 'id',
-  type: 'type',
-  account_name: 'account_name',
+  provider_name: 'provider_name',
   account_number: 'account_number',
+  account_name: 'account_name',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type Admin_bank_accountsScalarFieldEnum = (typeof Admin_bank_accountsScalarFieldEnum)[keyof typeof Admin_bank_accountsScalarFieldEnum]
+
+
+export const Admin_ewallet_accountsScalarFieldEnum = {
+  id: 'id',
+  provider_name: 'provider_name',
+  account_number: 'account_number',
+  account_name: 'account_name',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type Admin_ewallet_accountsScalarFieldEnum = (typeof Admin_ewallet_accountsScalarFieldEnum)[keyof typeof Admin_ewallet_accountsScalarFieldEnum]
+
+
+export const Admin_qris_accountsScalarFieldEnum = {
+  id: 'id',
   provider_name: 'provider_name',
   qris_image_url: 'qris_image_url',
   is_active: 'is_active',
@@ -120,7 +145,7 @@ export const Admin_payment_accountsScalarFieldEnum = {
   updated_at: 'updated_at'
 } as const
 
-export type Admin_payment_accountsScalarFieldEnum = (typeof Admin_payment_accountsScalarFieldEnum)[keyof typeof Admin_payment_accountsScalarFieldEnum]
+export type Admin_qris_accountsScalarFieldEnum = (typeof Admin_qris_accountsScalarFieldEnum)[keyof typeof Admin_qris_accountsScalarFieldEnum]
 
 
 export const Custom_tasksScalarFieldEnum = {
@@ -133,6 +158,11 @@ export const Custom_tasksScalarFieldEnum = {
   accepted_count: 'accepted_count',
   platform_fee_rate: 'platform_fee_rate',
   address: 'address',
+  location_detail: 'location_detail',
+  publish_days: 'publish_days',
+  expires_at: 'expires_at',
+  payment_proof: 'payment_proof',
+  payment_status: 'payment_status',
   status: 'status',
   created_at: 'created_at',
   updated_at: 'updated_at'
@@ -157,6 +187,7 @@ export const Task_providersScalarFieldEnum = {
   task_id: 'task_id',
   provider_id: 'provider_id',
   status: 'status',
+  work_status: 'work_status',
   accepted_at: 'accepted_at',
   completed_at: 'completed_at',
   payout_confirmed: 'payout_confirmed',
@@ -207,6 +238,7 @@ export const OrdersScalarFieldEnum = {
   status: 'status',
   total_price: 'total_price',
   platform_fee: 'platform_fee',
+  additional_fee: 'additional_fee',
   description: 'description',
   work_date: 'work_date',
   created_at: 'created_at',
@@ -225,7 +257,8 @@ export const PaymentsScalarFieldEnum = {
   status: 'status',
   amount: 'amount',
   paid_at: 'paid_at',
-  created_at: 'created_at'
+  created_at: 'created_at',
+  payment_proof: 'payment_proof'
 } as const
 
 export type PaymentsScalarFieldEnum = (typeof PaymentsScalarFieldEnum)[keyof typeof PaymentsScalarFieldEnum]

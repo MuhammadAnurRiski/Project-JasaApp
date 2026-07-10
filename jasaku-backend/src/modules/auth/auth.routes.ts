@@ -3,8 +3,8 @@ import { upload } from '../../middleware/upload.middleware';
 import { validate } from '../../middleware/validate.middleware';
 import { authenticate } from '../../middleware/auth.middleware';
 import { isProvider, isAdmin } from '../../middleware/role.middleware';
-import { registerCustomerSchema, loginSchema, googleLoginSchema, sendOtpSchema, verifyOtpSchema } from '../../middleware/schemas';
-import { registerCustomer, registerProvider, login, registerAdmin, loginWithGoogle, sendOtp, verifyOtp, getVerificationStatus, resubmitVerification } from "./auth.controller";
+import { registerCustomerSchema, loginSchema, googleLoginSchema } from '../../middleware/schemas';
+import { registerCustomer, registerProvider, login, registerAdmin, loginWithGoogle, getVerificationStatus, resubmitVerification, getMe } from "./auth.controller";
 
 const router = Router();
 
@@ -24,9 +24,8 @@ router.post(
 router.post('/register/admin', authenticate, isAdmin, registerAdmin);
 router.post('/login', validate(loginSchema), login);
 router.post('/login/google', validate(googleLoginSchema), loginWithGoogle);
-router.post('/send-otp', validate(sendOtpSchema), sendOtp);
-router.post('/verify-otp', validate(verifyOtpSchema), verifyOtp);
 router.get('/provider/verification-status', authenticate, isProvider, getVerificationStatus);
 router.post('/provider/resubmit-verification', authenticate, isProvider, resubmitVerification);
+router.get('/me', authenticate, getMe);
 
 export default router;

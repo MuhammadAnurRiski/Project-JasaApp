@@ -31,6 +31,7 @@ export type Custom_tasksAvgAggregateOutputType = {
   required_people: number | null
   accepted_count: number | null
   platform_fee_rate: runtime.Decimal | null
+  publish_days: number | null
 }
 
 export type Custom_tasksSumAggregateOutputType = {
@@ -38,6 +39,7 @@ export type Custom_tasksSumAggregateOutputType = {
   required_people: number | null
   accepted_count: number | null
   platform_fee_rate: runtime.Decimal | null
+  publish_days: number | null
 }
 
 export type Custom_tasksMinAggregateOutputType = {
@@ -50,6 +52,11 @@ export type Custom_tasksMinAggregateOutputType = {
   accepted_count: number | null
   platform_fee_rate: runtime.Decimal | null
   address: string | null
+  location_detail: string | null
+  publish_days: number | null
+  expires_at: Date | null
+  payment_proof: string | null
+  payment_status: string | null
   status: string | null
   created_at: Date | null
   updated_at: Date | null
@@ -65,6 +72,11 @@ export type Custom_tasksMaxAggregateOutputType = {
   accepted_count: number | null
   platform_fee_rate: runtime.Decimal | null
   address: string | null
+  location_detail: string | null
+  publish_days: number | null
+  expires_at: Date | null
+  payment_proof: string | null
+  payment_status: string | null
   status: string | null
   created_at: Date | null
   updated_at: Date | null
@@ -80,6 +92,11 @@ export type Custom_tasksCountAggregateOutputType = {
   accepted_count: number
   platform_fee_rate: number
   address: number
+  location_detail: number
+  publish_days: number
+  expires_at: number
+  payment_proof: number
+  payment_status: number
   status: number
   created_at: number
   updated_at: number
@@ -92,6 +109,7 @@ export type Custom_tasksAvgAggregateInputType = {
   required_people?: true
   accepted_count?: true
   platform_fee_rate?: true
+  publish_days?: true
 }
 
 export type Custom_tasksSumAggregateInputType = {
@@ -99,6 +117,7 @@ export type Custom_tasksSumAggregateInputType = {
   required_people?: true
   accepted_count?: true
   platform_fee_rate?: true
+  publish_days?: true
 }
 
 export type Custom_tasksMinAggregateInputType = {
@@ -111,6 +130,11 @@ export type Custom_tasksMinAggregateInputType = {
   accepted_count?: true
   platform_fee_rate?: true
   address?: true
+  location_detail?: true
+  publish_days?: true
+  expires_at?: true
+  payment_proof?: true
+  payment_status?: true
   status?: true
   created_at?: true
   updated_at?: true
@@ -126,6 +150,11 @@ export type Custom_tasksMaxAggregateInputType = {
   accepted_count?: true
   platform_fee_rate?: true
   address?: true
+  location_detail?: true
+  publish_days?: true
+  expires_at?: true
+  payment_proof?: true
+  payment_status?: true
   status?: true
   created_at?: true
   updated_at?: true
@@ -141,6 +170,11 @@ export type Custom_tasksCountAggregateInputType = {
   accepted_count?: true
   platform_fee_rate?: true
   address?: true
+  location_detail?: true
+  publish_days?: true
+  expires_at?: true
+  payment_proof?: true
+  payment_status?: true
   status?: true
   created_at?: true
   updated_at?: true
@@ -243,6 +277,11 @@ export type Custom_tasksGroupByOutputType = {
   accepted_count: number
   platform_fee_rate: runtime.Decimal
   address: string | null
+  location_detail: string | null
+  publish_days: number
+  expires_at: Date | null
+  payment_proof: string | null
+  payment_status: string
   status: string
   created_at: Date
   updated_at: Date
@@ -281,6 +320,11 @@ export type custom_tasksWhereInput = {
   accepted_count?: Prisma.IntFilter<"custom_tasks"> | number
   platform_fee_rate?: Prisma.DecimalFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
+  location_detail?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
+  publish_days?: Prisma.IntFilter<"custom_tasks"> | number
+  expires_at?: Prisma.DateTimeNullableFilter<"custom_tasks"> | Date | string | null
+  payment_proof?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
+  payment_status?: Prisma.StringFilter<"custom_tasks"> | string
   status?: Prisma.StringFilter<"custom_tasks"> | string
   created_at?: Prisma.DateTimeFilter<"custom_tasks"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"custom_tasks"> | Date | string
@@ -300,6 +344,11 @@ export type custom_tasksOrderByWithRelationInput = {
   accepted_count?: Prisma.SortOrder
   platform_fee_rate?: Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
+  location_detail?: Prisma.SortOrderInput | Prisma.SortOrder
+  publish_days?: Prisma.SortOrder
+  expires_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  payment_proof?: Prisma.SortOrderInput | Prisma.SortOrder
+  payment_status?: Prisma.SortOrder
   status?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -322,6 +371,11 @@ export type custom_tasksWhereUniqueInput = Prisma.AtLeast<{
   accepted_count?: Prisma.IntFilter<"custom_tasks"> | number
   platform_fee_rate?: Prisma.DecimalFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
+  location_detail?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
+  publish_days?: Prisma.IntFilter<"custom_tasks"> | number
+  expires_at?: Prisma.DateTimeNullableFilter<"custom_tasks"> | Date | string | null
+  payment_proof?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
+  payment_status?: Prisma.StringFilter<"custom_tasks"> | string
   status?: Prisma.StringFilter<"custom_tasks"> | string
   created_at?: Prisma.DateTimeFilter<"custom_tasks"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"custom_tasks"> | Date | string
@@ -341,6 +395,11 @@ export type custom_tasksOrderByWithAggregationInput = {
   accepted_count?: Prisma.SortOrder
   platform_fee_rate?: Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
+  location_detail?: Prisma.SortOrderInput | Prisma.SortOrder
+  publish_days?: Prisma.SortOrder
+  expires_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  payment_proof?: Prisma.SortOrderInput | Prisma.SortOrder
+  payment_status?: Prisma.SortOrder
   status?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -364,6 +423,11 @@ export type custom_tasksScalarWhereWithAggregatesInput = {
   accepted_count?: Prisma.IntWithAggregatesFilter<"custom_tasks"> | number
   platform_fee_rate?: Prisma.DecimalWithAggregatesFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: Prisma.StringNullableWithAggregatesFilter<"custom_tasks"> | string | null
+  location_detail?: Prisma.StringNullableWithAggregatesFilter<"custom_tasks"> | string | null
+  publish_days?: Prisma.IntWithAggregatesFilter<"custom_tasks"> | number
+  expires_at?: Prisma.DateTimeNullableWithAggregatesFilter<"custom_tasks"> | Date | string | null
+  payment_proof?: Prisma.StringNullableWithAggregatesFilter<"custom_tasks"> | string | null
+  payment_status?: Prisma.StringWithAggregatesFilter<"custom_tasks"> | string
   status?: Prisma.StringWithAggregatesFilter<"custom_tasks"> | string
   created_at?: Prisma.DateTimeWithAggregatesFilter<"custom_tasks"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"custom_tasks"> | Date | string
@@ -378,6 +442,11 @@ export type custom_tasksCreateInput = {
   accepted_count?: number
   platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: string | null
+  location_detail?: string | null
+  publish_days?: number
+  expires_at?: Date | string | null
+  payment_proof?: string | null
+  payment_status?: string
   status?: string
   created_at?: Date | string
   updated_at?: Date | string
@@ -397,6 +466,11 @@ export type custom_tasksUncheckedCreateInput = {
   accepted_count?: number
   platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: string | null
+  location_detail?: string | null
+  publish_days?: number
+  expires_at?: Date | string | null
+  payment_proof?: string | null
+  payment_status?: string
   status?: string
   created_at?: Date | string
   updated_at?: Date | string
@@ -414,6 +488,11 @@ export type custom_tasksUpdateInput = {
   accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
   platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location_detail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publish_days?: Prisma.IntFieldUpdateOperationsInput | number
+  expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payment_proof?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payment_status?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -433,6 +512,11 @@ export type custom_tasksUncheckedUpdateInput = {
   accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
   platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location_detail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publish_days?: Prisma.IntFieldUpdateOperationsInput | number
+  expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payment_proof?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payment_status?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -451,6 +535,11 @@ export type custom_tasksCreateManyInput = {
   accepted_count?: number
   platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: string | null
+  location_detail?: string | null
+  publish_days?: number
+  expires_at?: Date | string | null
+  payment_proof?: string | null
+  payment_status?: string
   status?: string
   created_at?: Date | string
   updated_at?: Date | string
@@ -465,6 +554,11 @@ export type custom_tasksUpdateManyMutationInput = {
   accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
   platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location_detail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publish_days?: Prisma.IntFieldUpdateOperationsInput | number
+  expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payment_proof?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payment_status?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -480,6 +574,11 @@ export type custom_tasksUncheckedUpdateManyInput = {
   accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
   platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location_detail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publish_days?: Prisma.IntFieldUpdateOperationsInput | number
+  expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payment_proof?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payment_status?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -495,6 +594,11 @@ export type custom_tasksCountOrderByAggregateInput = {
   accepted_count?: Prisma.SortOrder
   platform_fee_rate?: Prisma.SortOrder
   address?: Prisma.SortOrder
+  location_detail?: Prisma.SortOrder
+  publish_days?: Prisma.SortOrder
+  expires_at?: Prisma.SortOrder
+  payment_proof?: Prisma.SortOrder
+  payment_status?: Prisma.SortOrder
   status?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -505,6 +609,7 @@ export type custom_tasksAvgOrderByAggregateInput = {
   required_people?: Prisma.SortOrder
   accepted_count?: Prisma.SortOrder
   platform_fee_rate?: Prisma.SortOrder
+  publish_days?: Prisma.SortOrder
 }
 
 export type custom_tasksMaxOrderByAggregateInput = {
@@ -517,6 +622,11 @@ export type custom_tasksMaxOrderByAggregateInput = {
   accepted_count?: Prisma.SortOrder
   platform_fee_rate?: Prisma.SortOrder
   address?: Prisma.SortOrder
+  location_detail?: Prisma.SortOrder
+  publish_days?: Prisma.SortOrder
+  expires_at?: Prisma.SortOrder
+  payment_proof?: Prisma.SortOrder
+  payment_status?: Prisma.SortOrder
   status?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -532,6 +642,11 @@ export type custom_tasksMinOrderByAggregateInput = {
   accepted_count?: Prisma.SortOrder
   platform_fee_rate?: Prisma.SortOrder
   address?: Prisma.SortOrder
+  location_detail?: Prisma.SortOrder
+  publish_days?: Prisma.SortOrder
+  expires_at?: Prisma.SortOrder
+  payment_proof?: Prisma.SortOrder
+  payment_status?: Prisma.SortOrder
   status?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -542,6 +657,7 @@ export type custom_tasksSumOrderByAggregateInput = {
   required_people?: Prisma.SortOrder
   accepted_count?: Prisma.SortOrder
   platform_fee_rate?: Prisma.SortOrder
+  publish_days?: Prisma.SortOrder
 }
 
 export type Custom_tasksScalarRelationFilter = {
@@ -679,6 +795,11 @@ export type custom_tasksCreateWithoutTask_locationsInput = {
   accepted_count?: number
   platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: string | null
+  location_detail?: string | null
+  publish_days?: number
+  expires_at?: Date | string | null
+  payment_proof?: string | null
+  payment_status?: string
   status?: string
   created_at?: Date | string
   updated_at?: Date | string
@@ -697,6 +818,11 @@ export type custom_tasksUncheckedCreateWithoutTask_locationsInput = {
   accepted_count?: number
   platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: string | null
+  location_detail?: string | null
+  publish_days?: number
+  expires_at?: Date | string | null
+  payment_proof?: string | null
+  payment_status?: string
   status?: string
   created_at?: Date | string
   updated_at?: Date | string
@@ -729,6 +855,11 @@ export type custom_tasksUpdateWithoutTask_locationsInput = {
   accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
   platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location_detail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publish_days?: Prisma.IntFieldUpdateOperationsInput | number
+  expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payment_proof?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payment_status?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -747,6 +878,11 @@ export type custom_tasksUncheckedUpdateWithoutTask_locationsInput = {
   accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
   platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location_detail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publish_days?: Prisma.IntFieldUpdateOperationsInput | number
+  expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payment_proof?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payment_status?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -763,6 +899,11 @@ export type custom_tasksCreateWithoutTask_providersInput = {
   accepted_count?: number
   platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: string | null
+  location_detail?: string | null
+  publish_days?: number
+  expires_at?: Date | string | null
+  payment_proof?: string | null
+  payment_status?: string
   status?: string
   created_at?: Date | string
   updated_at?: Date | string
@@ -781,6 +922,11 @@ export type custom_tasksUncheckedCreateWithoutTask_providersInput = {
   accepted_count?: number
   platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: string | null
+  location_detail?: string | null
+  publish_days?: number
+  expires_at?: Date | string | null
+  payment_proof?: string | null
+  payment_status?: string
   status?: string
   created_at?: Date | string
   updated_at?: Date | string
@@ -813,6 +959,11 @@ export type custom_tasksUpdateWithoutTask_providersInput = {
   accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
   platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location_detail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publish_days?: Prisma.IntFieldUpdateOperationsInput | number
+  expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payment_proof?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payment_status?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -831,6 +982,11 @@ export type custom_tasksUncheckedUpdateWithoutTask_providersInput = {
   accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
   platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location_detail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publish_days?: Prisma.IntFieldUpdateOperationsInput | number
+  expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payment_proof?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payment_status?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -847,6 +1003,11 @@ export type custom_tasksCreateWithoutOrdersInput = {
   accepted_count?: number
   platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: string | null
+  location_detail?: string | null
+  publish_days?: number
+  expires_at?: Date | string | null
+  payment_proof?: string | null
+  payment_status?: string
   status?: string
   created_at?: Date | string
   updated_at?: Date | string
@@ -865,6 +1026,11 @@ export type custom_tasksUncheckedCreateWithoutOrdersInput = {
   accepted_count?: number
   platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: string | null
+  location_detail?: string | null
+  publish_days?: number
+  expires_at?: Date | string | null
+  payment_proof?: string | null
+  payment_status?: string
   status?: string
   created_at?: Date | string
   updated_at?: Date | string
@@ -897,6 +1063,11 @@ export type custom_tasksUpdateWithoutOrdersInput = {
   accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
   platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location_detail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publish_days?: Prisma.IntFieldUpdateOperationsInput | number
+  expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payment_proof?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payment_status?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -915,6 +1086,11 @@ export type custom_tasksUncheckedUpdateWithoutOrdersInput = {
   accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
   platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location_detail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publish_days?: Prisma.IntFieldUpdateOperationsInput | number
+  expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payment_proof?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payment_status?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -931,6 +1107,11 @@ export type custom_tasksCreateWithoutUsersInput = {
   accepted_count?: number
   platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: string | null
+  location_detail?: string | null
+  publish_days?: number
+  expires_at?: Date | string | null
+  payment_proof?: string | null
+  payment_status?: string
   status?: string
   created_at?: Date | string
   updated_at?: Date | string
@@ -948,6 +1129,11 @@ export type custom_tasksUncheckedCreateWithoutUsersInput = {
   accepted_count?: number
   platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: string | null
+  location_detail?: string | null
+  publish_days?: number
+  expires_at?: Date | string | null
+  payment_proof?: string | null
+  payment_status?: string
   status?: string
   created_at?: Date | string
   updated_at?: Date | string
@@ -995,6 +1181,11 @@ export type custom_tasksScalarWhereInput = {
   accepted_count?: Prisma.IntFilter<"custom_tasks"> | number
   platform_fee_rate?: Prisma.DecimalFilter<"custom_tasks"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
+  location_detail?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
+  publish_days?: Prisma.IntFilter<"custom_tasks"> | number
+  expires_at?: Prisma.DateTimeNullableFilter<"custom_tasks"> | Date | string | null
+  payment_proof?: Prisma.StringNullableFilter<"custom_tasks"> | string | null
+  payment_status?: Prisma.StringFilter<"custom_tasks"> | string
   status?: Prisma.StringFilter<"custom_tasks"> | string
   created_at?: Prisma.DateTimeFilter<"custom_tasks"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"custom_tasks"> | Date | string
@@ -1009,6 +1200,11 @@ export type custom_tasksCreateManyUsersInput = {
   accepted_count?: number
   platform_fee_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: string | null
+  location_detail?: string | null
+  publish_days?: number
+  expires_at?: Date | string | null
+  payment_proof?: string | null
+  payment_status?: string
   status?: string
   created_at?: Date | string
   updated_at?: Date | string
@@ -1023,6 +1219,11 @@ export type custom_tasksUpdateWithoutUsersInput = {
   accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
   platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location_detail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publish_days?: Prisma.IntFieldUpdateOperationsInput | number
+  expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payment_proof?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payment_status?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1040,6 +1241,11 @@ export type custom_tasksUncheckedUpdateWithoutUsersInput = {
   accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
   platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location_detail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publish_days?: Prisma.IntFieldUpdateOperationsInput | number
+  expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payment_proof?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payment_status?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1057,6 +1263,11 @@ export type custom_tasksUncheckedUpdateManyWithoutUsersInput = {
   accepted_count?: Prisma.IntFieldUpdateOperationsInput | number
   platform_fee_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location_detail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publish_days?: Prisma.IntFieldUpdateOperationsInput | number
+  expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payment_proof?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payment_status?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1121,6 +1332,11 @@ export type custom_tasksSelect<ExtArgs extends runtime.Types.Extensions.Internal
   accepted_count?: boolean
   platform_fee_rate?: boolean
   address?: boolean
+  location_detail?: boolean
+  publish_days?: boolean
+  expires_at?: boolean
+  payment_proof?: boolean
+  payment_status?: boolean
   status?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -1141,6 +1357,11 @@ export type custom_tasksSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   accepted_count?: boolean
   platform_fee_rate?: boolean
   address?: boolean
+  location_detail?: boolean
+  publish_days?: boolean
+  expires_at?: boolean
+  payment_proof?: boolean
+  payment_status?: boolean
   status?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -1157,6 +1378,11 @@ export type custom_tasksSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   accepted_count?: boolean
   platform_fee_rate?: boolean
   address?: boolean
+  location_detail?: boolean
+  publish_days?: boolean
+  expires_at?: boolean
+  payment_proof?: boolean
+  payment_status?: boolean
   status?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -1173,12 +1399,17 @@ export type custom_tasksSelectScalar = {
   accepted_count?: boolean
   platform_fee_rate?: boolean
   address?: boolean
+  location_detail?: boolean
+  publish_days?: boolean
+  expires_at?: boolean
+  payment_proof?: boolean
+  payment_status?: boolean
   status?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type custom_tasksOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customer_id" | "title" | "description" | "budget_per_person" | "required_people" | "accepted_count" | "platform_fee_rate" | "address" | "status" | "created_at" | "updated_at", ExtArgs["result"]["custom_tasks"]>
+export type custom_tasksOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customer_id" | "title" | "description" | "budget_per_person" | "required_people" | "accepted_count" | "platform_fee_rate" | "address" | "location_detail" | "publish_days" | "expires_at" | "payment_proof" | "payment_status" | "status" | "created_at" | "updated_at", ExtArgs["result"]["custom_tasks"]>
 export type custom_tasksInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
   task_locations?: boolean | Prisma.custom_tasks$task_locationsArgs<ExtArgs>
@@ -1211,6 +1442,11 @@ export type $custom_tasksPayload<ExtArgs extends runtime.Types.Extensions.Intern
     accepted_count: number
     platform_fee_rate: runtime.Decimal
     address: string | null
+    location_detail: string | null
+    publish_days: number
+    expires_at: Date | null
+    payment_proof: string | null
+    payment_status: string
     status: string
     created_at: Date
     updated_at: Date
@@ -1650,6 +1886,11 @@ export interface custom_tasksFieldRefs {
   readonly accepted_count: Prisma.FieldRef<"custom_tasks", 'Int'>
   readonly platform_fee_rate: Prisma.FieldRef<"custom_tasks", 'Decimal'>
   readonly address: Prisma.FieldRef<"custom_tasks", 'String'>
+  readonly location_detail: Prisma.FieldRef<"custom_tasks", 'String'>
+  readonly publish_days: Prisma.FieldRef<"custom_tasks", 'Int'>
+  readonly expires_at: Prisma.FieldRef<"custom_tasks", 'DateTime'>
+  readonly payment_proof: Prisma.FieldRef<"custom_tasks", 'String'>
+  readonly payment_status: Prisma.FieldRef<"custom_tasks", 'String'>
   readonly status: Prisma.FieldRef<"custom_tasks", 'String'>
   readonly created_at: Prisma.FieldRef<"custom_tasks", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"custom_tasks", 'DateTime'>

@@ -108,4 +108,18 @@ const getServicePricingTypes = async (req: AuthRequest & { params: { serviceId: 
   }
 };
 
-export { getAllCategories, getCategoriesById, getProvidersByService, getServiceOptions, getServicePricingTypes, getProvidersByServiceWithoutDistance };
+export { getAllCategories, getCategoriesById, getProvidersByService, getServiceOptions, getServicePricingTypes, getProvidersByServiceWithoutDistance, searchServices };
+
+const searchServices = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+    const q = String(req.query.q || '');
+    if (!userId) return errorResponse(res, 'Anda harus login terlebih dahulu', 401);
+    if (!q.trim()) return successResponse(res, { categories: [], services: [] }, 'Hasil pencarian');
+    const categoriesService = new CategoriesService();
+    const result = await categoriesService.searchServices(q.trim());
+    return successResponse(res, result, 'Hasil pencarian berhasil diambil');
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};

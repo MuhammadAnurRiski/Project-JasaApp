@@ -8,6 +8,12 @@ node_modules
 # Firebase Admin SDK Credentials
 src/config/firebase/*.json
 
+# Built output
+dist/
+
+# APK files (too large for GitHub)
+public/downloads/*.apk
+
 # Uploaded files
 uploads/
 # ML models (too large for git)

@@ -9,15 +9,20 @@ import {
   getPaymentAccounts, createPaymentAccount, updatePaymentAccount, deletePaymentAccount,
   uploadQrisImage,
   getPendingPaymentOrders,
+  getAllOrders,
   getPendingExtensions,
+  getAllExtensions,
+  getPendingPaymentExtensions,
   getOpenReports,
   respondToReport,
   getPendingTaskPayments,
+  getPendingTaskPaymentsByTask,
   getPendingTaskPayouts,
   confirmTaskPayment,
+  confirmTaskPaymentByTask,
   confirmTaskPayout,
 } from './admin.controller';
-import { confirmPaymentByAdmin, approveExtension } from '../orders/orders.controller';
+import { confirmPaymentByAdmin, approveExtension, activateExtension } from '../orders/orders.controller';
 import { authenticate } from '../../middleware/auth.middleware';
 import { isAdmin } from '../../middleware/role.middleware';
 import { validate } from '../../middleware/validate.middleware';
@@ -67,16 +72,22 @@ router.post('/payment-accounts/:id/qris-upload', authenticate, isAdmin, upload.s
 
 // Payment Confirmation (Rekber) — order service
 router.get('/orders/pending-payment', authenticate, isAdmin, getPendingPaymentOrders);
+router.get('/orders/all', authenticate, isAdmin, getAllOrders);
 router.patch('/orders/:orderId/confirm-payment', authenticate, isAdmin, confirmPaymentByAdmin);
 
 // Extensions
+router.get('/extensions/all', authenticate, isAdmin, getAllExtensions);
 router.get('/extensions/pending', authenticate, isAdmin, getPendingExtensions);
+router.get('/extensions/pending-payment', authenticate, isAdmin, getPendingPaymentExtensions);
 router.patch('/extensions/:extensionId/approve', authenticate, isAdmin, approveExtension);
+router.patch('/extensions/:extensionId/activate', authenticate, isAdmin, activateExtension);
 
 // Custom Tasks — Payment & Payout
 router.get('/tasks/pending-payment', authenticate, isAdmin, getPendingTaskPayments);
+router.get('/tasks/pending-payment-by-task', authenticate, isAdmin, getPendingTaskPaymentsByTask);
 router.get('/tasks/pending-payout', authenticate, isAdmin, getPendingTaskPayouts);
 router.patch('/tasks/:tpId/confirm-payment', authenticate, isAdmin, confirmTaskPayment);
+router.patch('/tasks/:taskId/confirm-payment-task', authenticate, isAdmin, confirmTaskPaymentByTask);
 router.patch('/tasks/:tpId/confirm-payout', authenticate, isAdmin, confirmTaskPayout);
 
 // Reports

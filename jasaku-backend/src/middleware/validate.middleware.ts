@@ -9,7 +9,7 @@ export const validate = (schema: ZodSchema) => {
             next();
         } catch (err) {
             if (err instanceof ZodError) {
-                const issues = JSON.parse(err.message) as Array<{ path: (string | number)[]; message: string }>;
+                const issues = err.issues;
                 const messages = issues.map(e => `${e.path.join('.')}: ${e.message}`);
                 return res.status(400).json({
                     success: false,

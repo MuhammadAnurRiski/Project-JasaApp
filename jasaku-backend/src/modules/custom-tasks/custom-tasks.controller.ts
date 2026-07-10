@@ -92,6 +92,101 @@ export const completeTask = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const updateWorkStatus = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return errorResponse(res, 'Anda harus login', 401);
+
+    const taskId = String(req.params.taskId);
+    const { work_status } = req.body;
+    if (!work_status) return errorResponse(res, 'work_status wajib diisi', 400);
+
+    const result = await service.updateWorkStatus(userId, taskId, work_status);
+    return successResponse(res, result, 'Status kerja diperbarui');
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+export const getMyActiveTasks = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return errorResponse(res, 'Anda harus login', 401);
+
+    const result = await service.getMyActiveTasks(userId);
+    return successResponse(res, result, 'Daftar task aktif');
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+export const republishTask = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return errorResponse(res, 'Anda harus login', 401);
+
+    const taskId = String(req.params.taskId);
+    const result = await service.republishTask(userId, taskId);
+    return successResponse(res, result, 'Task berhasil dipublikasi ulang');
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+export const getPaymentDetail = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return errorResponse(res, 'Anda harus login', 401);
+
+    const taskId = String(req.params.taskId);
+    const result = await service.getPaymentDetail(taskId, userId);
+    return successResponse(res, result, 'Detail pembayaran');
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+export const uploadPaymentProof = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return errorResponse(res, 'Anda harus login', 401);
+
+    const taskId = String(req.params.taskId);
+    const file = req.file;
+    if (!file) return errorResponse(res, 'Upload bukti pembayaran terlebih dahulu', 400);
+
+    const fileUrl = `/uploads/payment-proofs/${file.filename}`;
+    const result = await service.uploadPaymentProof(taskId, userId, fileUrl);
+    return successResponse(res, result, 'Bukti pembayaran berhasil diupload');
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+export const deleteTask = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return errorResponse(res, 'Anda harus login', 401);
+
+    const taskId = String(req.params.taskId);
+    const result = await service.deleteTask(userId, taskId);
+    return successResponse(res, result, 'Task berhasil dihapus');
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+export const getTaskTracking = async (req: AuthRequest, res: Response) => {
+  try {
+    const taskId = String(req.params.taskId);
+    const result = await service.getTaskTracking(taskId);
+    if (!result) return errorResponse(res, 'Task tidak ditemukan', 404);
+    return successResponse(res, result, 'Data tracking berhasil diambil');
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
 export const cancelTask = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.userId;

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jasaku — Home Service Marketplace</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    html { scroll-behavior: smooth; }
+    [x-cloak] { display: none !important; }
+    .hero-gradient {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    }
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+    }
+    .glow {
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.15);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+  <!-- Navbar -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="/" class="flex items-center gap-2.5">
+          <img src="/logo.png" alt="Jasaku" class="w-9 h-9 rounded-xl shadow-sm object-cover">
+          <span class="text-xl font-bold text-gray-900">Jasaku</span>
+        </a>
+        <div class="flex items-center gap-4">
+          <a href="#download" class="hidden sm:inline-flex text-sm font-medium text-gray-600 hover:text-emerald-600 transition-colors">
+            Download
+          </a>
+          <a href="#features" class="hidden sm:inline-flex text-sm font-medium text-gray-600 hover:text-emerald-600 transition-colors">
+            Fitur
+          </a>
+          <a href="/admin/" class="hidden"></a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-gradient min-h-screen flex items-center relative overflow-hidden pt-16">
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute top-20 left-10 w-72 h-72 bg-emerald-400 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-20 right-10 w-96 h-96 bg-blue-400 rounded-full blur-3xl"></div>
+    </div>
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
+      <div class="text-center max-w-3xl mx-auto">
+        <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-emerald-300 text-sm font-medium px-4 py-1.5 rounded-full mb-8 border border-white/10">
+          <i class="fas fa-bolt text-xs"></i>
+          Platform Jasa Terpercaya No. 1
+        </div>
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6">
+          Solusi Jasa <span class="text-emerald-400">Terpercaya</span><br>
+          Untuk Rumah & Bisnis
+        </h1>
+        <p class="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed">
+          Temukan penyedia jasa profesional untuk kebutuhan Anda. 
+          Dari perbaikan, kebersihan, hingga renovasi — semuanya ada di Jasaku.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href="#download" class="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white px-8 py-3.5 rounded-xl font-semibold text-lg transition-all shadow-lg shadow-emerald-500/25">
+            <i class="fas fa-download"></i>
+            Download Aplikasi
+          </a>
+          <a href="#features" class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-8 py-3.5 rounded-xl font-semibold text-lg border border-white/20 transition-all backdrop-blur-sm">
+            Pelajari Lebih Lanjut
+            <i class="fas fa-arrow-right text-sm"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="py-16 sm:py-20 relative z-20">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center card-hover">
+          <div class="text-3xl font-bold text-gray-900 mb-1">500+</div>
+          <div class="text-sm text-gray-500">Penyedia Jasa</div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center card-hover">
+          <div class="text-3xl font-bold text-gray-900 mb-1">50+</div>
+          <div class="text-sm text-gray-500">Kota Tersedia</div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center card-hover">
+          <div class="text-3xl font-bold text-gray-900 mb-1">10K+</div>
+          <div class="text-sm text-gray-500">Pesanan Selesai</div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center card-hover">
+          <div class="text-3xl font-bold text-gray-900 mb-1">4.8</div>
+          <div class="text-sm text-gray-500">Rating Pengguna</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="py-16 sm:py-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+          Kenapa Memilih <span class="text-emerald-600">Jasaku</span>?
+        </h2>
+        <p class="text-lg text-gray-500 max-w-2xl mx-auto">
+          Platform yang memudahkan Anda menemukan jasa terbaik untuk setiap kebutuhan.
+        </p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-7 card-hover">
+          <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-5">
+            <i class="fas fa-search text-blue-600 text-xl"></i>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">Cari Mudah & Cepat</h3>
+          <p class="text-gray-500 text-sm leading-relaxed">Temukan jasa yang Anda butuhkan dengan fitur pencarian dan filter kategori yang lengkap.</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-7 card-hover">
+          <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mb-5">
+            <i class="fas fa-shield text-emerald-600 text-xl"></i>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">Pembayaran Aman</h3>
+          <p class="text-gray-500 text-sm leading-relaxed">Sistem escrow memastikan dana Anda aman hingga jasa selesai dikerjakan.</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-7 card-hover">
+          <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-5">
+            <i class="fas fa-star text-purple-600 text-xl"></i>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">Rating & Review</h3>
+          <p class="text-gray-500 text-sm leading-relaxed">Pilih penyedia jasa terbaik berdasarkan review dari pengguna sebelumnya.</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-7 card-hover">
+          <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mb-5">
+            <i class="fas fa-clock text-amber-600 text-xl"></i>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">Lacak Langsung</h3>
+          <p class="text-gray-500 text-sm leading-relaxed">Pantau lokasi penyedia jasa secara real-time selama perjalanan menuju lokasi Anda.</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-7 card-hover">
+          <div class="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center mb-5">
+            <i class="fas fa-headset text-rose-600 text-xl"></i>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">CS 24/7</h3>
+          <p class="text-gray-500 text-sm leading-relaxed">Tim customer service siap membantu Anda kapan pun jika ada kendala.</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-7 card-hover">
+          <div class="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center mb-5">
+            <i class="fas fa-store text-teal-600 text-xl"></i>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">Jadi Mitra</h3>
+          <p class="text-gray-500 text-sm leading-relaxed">Gabung sebagai penyedia jasa dan kembangkan bisnis Anda bersama Jasaku.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download -->
+  <section id="download" class="py-16 sm:py-24 bg-white border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+          Download Aplikasi
+        </h2>
+        <p class="text-lg text-gray-500 max-w-2xl mx-auto">
+          Pilih aplikasi sesuai kebutuhan Anda. Gratis dan mudah dipasang.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <!-- Customer -->
+        <div class="bg-gradient-to-br from-blue-50 to-white rounded-3xl border border-blue-100 p-8 text-center card-hover">
+          <div class="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+            <i class="fas fa-user text-blue-600 text-3xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2">Jasaku Customer</h3>
+          <p class="text-gray-500 mb-2">Untuk customer — cari & pesan jasa</p>
+          <p class="text-xs text-gray-400 mb-6">
+            <i class="fas fa-hdd mr-1"></i> 137 MB &middot; Android 6.0+
+          </p>
+          <a href="/downloads/jasaku-customer.apk"
+             class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-8 py-3.5 rounded-xl font-semibold text-lg transition-all shadow-lg shadow-blue-500/25 w-full sm:w-auto justify-center">
+            <i class="fas fa-download"></i>
+            Download APK
+          </a>
+        </div>
+
+        <!-- Mitra -->
+        <div class="bg-gradient-to-br from-emerald-50 to-white rounded-3xl border border-emerald-100 p-8 text-center card-hover">
+          <div class="w-20 h-20 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+            <i class="fas fa-handshake text-emerald-600 text-3xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2">Jasaku Mitra</h3>
+          <p class="text-gray-500 mb-2">Untuk provider — kelola pesanan & jadwal</p>
+          <p class="text-xs text-gray-400 mb-6">
+            <i class="fas fa-hdd mr-1"></i> 142 MB &middot; Android 6.0+
+          </p>
+          <a href="/downloads/jasaku-mitra.apk"
+             class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3.5 rounded-xl font-semibold text-lg transition-all shadow-lg shadow-emerald-500/25 w-full sm:w-auto justify-center">
+            <i class="fas fa-download"></i>
+            Download APK
+          </a>
+        </div>
+      </div>
+
+      <div class="text-center mt-10 text-sm text-gray-400 space-y-1">
+        <p><i class="fas fa-info-circle mr-1"></i> Setelah download, buka file APK di HP Anda.</p>
+        <p>Aktifkan <span class="font-medium text-gray-500">"Install dari sumber tidak dikenal"</span> jika diminta.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="py-16 sm:py-24">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+          Pertanyaan Umum
+        </h2>
+      </div>
+
+      <div class="space-y-4">
+        <details class="bg-white rounded-2xl border border-gray-100 group open:shadow-sm">
+          <summary class="flex items-center justify-between p-5 cursor-pointer list-none">
+            <span class="font-semibold text-gray-900">Apa itu Jasaku?</span>
+            <i class="fas fa-chevron-down text-gray-400 group-open:rotate-180 transition-transform"></i>
+          </summary>
+          <div class="px-5 pb-5 text-gray-500 text-sm leading-relaxed">
+            Jasaku adalah platform marketplace yang menghubungkan customer dengan penyedia jasa profesional untuk berbagai kebutuhan rumah dan bisnis, seperti perbaikan, kebersihan, renovasi, dan lainnya.
+          </div>
+        </details>
+
+        <details class="bg-white rounded-2xl border border-gray-100 group open:shadow-sm">
+          <summary class="flex items-center justify-between p-5 cursor-pointer list-none">
+            <span class="font-semibold text-gray-900">Bagaimana cara memesan jasa?</span>
+            <i class="fas fa-chevron-down text-gray-400 group-open:rotate-180 transition-transform"></i>
+          </summary>
+          <div class="px-5 pb-5 text-gray-500 text-sm leading-relaxed">
+            Download aplikasi Jasaku Customer, daftar akun, cari penyedia jasa yang sesuai, lalu buat pesanan. Anda bisa memilih jadwal dan melihat estimasi biaya sebelum memesan.
+          </div>
+        </details>
+
+        <details class="bg-white rounded-2xl border border-gray-100 group open:shadow-sm">
+          <summary class="flex items-center justify-between p-5 cursor-pointer list-none">
+            <span class="font-semibold text-gray-900">Apakah pembayaran aman?</span>
+            <i class="fas fa-chevron-down text-gray-400 group-open:rotate-180 transition-transform"></i>
+          </summary>
+          <div class="px-5 pb-5 text-gray-500 text-sm leading-relaxed">
+            Ya. Jasaku menggunakan sistem escrow — dana Anda akan ditahan hingga jasa selesai dikerjakan. Jika ada masalah, Anda bisa mengajukan komplain.
+          </div>
+        </details>
+
+        <details class="bg-white rounded-2xl border border-gray-100 group open:shadow-sm">
+          <summary class="flex items-center justify-between p-5 cursor-pointer list-none">
+            <span class="font-semibold text-gray-900">Bagaimana cara menjadi Mitra Jasaku?</span>
+            <i class="fas fa-chevron-down text-gray-400 group-open:rotate-180 transition-transform"></i>
+          </summary>
+          <div class="px-5 pb-5 text-gray-500 text-sm leading-relaxed">
+            Download aplikasi Jasaku Mitra, daftar sebagai penyedia jasa, lengkapi profil dan dokumen, tunggu verifikasi, dan Anda siap menerima pesanan.
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-16 hero-gradient">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">
+        Siap Bergabung?
+      </h2>
+      <p class="text-lg text-gray-300 max-w-2xl mx-auto mb-8">
+        Download sekarang dan nikmati kemudahan layanan jasa profesional.
+      </p>
+      <a href="#download" class="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white px-8 py-3.5 rounded-xl font-semibold text-lg transition-all shadow-lg shadow-emerald-500/25">
+        <i class="fas fa-download"></i>
+        Download Sekarang
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-400 py-12">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid sm:grid-cols-3 gap-8 mb-10">
+        <div>
+          <div class="flex items-center gap-2.5 mb-4">
+            <img src="/logo.png" alt="Jasaku" class="w-8 h-8 rounded-xl shadow-sm object-cover">
+            <span class="text-lg font-bold text-white">Jasaku</span>
+          </div>
+          <p class="text-sm leading-relaxed">
+            Platform home service marketplace terpercaya untuk memudahkan Anda menemukan jasa profesional.
+          </p>
+        </div>
+        <div>
+          <h4 class="font-semibold text-white mb-4">Tautan</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="#download" class="hover:text-emerald-400 transition-colors">Download</a></li>
+            <li><a href="#features" class="hover:text-emerald-400 transition-colors">Fitur</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold text-white mb-4">Kontak</h4>
+          <ul class="space-y-2 text-sm">
+            <li><i class="fas fa-envelope w-5 text-emerald-400"></i> support@jasaku.id</li>
+            <li><i class="fas fa-map-marker-alt w-5 text-emerald-400"></i> Indonesia</li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 pt-8 text-center text-sm">
+        &copy; 2026 Jasaku. All rights reserved.
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

@@ -288,11 +288,38 @@ const getPendingPaymentOrders = async (req: AuthRequest, res: Response) => {
   }
 };
 
+const getAllOrders = async (req: AuthRequest, res: Response) => {
+  try {
+    const result = await new AdminService().getAllOrders();
+    return successResponse(res, result, "Daftar semua order berhasil diambil");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
 // Extensions
 const getPendingExtensions = async (req: AuthRequest, res: Response) => {
   try {
     const result = await new AdminService().getPendingExtensions();
     return successResponse(res, result, "Daftar request ekstensi berhasil diambil");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+const getAllExtensions = async (req: AuthRequest, res: Response) => {
+  try {
+    const result = await new AdminService().getAllExtensions();
+    return successResponse(res, result, "Daftar semua ekstensi berhasil diambil");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+const getPendingPaymentExtensions = async (req: AuthRequest, res: Response) => {
+  try {
+    const result = await new AdminService().getPendingPaymentExtensions();
+    return successResponse(res, result, "Daftar ekstensi menunggu pembayaran berhasil diambil");
   } catch (err: any) {
     return errorResponse(res, err.message);
   }
@@ -335,6 +362,24 @@ const getPendingTaskPayments = async (req: AuthRequest, res: Response) => {
   }
 };
 
+const getPendingTaskPaymentsByTask = async (req: AuthRequest, res: Response) => {
+  try {
+    const result = await customTasksService.getPendingPaymentTasksByTask();
+    return successResponse(res, result, "Daftar task pending payment (grup per task)");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+const confirmTaskPaymentByTask = async (req: AuthRequest, res: Response) => {
+  try {
+    const taskId = String(req.params.taskId);
+    const result = await customTasksService.adminConfirmTaskPayment(taskId);
+    return successResponse(res, result, "Pembayaran seluruh task dikonfirmasi");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
 const getPendingTaskPayouts = async (req: AuthRequest, res: Response) => {
   try {
     const result = await customTasksService.getPendingPayoutTasks();
@@ -374,10 +419,15 @@ export {
   getPaymentAccounts, createPaymentAccount, updatePaymentAccount, deletePaymentAccount,
   uploadQrisImage,
   getPendingPaymentOrders,
+  getAllOrders,
   getPendingExtensions,
+  getAllExtensions,
+  getPendingPaymentExtensions,
   getPendingTaskPayments,
+  getPendingTaskPaymentsByTask,
   getPendingTaskPayouts,
   confirmTaskPayment,
+  confirmTaskPaymentByTask,
   confirmTaskPayout,
   getOpenReports,
   respondToReport

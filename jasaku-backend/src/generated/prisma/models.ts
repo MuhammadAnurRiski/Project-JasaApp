@@ -9,7 +9,9 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/categories'
-export type * from './models/admin_payment_accounts'
+export type * from './models/admin_bank_accounts'
+export type * from './models/admin_ewallet_accounts'
+export type * from './models/admin_qris_accounts'
 export type * from './models/custom_tasks'
 export type * from './models/task_locations'
 export type * from './models/task_providers'

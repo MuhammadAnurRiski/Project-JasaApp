@@ -29,11 +29,13 @@ export type AggregateOrders = {
 export type OrdersAvgAggregateOutputType = {
   total_price: runtime.Decimal | null
   platform_fee: runtime.Decimal | null
+  additional_fee: runtime.Decimal | null
 }
 
 export type OrdersSumAggregateOutputType = {
   total_price: runtime.Decimal | null
   platform_fee: runtime.Decimal | null
+  additional_fee: runtime.Decimal | null
 }
 
 export type OrdersMinAggregateOutputType = {
@@ -45,6 +47,7 @@ export type OrdersMinAggregateOutputType = {
   status: string | null
   total_price: runtime.Decimal | null
   platform_fee: runtime.Decimal | null
+  additional_fee: runtime.Decimal | null
   description: string | null
   work_date: Date | null
   created_at: Date | null
@@ -62,6 +65,7 @@ export type OrdersMaxAggregateOutputType = {
   status: string | null
   total_price: runtime.Decimal | null
   platform_fee: runtime.Decimal | null
+  additional_fee: runtime.Decimal | null
   description: string | null
   work_date: Date | null
   created_at: Date | null
@@ -79,6 +83,7 @@ export type OrdersCountAggregateOutputType = {
   status: number
   total_price: number
   platform_fee: number
+  additional_fee: number
   description: number
   work_date: number
   created_at: number
@@ -92,11 +97,13 @@ export type OrdersCountAggregateOutputType = {
 export type OrdersAvgAggregateInputType = {
   total_price?: true
   platform_fee?: true
+  additional_fee?: true
 }
 
 export type OrdersSumAggregateInputType = {
   total_price?: true
   platform_fee?: true
+  additional_fee?: true
 }
 
 export type OrdersMinAggregateInputType = {
@@ -108,6 +115,7 @@ export type OrdersMinAggregateInputType = {
   status?: true
   total_price?: true
   platform_fee?: true
+  additional_fee?: true
   description?: true
   work_date?: true
   created_at?: true
@@ -125,6 +133,7 @@ export type OrdersMaxAggregateInputType = {
   status?: true
   total_price?: true
   platform_fee?: true
+  additional_fee?: true
   description?: true
   work_date?: true
   created_at?: true
@@ -142,6 +151,7 @@ export type OrdersCountAggregateInputType = {
   status?: true
   total_price?: true
   platform_fee?: true
+  additional_fee?: true
   description?: true
   work_date?: true
   created_at?: true
@@ -246,6 +256,7 @@ export type OrdersGroupByOutputType = {
   status: string | null
   total_price: runtime.Decimal | null
   platform_fee: runtime.Decimal | null
+  additional_fee: runtime.Decimal | null
   description: string | null
   work_date: Date | null
   created_at: Date | null
@@ -286,6 +297,7 @@ export type ordersWhereInput = {
   status?: Prisma.StringNullableFilter<"orders"> | string | null
   total_price?: Prisma.DecimalNullableFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.DecimalNullableFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.DecimalNullableFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.StringNullableFilter<"orders"> | string | null
   work_date?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
   created_at?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
@@ -314,6 +326,7 @@ export type ordersOrderByWithRelationInput = {
   status?: Prisma.SortOrderInput | Prisma.SortOrder
   total_price?: Prisma.SortOrderInput | Prisma.SortOrder
   platform_fee?: Prisma.SortOrderInput | Prisma.SortOrder
+  additional_fee?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   work_date?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -345,6 +358,7 @@ export type ordersWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.StringNullableFilter<"orders"> | string | null
   total_price?: Prisma.DecimalNullableFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.DecimalNullableFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.DecimalNullableFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.StringNullableFilter<"orders"> | string | null
   work_date?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
   created_at?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
@@ -373,6 +387,7 @@ export type ordersOrderByWithAggregationInput = {
   status?: Prisma.SortOrderInput | Prisma.SortOrder
   total_price?: Prisma.SortOrderInput | Prisma.SortOrder
   platform_fee?: Prisma.SortOrderInput | Prisma.SortOrder
+  additional_fee?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   work_date?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -398,6 +413,7 @@ export type ordersScalarWhereWithAggregatesInput = {
   status?: Prisma.StringNullableWithAggregatesFilter<"orders"> | string | null
   total_price?: Prisma.DecimalNullableWithAggregatesFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.DecimalNullableWithAggregatesFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.DecimalNullableWithAggregatesFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"orders"> | string | null
   work_date?: Prisma.DateTimeNullableWithAggregatesFilter<"orders"> | Date | string | null
   created_at?: Prisma.DateTimeNullableWithAggregatesFilter<"orders"> | Date | string | null
@@ -411,6 +427,7 @@ export type ordersCreateInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -439,6 +456,7 @@ export type ordersUncheckedCreateInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -459,6 +477,7 @@ export type ordersUpdateInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -487,6 +506,7 @@ export type ordersUncheckedUpdateInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -511,6 +531,7 @@ export type ordersCreateManyInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -524,6 +545,7 @@ export type ordersUpdateManyMutationInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -541,6 +563,7 @@ export type ordersUncheckedUpdateManyInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -573,6 +596,7 @@ export type ordersCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   total_price?: Prisma.SortOrder
   platform_fee?: Prisma.SortOrder
+  additional_fee?: Prisma.SortOrder
   description?: Prisma.SortOrder
   work_date?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -584,6 +608,7 @@ export type ordersCountOrderByAggregateInput = {
 export type ordersAvgOrderByAggregateInput = {
   total_price?: Prisma.SortOrder
   platform_fee?: Prisma.SortOrder
+  additional_fee?: Prisma.SortOrder
 }
 
 export type ordersMaxOrderByAggregateInput = {
@@ -595,6 +620,7 @@ export type ordersMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   total_price?: Prisma.SortOrder
   platform_fee?: Prisma.SortOrder
+  additional_fee?: Prisma.SortOrder
   description?: Prisma.SortOrder
   work_date?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -612,6 +638,7 @@ export type ordersMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   total_price?: Prisma.SortOrder
   platform_fee?: Prisma.SortOrder
+  additional_fee?: Prisma.SortOrder
   description?: Prisma.SortOrder
   work_date?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -623,6 +650,7 @@ export type ordersMinOrderByAggregateInput = {
 export type ordersSumOrderByAggregateInput = {
   total_price?: Prisma.SortOrder
   platform_fee?: Prisma.SortOrder
+  additional_fee?: Prisma.SortOrder
 }
 
 export type OrdersNullableScalarRelationFilter = {
@@ -903,6 +931,7 @@ export type ordersCreateWithoutCustom_tasksInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -929,6 +958,7 @@ export type ordersUncheckedCreateWithoutCustom_tasksInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -982,6 +1012,7 @@ export type ordersScalarWhereInput = {
   status?: Prisma.StringNullableFilter<"orders"> | string | null
   total_price?: Prisma.DecimalNullableFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.DecimalNullableFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.DecimalNullableFilter<"orders"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.StringNullableFilter<"orders"> | string | null
   work_date?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
   created_at?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
@@ -995,6 +1026,7 @@ export type ordersCreateWithoutTask_providerInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1021,6 +1053,7 @@ export type ordersUncheckedCreateWithoutTask_providerInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1067,6 +1100,7 @@ export type ordersCreateWithoutOrder_attachmentsInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1094,6 +1128,7 @@ export type ordersUncheckedCreateWithoutOrder_attachmentsInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1129,6 +1164,7 @@ export type ordersUpdateWithoutOrder_attachmentsInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1156,6 +1192,7 @@ export type ordersUncheckedUpdateWithoutOrder_attachmentsInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1175,6 +1212,7 @@ export type ordersCreateWithoutOrder_itemsInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1202,6 +1240,7 @@ export type ordersUncheckedCreateWithoutOrder_itemsInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1237,6 +1276,7 @@ export type ordersUpdateWithoutOrder_itemsInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1264,6 +1304,7 @@ export type ordersUncheckedUpdateWithoutOrder_itemsInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1283,6 +1324,7 @@ export type ordersCreateWithoutOrder_locationsInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1310,6 +1352,7 @@ export type ordersUncheckedCreateWithoutOrder_locationsInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1345,6 +1388,7 @@ export type ordersUpdateWithoutOrder_locationsInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1372,6 +1416,7 @@ export type ordersUncheckedUpdateWithoutOrder_locationsInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1391,6 +1436,7 @@ export type ordersCreateWithoutPaymentsInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1418,6 +1464,7 @@ export type ordersUncheckedCreateWithoutPaymentsInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1453,6 +1500,7 @@ export type ordersUpdateWithoutPaymentsInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1480,6 +1528,7 @@ export type ordersUncheckedUpdateWithoutPaymentsInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1499,6 +1548,7 @@ export type ordersCreateWithoutProvider_schedulesInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1526,6 +1576,7 @@ export type ordersUncheckedCreateWithoutProvider_schedulesInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1561,6 +1612,7 @@ export type ordersUpdateWithoutProvider_schedulesInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1588,6 +1640,7 @@ export type ordersUncheckedUpdateWithoutProvider_schedulesInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1607,6 +1660,7 @@ export type ordersCreateWithoutOrder_extensionsInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1634,6 +1688,7 @@ export type ordersUncheckedCreateWithoutOrder_extensionsInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1669,6 +1724,7 @@ export type ordersUpdateWithoutOrder_extensionsInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1696,6 +1752,7 @@ export type ordersUncheckedUpdateWithoutOrder_extensionsInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1715,6 +1772,7 @@ export type ordersCreateWithoutProfiles_customerInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1741,6 +1799,7 @@ export type ordersUncheckedCreateWithoutProfiles_customerInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1787,6 +1846,7 @@ export type ordersCreateWithoutProvider_profilesInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1813,6 +1873,7 @@ export type ordersUncheckedCreateWithoutProvider_profilesInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1859,6 +1920,7 @@ export type ordersCreateWithoutReviewsInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1886,6 +1948,7 @@ export type ordersUncheckedCreateWithoutReviewsInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1921,6 +1984,7 @@ export type ordersUpdateWithoutReviewsInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1948,6 +2012,7 @@ export type ordersUncheckedUpdateWithoutReviewsInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1970,6 +2035,7 @@ export type ordersCreateManyCustom_tasksInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -1983,6 +2049,7 @@ export type ordersUpdateWithoutCustom_tasksInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2009,6 +2076,7 @@ export type ordersUncheckedUpdateWithoutCustom_tasksInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2032,6 +2100,7 @@ export type ordersUncheckedUpdateManyWithoutCustom_tasksInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2048,6 +2117,7 @@ export type ordersCreateManyTask_providerInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -2061,6 +2131,7 @@ export type ordersUpdateWithoutTask_providerInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2087,6 +2158,7 @@ export type ordersUncheckedUpdateWithoutTask_providerInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2110,6 +2182,7 @@ export type ordersUncheckedUpdateManyWithoutTask_providerInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2126,6 +2199,7 @@ export type ordersCreateManyProfiles_customerInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -2139,6 +2213,7 @@ export type ordersUpdateWithoutProfiles_customerInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2165,6 +2240,7 @@ export type ordersUncheckedUpdateWithoutProfiles_customerInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2188,6 +2264,7 @@ export type ordersUncheckedUpdateManyWithoutProfiles_customerInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2204,6 +2281,7 @@ export type ordersCreateManyProvider_profilesInput = {
   status?: string | null
   total_price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: string | null
   work_date?: Date | string | null
   created_at?: Date | string | null
@@ -2217,6 +2295,7 @@ export type ordersUpdateWithoutProvider_profilesInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2243,6 +2322,7 @@ export type ordersUncheckedUpdateWithoutProvider_profilesInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2266,6 +2346,7 @@ export type ordersUncheckedUpdateManyWithoutProvider_profilesInput = {
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total_price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   platform_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  additional_fee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   work_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2359,6 +2440,7 @@ export type ordersSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   status?: boolean
   total_price?: boolean
   platform_fee?: boolean
+  additional_fee?: boolean
   description?: boolean
   work_date?: boolean
   created_at?: boolean
@@ -2388,6 +2470,7 @@ export type ordersSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   status?: boolean
   total_price?: boolean
   platform_fee?: boolean
+  additional_fee?: boolean
   description?: boolean
   work_date?: boolean
   created_at?: boolean
@@ -2409,6 +2492,7 @@ export type ordersSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   status?: boolean
   total_price?: boolean
   platform_fee?: boolean
+  additional_fee?: boolean
   description?: boolean
   work_date?: boolean
   created_at?: boolean
@@ -2430,6 +2514,7 @@ export type ordersSelectScalar = {
   status?: boolean
   total_price?: boolean
   platform_fee?: boolean
+  additional_fee?: boolean
   description?: boolean
   work_date?: boolean
   created_at?: boolean
@@ -2438,7 +2523,7 @@ export type ordersSelectScalar = {
   assignment_type?: boolean
 }
 
-export type ordersOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customer_id" | "provider_id" | "custom_task_id" | "task_provider_id" | "status" | "total_price" | "platform_fee" | "description" | "work_date" | "created_at" | "start_date" | "end_date" | "assignment_type", ExtArgs["result"]["orders"]>
+export type ordersOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customer_id" | "provider_id" | "custom_task_id" | "task_provider_id" | "status" | "total_price" | "platform_fee" | "additional_fee" | "description" | "work_date" | "created_at" | "start_date" | "end_date" | "assignment_type", ExtArgs["result"]["orders"]>
 export type ordersInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order_attachments?: boolean | Prisma.orders$order_attachmentsArgs<ExtArgs>
   order_items?: boolean | Prisma.orders$order_itemsArgs<ExtArgs>
@@ -2490,6 +2575,7 @@ export type $ordersPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     status: string | null
     total_price: runtime.Decimal | null
     platform_fee: runtime.Decimal | null
+    additional_fee: runtime.Decimal | null
     description: string | null
     work_date: Date | null
     created_at: Date | null
@@ -2938,6 +3024,7 @@ export interface ordersFieldRefs {
   readonly status: Prisma.FieldRef<"orders", 'String'>
   readonly total_price: Prisma.FieldRef<"orders", 'Decimal'>
   readonly platform_fee: Prisma.FieldRef<"orders", 'Decimal'>
+  readonly additional_fee: Prisma.FieldRef<"orders", 'Decimal'>
   readonly description: Prisma.FieldRef<"orders", 'String'>
   readonly work_date: Prisma.FieldRef<"orders", 'DateTime'>
   readonly created_at: Prisma.FieldRef<"orders", 'DateTime'>

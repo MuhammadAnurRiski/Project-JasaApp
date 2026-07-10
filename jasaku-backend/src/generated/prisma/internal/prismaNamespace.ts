@@ -385,7 +385,9 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   categories: 'categories',
-  admin_payment_accounts: 'admin_payment_accounts',
+  admin_bank_accounts: 'admin_bank_accounts',
+  admin_ewallet_accounts: 'admin_ewallet_accounts',
+  admin_qris_accounts: 'admin_qris_accounts',
   custom_tasks: 'custom_tasks',
   task_locations: 'task_locations',
   task_providers: 'task_providers',
@@ -427,7 +429,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "categories" | "admin_payment_accounts" | "custom_tasks" | "task_locations" | "task_providers" | "order_attachments" | "order_items" | "order_locations" | "orders" | "payments" | "pricing_types" | "provider_documents" | "provider_payout_methods" | "provider_schedules" | "provider_service_prices" | "provider_services" | "reports" | "order_extensions" | "roles" | "services" | "spatial_ref_sys" | "users" | "profiles_customer" | "provider_profiles" | "provider_locations" | "reviews" | "identity_verifications" | "user_devices"
+    modelProps: "categories" | "admin_bank_accounts" | "admin_ewallet_accounts" | "admin_qris_accounts" | "custom_tasks" | "task_locations" | "task_providers" | "order_attachments" | "order_items" | "order_locations" | "orders" | "payments" | "pricing_types" | "provider_documents" | "provider_payout_methods" | "provider_schedules" | "provider_service_prices" | "provider_services" | "reports" | "order_extensions" | "roles" | "services" | "spatial_ref_sys" | "users" | "profiles_customer" | "provider_profiles" | "provider_locations" | "reviews" | "identity_verifications" | "user_devices"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -505,77 +507,225 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    admin_payment_accounts: {
-      payload: Prisma.$admin_payment_accountsPayload<ExtArgs>
-      fields: Prisma.admin_payment_accountsFieldRefs
+    admin_bank_accounts: {
+      payload: Prisma.$admin_bank_accountsPayload<ExtArgs>
+      fields: Prisma.admin_bank_accountsFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.admin_payment_accountsFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload> | null
+          args: Prisma.admin_bank_accountsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_bank_accountsPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.admin_payment_accountsFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload>
+          args: Prisma.admin_bank_accountsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_bank_accountsPayload>
         }
         findFirst: {
-          args: Prisma.admin_payment_accountsFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload> | null
+          args: Prisma.admin_bank_accountsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_bank_accountsPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.admin_payment_accountsFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload>
+          args: Prisma.admin_bank_accountsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_bank_accountsPayload>
         }
         findMany: {
-          args: Prisma.admin_payment_accountsFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload>[]
+          args: Prisma.admin_bank_accountsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_bank_accountsPayload>[]
         }
         create: {
-          args: Prisma.admin_payment_accountsCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload>
+          args: Prisma.admin_bank_accountsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_bank_accountsPayload>
         }
         createMany: {
-          args: Prisma.admin_payment_accountsCreateManyArgs<ExtArgs>
+          args: Prisma.admin_bank_accountsCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.admin_payment_accountsCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload>[]
+          args: Prisma.admin_bank_accountsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_bank_accountsPayload>[]
         }
         delete: {
-          args: Prisma.admin_payment_accountsDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload>
+          args: Prisma.admin_bank_accountsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_bank_accountsPayload>
         }
         update: {
-          args: Prisma.admin_payment_accountsUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload>
+          args: Prisma.admin_bank_accountsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_bank_accountsPayload>
         }
         deleteMany: {
-          args: Prisma.admin_payment_accountsDeleteManyArgs<ExtArgs>
+          args: Prisma.admin_bank_accountsDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.admin_payment_accountsUpdateManyArgs<ExtArgs>
+          args: Prisma.admin_bank_accountsUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.admin_payment_accountsUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload>[]
+          args: Prisma.admin_bank_accountsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_bank_accountsPayload>[]
         }
         upsert: {
-          args: Prisma.admin_payment_accountsUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_payment_accountsPayload>
+          args: Prisma.admin_bank_accountsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_bank_accountsPayload>
         }
         aggregate: {
-          args: Prisma.Admin_payment_accountsAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateAdmin_payment_accounts>
+          args: Prisma.Admin_bank_accountsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAdmin_bank_accounts>
         }
         groupBy: {
-          args: Prisma.admin_payment_accountsGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.Admin_payment_accountsGroupByOutputType>[]
+          args: Prisma.admin_bank_accountsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Admin_bank_accountsGroupByOutputType>[]
         }
         count: {
-          args: Prisma.admin_payment_accountsCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.Admin_payment_accountsCountAggregateOutputType> | number
+          args: Prisma.admin_bank_accountsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Admin_bank_accountsCountAggregateOutputType> | number
+        }
+      }
+    }
+    admin_ewallet_accounts: {
+      payload: Prisma.$admin_ewallet_accountsPayload<ExtArgs>
+      fields: Prisma.admin_ewallet_accountsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.admin_ewallet_accountsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_ewallet_accountsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.admin_ewallet_accountsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_ewallet_accountsPayload>
+        }
+        findFirst: {
+          args: Prisma.admin_ewallet_accountsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_ewallet_accountsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.admin_ewallet_accountsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_ewallet_accountsPayload>
+        }
+        findMany: {
+          args: Prisma.admin_ewallet_accountsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_ewallet_accountsPayload>[]
+        }
+        create: {
+          args: Prisma.admin_ewallet_accountsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_ewallet_accountsPayload>
+        }
+        createMany: {
+          args: Prisma.admin_ewallet_accountsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.admin_ewallet_accountsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_ewallet_accountsPayload>[]
+        }
+        delete: {
+          args: Prisma.admin_ewallet_accountsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_ewallet_accountsPayload>
+        }
+        update: {
+          args: Prisma.admin_ewallet_accountsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_ewallet_accountsPayload>
+        }
+        deleteMany: {
+          args: Prisma.admin_ewallet_accountsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.admin_ewallet_accountsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.admin_ewallet_accountsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_ewallet_accountsPayload>[]
+        }
+        upsert: {
+          args: Prisma.admin_ewallet_accountsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_ewallet_accountsPayload>
+        }
+        aggregate: {
+          args: Prisma.Admin_ewallet_accountsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAdmin_ewallet_accounts>
+        }
+        groupBy: {
+          args: Prisma.admin_ewallet_accountsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Admin_ewallet_accountsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.admin_ewallet_accountsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Admin_ewallet_accountsCountAggregateOutputType> | number
+        }
+      }
+    }
+    admin_qris_accounts: {
+      payload: Prisma.$admin_qris_accountsPayload<ExtArgs>
+      fields: Prisma.admin_qris_accountsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.admin_qris_accountsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_qris_accountsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.admin_qris_accountsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_qris_accountsPayload>
+        }
+        findFirst: {
+          args: Prisma.admin_qris_accountsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_qris_accountsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.admin_qris_accountsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_qris_accountsPayload>
+        }
+        findMany: {
+          args: Prisma.admin_qris_accountsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_qris_accountsPayload>[]
+        }
+        create: {
+          args: Prisma.admin_qris_accountsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_qris_accountsPayload>
+        }
+        createMany: {
+          args: Prisma.admin_qris_accountsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.admin_qris_accountsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_qris_accountsPayload>[]
+        }
+        delete: {
+          args: Prisma.admin_qris_accountsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_qris_accountsPayload>
+        }
+        update: {
+          args: Prisma.admin_qris_accountsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_qris_accountsPayload>
+        }
+        deleteMany: {
+          args: Prisma.admin_qris_accountsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.admin_qris_accountsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.admin_qris_accountsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_qris_accountsPayload>[]
+        }
+        upsert: {
+          args: Prisma.admin_qris_accountsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$admin_qris_accountsPayload>
+        }
+        aggregate: {
+          args: Prisma.Admin_qris_accountsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAdmin_qris_accounts>
+        }
+        groupBy: {
+          args: Prisma.admin_qris_accountsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Admin_qris_accountsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.admin_qris_accountsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Admin_qris_accountsCountAggregateOutputType> | number
         }
       }
     }
@@ -2553,11 +2703,34 @@ export const CategoriesScalarFieldEnum = {
 export type CategoriesScalarFieldEnum = (typeof CategoriesScalarFieldEnum)[keyof typeof CategoriesScalarFieldEnum]
 
 
-export const Admin_payment_accountsScalarFieldEnum = {
+export const Admin_bank_accountsScalarFieldEnum = {
   id: 'id',
-  type: 'type',
-  account_name: 'account_name',
+  provider_name: 'provider_name',
   account_number: 'account_number',
+  account_name: 'account_name',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type Admin_bank_accountsScalarFieldEnum = (typeof Admin_bank_accountsScalarFieldEnum)[keyof typeof Admin_bank_accountsScalarFieldEnum]
+
+
+export const Admin_ewallet_accountsScalarFieldEnum = {
+  id: 'id',
+  provider_name: 'provider_name',
+  account_number: 'account_number',
+  account_name: 'account_name',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type Admin_ewallet_accountsScalarFieldEnum = (typeof Admin_ewallet_accountsScalarFieldEnum)[keyof typeof Admin_ewallet_accountsScalarFieldEnum]
+
+
+export const Admin_qris_accountsScalarFieldEnum = {
+  id: 'id',
   provider_name: 'provider_name',
   qris_image_url: 'qris_image_url',
   is_active: 'is_active',
@@ -2565,7 +2738,7 @@ export const Admin_payment_accountsScalarFieldEnum = {
   updated_at: 'updated_at'
 } as const
 
-export type Admin_payment_accountsScalarFieldEnum = (typeof Admin_payment_accountsScalarFieldEnum)[keyof typeof Admin_payment_accountsScalarFieldEnum]
+export type Admin_qris_accountsScalarFieldEnum = (typeof Admin_qris_accountsScalarFieldEnum)[keyof typeof Admin_qris_accountsScalarFieldEnum]
 
 
 export const Custom_tasksScalarFieldEnum = {
@@ -2578,6 +2751,11 @@ export const Custom_tasksScalarFieldEnum = {
   accepted_count: 'accepted_count',
   platform_fee_rate: 'platform_fee_rate',
   address: 'address',
+  location_detail: 'location_detail',
+  publish_days: 'publish_days',
+  expires_at: 'expires_at',
+  payment_proof: 'payment_proof',
+  payment_status: 'payment_status',
   status: 'status',
   created_at: 'created_at',
   updated_at: 'updated_at'
@@ -2602,6 +2780,7 @@ export const Task_providersScalarFieldEnum = {
   task_id: 'task_id',
   provider_id: 'provider_id',
   status: 'status',
+  work_status: 'work_status',
   accepted_at: 'accepted_at',
   completed_at: 'completed_at',
   payout_confirmed: 'payout_confirmed',
@@ -2652,6 +2831,7 @@ export const OrdersScalarFieldEnum = {
   status: 'status',
   total_price: 'total_price',
   platform_fee: 'platform_fee',
+  additional_fee: 'additional_fee',
   description: 'description',
   work_date: 'work_date',
   created_at: 'created_at',
@@ -2670,7 +2850,8 @@ export const PaymentsScalarFieldEnum = {
   status: 'status',
   amount: 'amount',
   paid_at: 'paid_at',
-  created_at: 'created_at'
+  created_at: 'created_at',
+  payment_proof: 'payment_proof'
 } as const
 
 export type PaymentsScalarFieldEnum = (typeof PaymentsScalarFieldEnum)[keyof typeof PaymentsScalarFieldEnum]
@@ -3172,7 +3353,9 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   categories?: Prisma.categoriesOmit
-  admin_payment_accounts?: Prisma.admin_payment_accountsOmit
+  admin_bank_accounts?: Prisma.admin_bank_accountsOmit
+  admin_ewallet_accounts?: Prisma.admin_ewallet_accountsOmit
+  admin_qris_accounts?: Prisma.admin_qris_accountsOmit
   custom_tasks?: Prisma.custom_tasksOmit
   task_locations?: Prisma.task_locationsOmit
   task_providers?: Prisma.task_providersOmit

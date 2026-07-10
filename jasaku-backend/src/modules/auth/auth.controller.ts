@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { AuthService } from "./auth.service";
 import { successResponse, errorResponse } from "../../utils/response";
+import { AuthRequest } from "../../middleware/auth.middleware";
 
 const registerCustomer = async (req: any, res: Response) => {
   try {
@@ -112,34 +113,6 @@ const loginWithGoogle = async (req: any, res: Response) => {
   }
 };
 
-const sendOtp = async (req: any, res: Response) => {
-  try {
-    const { email, phone } = req.body;
-    if (!email || !phone) {
-      return errorResponse(res, 'Email dan nomor HP harus diisi', 400);
-    }
-    const authService = new AuthService();
-    const result = await authService.sendOtp(email, phone);
-    return successResponse(res, result, 'OTP berhasil dikirim');
-  } catch (err: any) {
-    return errorResponse(res, err.message);
-  }
-};
-
-const verifyOtp = async (req: any, res: Response) => {
-  try {
-    const { email, phone, otp } = req.body;
-    if (!email || !phone || !otp) {
-      return errorResponse(res, 'Email, nomor HP, dan OTP harus diisi', 400);
-    }
-    const authService = new AuthService();
-    const result = await authService.verifyOtp(email, phone, otp);
-    return successResponse(res, result, 'Verifikasi OTP berhasil');
-  } catch (err: any) {
-    return errorResponse(res, err.message);
-  }
-};
-
 const getVerificationStatus = async (req: any, res: Response) => {
   try {
     const authService = new AuthService();
@@ -160,4 +133,14 @@ const resubmitVerification = async (req: any, res: Response) => {
   }
 };
 
-export { registerCustomer, registerProvider, registerAdmin, login, loginWithGoogle, sendOtp, verifyOtp, getVerificationStatus, resubmitVerification };
+export { registerCustomer, registerProvider, registerAdmin, login, loginWithGoogle, getVerificationStatus, resubmitVerification, getMe };
+
+const getMe = async (req: AuthRequest, res: Response) => {
+  try {
+    const authService = new AuthService();
+    const result = await authService.getMe(req.user.userId);
+    return successResponse(res, result, 'Data user berhasil diambil');
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};

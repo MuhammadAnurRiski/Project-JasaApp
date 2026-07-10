@@ -1,4 +1,5 @@
 import {prisma} from '../../config/prisma';
+import { NotificationService } from '../notifications/notifications.service';
 
 export class AdminService {
     // Dashboard metrics
@@ -75,6 +76,7 @@ export class AdminService {
         const data: any = {
             is_verified: status === 'verified',
             verification_status: status,
+            is_active: status === 'verified',
         };
         if (status === 'rejected' && checklist && checklist.length > 0) {
             data.verification_notes = JSON.stringify({ checklist, notes: notes || '' });
@@ -209,6 +211,9 @@ export class AdminService {
                 profiles_customer: {
                     select: { id: true, full_name: true, nickname: true }
                 },
+                provider_profiles: {
+                    select: { id: true, full_name: true }
+                },
                 payments: {
                     select: { id: true, method: true, amount: true, status: true, created_at: true }
                 }
@@ -216,11 +221,66 @@ export class AdminService {
         });
     }
 
+    // All orders for admin monitoring
+    async getAllOrders() {
+        const orders = await prisma.orders.findMany({
+            orderBy: { created_at: 'desc' },
+            select: {
+                id: true,
+                total_price: true,
+                description: true,
+                work_date: true,
+                status: true,
+                created_at: true,
+                profiles_customer: {
+                    select: { id: true, full_name: true, nickname: true }
+                },
+                provider_profiles: {
+                    select: { id: true, full_name: true }
+                },
+                payments: {
+                    select: { id: true, method: true, amount: true, status: true, created_at: true }
+                }
+            }
+        });
+
+        const providerIds = [...new Set(orders.map(o => o.provider_profiles?.id).filter(Boolean))];
+        let payoutMethods: any[] = [];
+        if (providerIds.length > 0) {
+            payoutMethods = await prisma.$queryRaw<Array<{
+                id: string; provider_id: string; type: string;
+                provider_name: string; account_number: string; account_name: string;
+            }>>`
+                SELECT ppm.id, ppm.provider_id, ppm.type, ppm.provider_name, ppm.account_number, ppm.account_name
+                FROM provider_payout_methods ppm
+                WHERE ppm.provider_id = ANY(${providerIds}::uuid[])
+            `;
+        }
+
+        const payoutByProviderId = Object.fromEntries(
+            payoutMethods.map(pm => [pm.provider_id, pm])
+        );
+
+        return orders.map(o => ({
+            ...o,
+            provider_payout: o.provider_profiles?.id
+                ? (payoutByProviderId[o.provider_profiles.id] ?? null)
+                : null,
+        }));
+    }
+
     // Payment Accounts (Rekber Admin)
     async getPaymentAccounts() {
-        return await prisma.admin_payment_accounts.findMany({
-            orderBy: { created_at: 'asc' }
-        });
+        const [banks, ewallets, qris] = await Promise.all([
+            prisma.admin_bank_accounts.findMany({ orderBy: { created_at: 'asc' } }),
+            prisma.admin_ewallet_accounts.findMany({ orderBy: { created_at: 'asc' } }),
+            prisma.admin_qris_accounts.findMany({ orderBy: { created_at: 'asc' } }),
+        ]);
+        return [
+            ...banks.map(a => ({ ...a, type: 'bank_transfer', account_number: a.account_number, account_name: a.account_name, qris_image_url: null })),
+            ...ewallets.map(a => ({ ...a, type: 'e_wallet', account_number: a.account_number, account_name: a.account_name, qris_image_url: null })),
+            ...qris.map(a => ({ ...a, type: 'qris', account_number: null, account_name: null, qris_image_url: a.qris_image_url })),
+        ];
     }
 
     async createPaymentAccount(data: {
@@ -230,7 +290,22 @@ export class AdminService {
         provider_name: string;
         qris_image_url?: string;
     }) {
-        return await prisma.admin_payment_accounts.create({ data });
+        if (data.type === 'bank_transfer') {
+            return await prisma.admin_bank_accounts.create({
+                data: { provider_name: data.provider_name, account_number: data.account_number, account_name: data.account_name }
+            });
+        }
+        if (data.type === 'e_wallet') {
+            return await prisma.admin_ewallet_accounts.create({
+                data: { provider_name: data.provider_name, account_number: data.account_number, account_name: data.account_name }
+            });
+        }
+        if (data.type === 'qris') {
+            return await prisma.admin_qris_accounts.create({
+                data: { provider_name: data.provider_name, qris_image_url: data.qris_image_url ?? '' }
+            });
+        }
+        throw new Error('Tipe rekber tidak valid');
     }
 
     async updatePaymentAccount(id: string, data: {
@@ -241,14 +316,29 @@ export class AdminService {
         qris_image_url?: string;
         is_active?: boolean;
     }) {
-        return await prisma.admin_payment_accounts.update({
-            where: { id },
-            data
-        });
+        const bank = await prisma.admin_bank_accounts.findUnique({ where: { id } });
+        if (bank) {
+            return await prisma.admin_bank_accounts.update({ where: { id }, data: { provider_name: data.provider_name, account_number: data.account_number, account_name: data.account_name, is_active: data.is_active } });
+        }
+        const ewallet = await prisma.admin_ewallet_accounts.findUnique({ where: { id } });
+        if (ewallet) {
+            return await prisma.admin_ewallet_accounts.update({ where: { id }, data: { provider_name: data.provider_name, account_number: data.account_number, account_name: data.account_name, is_active: data.is_active } });
+        }
+        const qris = await prisma.admin_qris_accounts.findUnique({ where: { id } });
+        if (qris) {
+            return await prisma.admin_qris_accounts.update({ where: { id }, data: { provider_name: data.provider_name, qris_image_url: data.qris_image_url, is_active: data.is_active } });
+        }
+        throw new Error('Rekber tidak ditemukan');
     }
 
     async deletePaymentAccount(id: string) {
-        return await prisma.admin_payment_accounts.delete({ where: { id } });
+        const bank = await prisma.admin_bank_accounts.findUnique({ where: { id } });
+        if (bank) { await prisma.admin_bank_accounts.delete({ where: { id } }); return; }
+        const ewallet = await prisma.admin_ewallet_accounts.findUnique({ where: { id } });
+        if (ewallet) { await prisma.admin_ewallet_accounts.delete({ where: { id } }); return; }
+        const qris = await prisma.admin_qris_accounts.findUnique({ where: { id } });
+        if (qris) { await prisma.admin_qris_accounts.delete({ where: { id } }); return; }
+        throw new Error('Rekber tidak ditemukan');
     }
 
     async getOpenReports() {
@@ -262,10 +352,13 @@ export class AdminService {
     }
 
     async respondToReport(reportId: string, response: string, status: 'resolved' | 'dismissed') {
-        const report = await prisma.reports.findUnique({ where: { id: reportId } });
+        const report = await prisma.reports.findUnique({
+            where: { id: reportId },
+            include: { users: { select: { email: true } } }
+        });
         if (!report) throw new Error('Laporan tidak ditemukan');
 
-        return await prisma.reports.update({
+        const updated = await prisma.reports.update({
             where: { id: reportId },
             data: {
                 status,
@@ -273,6 +366,17 @@ export class AdminService {
                 resolved_at: new Date(),
             }
         });
+
+        // Kirim notifikasi ke pelapor
+        const statusLabel = status === 'resolved' ? 'terselesaikan' : 'ditutup';
+        NotificationService.sendToUser(
+            report.reporter_id,
+            `Laporan ${statusLabel}`,
+            `Laporan "${report.subject}" telah ${statusLabel} oleh admin. Respon: ${response}`,
+            { reportId, type: 'REPORT_RESPONDED' }
+        ).catch(() => {});
+
+        return updated;
     }
 
     async getPendingExtensions() {
@@ -287,6 +391,47 @@ export class AdminService {
                         description: true,
                         work_date: true,
                         platform_fee: true,
+                        provider_profiles: { select: { full_name: true } },
+                        profiles_customer: { select: { full_name: true } }
+                    }
+                }
+            }
+        });
+    }
+
+    async getAllExtensions() {
+        return await prisma.order_extensions.findMany({
+            orderBy: { created_at: 'desc' },
+            include: {
+                orders: {
+                    select: {
+                        id: true,
+                        total_price: true,
+                        description: true,
+                        work_date: true,
+                        platform_fee: true,
+                        additional_fee: true,
+                        provider_profiles: { select: { full_name: true } },
+                        profiles_customer: { select: { full_name: true } }
+                    }
+                }
+            }
+        });
+    }
+
+    async getPendingPaymentExtensions() {
+        return await prisma.order_extensions.findMany({
+            where: { status: 'pending_payment' },
+            orderBy: { created_at: 'desc' },
+            include: {
+                orders: {
+                    select: {
+                        id: true,
+                        total_price: true,
+                        description: true,
+                        work_date: true,
+                        platform_fee: true,
+                        additional_fee: true,
                         provider_profiles: { select: { full_name: true } },
                         profiles_customer: { select: { full_name: true } }
                     }

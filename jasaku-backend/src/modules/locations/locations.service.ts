@@ -18,12 +18,11 @@ export class LocationService {
     }
 
     async getProviderLocation(providerUserId: string) {
-        const result = await prisma.$queryRaw<Array<{ lat: number; lng: number; address: string; updated_at: Date }>>`
+        const result = await prisma.$queryRaw<Array<{ lat: number; lng: number; address: string }>>`
             SELECT 
                 ST_Y(location::geometry) as lat,
                 ST_X(location::geometry) as lng,
-                address,
-                COALESCE(updated_at, created_at) as updated_at
+                address
             FROM provider_locations
             WHERE provider_id = ${providerUserId}::uuid
         `;

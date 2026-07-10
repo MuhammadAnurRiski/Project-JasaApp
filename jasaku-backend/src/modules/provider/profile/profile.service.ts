@@ -7,7 +7,7 @@ export class ProfileService {
     });
 
     const services = await prisma.provider_services.findMany({
-      where: { provider_id: userId },
+      where: { provider_id: profile?.id ?? '' },
       include: {
         services: true,
         provider_service_prices: {
@@ -44,6 +44,12 @@ export class ProfileService {
     }
   ) {
     return await prisma.$transaction(async (tx) => {
+      const profileId = await tx.provider_profiles.findUnique({
+        where: { user_id: userId },
+        select: { id: true },
+      });
+      if (!profileId) throw new Error('Profil provider tidak ditemukan');
+
       if (data.profile_photo) {
         await tx.provider_profiles.update({
           where: { user_id: userId },
@@ -56,7 +62,7 @@ export class ProfileService {
 
         for (const svc of data.services) {
           const existing = await tx.provider_services.findFirst({
-            where: { provider_id: userId, service_id: svc.serviceId },
+            where: { provider_id: profileId.id, service_id: svc.serviceId },
           });
           if (!existing) continue;
 
@@ -87,18 +93,12 @@ export class ProfileService {
       }
 
       if (data.payoutMethod) {
-        const profile = await tx.provider_profiles.findUnique({
-          where: { user_id: userId },
-          select: { id: true },
+        await tx.provider_payout_methods.create({
+          data: {
+            provider_id: profileId.id,
+            ...data.payoutMethod,
+          },
         });
-        if (profile) {
-          await tx.provider_payout_methods.create({
-            data: {
-              provider_id: profile.id,
-              ...data.payoutMethod,
-            },
-          });
-        }
       }
 
       await tx.provider_profiles.update({

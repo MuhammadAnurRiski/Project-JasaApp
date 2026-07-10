@@ -49,14 +49,22 @@ const updatePaymentStatus = async (req: AuthRequest, res: Response) => {
     const payment = await new PaymentsService().updatePaymentStatus(paymentId, status);
     if (!payment) return errorResponse(res, "Pembayaran tidak ditemukan", 404);
 
-    // Notifikasi
-    const order = await prisma.orders.findUnique({ where: { id: payment.order_id } });
+    // Notifikasi — cari user_id dari profile_id
+    const order = await prisma.orders.findUnique({
+      where: { id: payment.order_id },
+      include: {
+        profiles_customer: { select: { user_id: true } },
+        provider_profiles: { select: { user_id: true } }
+      }
+    });
     if (order) {
+      const customerUserId = order.profiles_customer?.user_id;
+      const providerUserId = order.provider_profiles?.user_id;
       if (status === 'paid') {
-        await NotificationService.sendToUser(order.customer_id, "Pembayaran Berhasil", "Pembayaran Anda telah dikonfirmasi. Terima kasih!", { orderId: order.id, type: "PAYMENT_SUCCESS" });
-        await NotificationService.sendToUser(order.provider_id, "Pembayaran Diterima", "Pembayaran untuk pesanan telah diterima.", { orderId: order.id, type: "PAYMENT_RECEIVED" });
+        if (customerUserId) await NotificationService.sendToUser(customerUserId, "Pembayaran Berhasil", "Pembayaran Anda telah dikonfirmasi. Terima kasih!", { orderId: order.id, type: "PAYMENT_SUCCESS" });
+        if (providerUserId) await NotificationService.sendToUser(providerUserId, "Pembayaran Diterima", "Pembayaran untuk pesanan telah diterima.", { orderId: order.id, type: "PAYMENT_RECEIVED" });
       } else if (status === 'failed') {
-        await NotificationService.sendToUser(order.customer_id, "Pembayaran Gagal", "Pembayaran Anda gagal. Silakan coba lagi.", { orderId: order.id, type: "PAYMENT_FAILED" });
+        if (customerUserId) await NotificationService.sendToUser(customerUserId, "Pembayaran Gagal", "Pembayaran Anda gagal. Silakan coba lagi.", { orderId: order.id, type: "PAYMENT_FAILED" });
       }
     }
 
@@ -66,4 +74,18 @@ const updatePaymentStatus = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export { getPaymentMethods, createPayment, getPaymentByOrder, updatePaymentStatus };
+export { getPaymentMethods, createPayment, getPaymentByOrder, updatePaymentStatus, uploadPaymentProof };
+
+const uploadPaymentProof = async (req: AuthRequest, res: Response) => {
+  try {
+    const orderId = String(req.params.orderId);
+    const file = req.file;
+    if (!file) return errorResponse(res, "Upload bukti pembayaran terlebih dahulu", 400);
+
+    const fileUrl = `/uploads/payment-proofs/${file.filename}`;
+    const result = await new PaymentsService().uploadPaymentProof(orderId, fileUrl);
+    return successResponse(res, result, "Bukti pembayaran berhasil diupload");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
