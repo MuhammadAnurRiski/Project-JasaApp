@@ -1,6 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:dio/dio.dart';
+import '../../../../core/constants/api_endpoints.dart';
+import '../../../../core/network/api_client.dart';
 import 'provider_dashboard.dart';
 import 'provider_requests_page.dart';
 import 'provider_profile_page.dart';
@@ -16,6 +20,24 @@ import '../../../notifications/data/services/fcm_manager.dart';
 
 final unreadProviderProvider = StateProvider<int>((ref) => 0);
 
+class ProviderCounts {
+  final int pendingRequests;
+  final int todayOrders;
+  final int upcomingOrders;
+  final int availableTasks;
+  final int myAcceptedTasks;
+
+  const ProviderCounts({
+    this.pendingRequests = 0,
+    this.todayOrders = 0,
+    this.upcomingOrders = 0,
+    this.availableTasks = 0,
+    this.myAcceptedTasks = 0,
+  });
+}
+
+final providerCountsProvider = StateProvider<ProviderCounts>((ref) => const ProviderCounts());
+
 class ProviderShell extends ConsumerStatefulWidget {
   const ProviderShell({super.key});
 
@@ -25,6 +47,8 @@ class ProviderShell extends ConsumerStatefulWidget {
 
 class _ProviderShellState extends ConsumerState<ProviderShell> {
   int _selectedIndex = 0;
+  Timer? _countsTimer;
+  final Dio _dio = ApiClient().dio;
 
   List<Widget> _pages(bool isAdmin) => [
         const ProviderHomePage(),
@@ -40,12 +64,32 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
     FcmManager.onNotificationTap = _handleNotificationTap;
     FcmManager.onForegroundMessage = _handleForegroundMessage;
     ref.read(locationTrackerProvider.notifier).startTracking();
+    _fetchCounts();
+    _countsTimer = Timer.periodic(const Duration(seconds: 30), (_) => _fetchCounts());
   }
 
   @override
   void dispose() {
+    _countsTimer?.cancel();
     ref.read(locationTrackerProvider.notifier).stopTracking();
     super.dispose();
+  }
+
+  Future<void> _fetchCounts() async {
+    if (!mounted) return;
+    try {
+      final response = await _dio.get(ApiEndpoints.providerCounts);
+      final data = response.data['data'] as Map<String, dynamic>;
+      if (mounted) {
+        ref.read(providerCountsProvider.notifier).state = ProviderCounts(
+          pendingRequests: data['pendingRequests'] ?? 0,
+          todayOrders: data['todayOrders'] ?? 0,
+          upcomingOrders: data['upcomingOrders'] ?? 0,
+          availableTasks: data['availableTasks'] ?? 0,
+          myAcceptedTasks: data['myAcceptedTasks'] ?? 0,
+        );
+      }
+    } catch (_) {}
   }
 
   void _handleForegroundMessage(RemoteMessage message) {
@@ -110,6 +154,7 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
       ref.read(unreadProviderProvider.notifier).state = 0;
     }
     if (index == 0) {
+      _fetchCounts();
       Future.microtask(() => ref.read(dashboardProvider.notifier).loadDashboard());
     }
     if (index == 3) {
@@ -122,7 +167,11 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
     final authState = ref.watch(authProvider);
     final isAdmin = authState.user?.isAdmin ?? false;
     final unreadCount = ref.watch(unreadProviderProvider);
+    final counts = ref.watch(providerCountsProvider);
     debugPrint('[ProviderShell] user role: ${authState.user?.role} isAdmin: $isAdmin');
+
+    final requestBadge = unreadCount > 0 ? unreadCount : counts.pendingRequests;
+    final orderBadge = counts.todayOrders + counts.upcomingOrders;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -142,13 +191,20 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
           const BottomNavigationBarItem(icon: Icon(Icons.grid_view_rounded), label: 'Beranda'),
           BottomNavigationBarItem(
             icon: Badge(
-              isLabelVisible: _selectedIndex != 1 && unreadCount > 0,
-              label: Text(unreadCount > 9 ? '9+' : '$unreadCount'),
+              isLabelVisible: _selectedIndex != 1 && requestBadge > 0,
+              label: Text(requestBadge > 9 ? '9+' : '$requestBadge'),
               child: const Icon(Icons.history_toggle_off),
             ),
             label: 'Permintaan',
           ),
-          const BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), label: 'Orderan'),
+          BottomNavigationBarItem(
+            icon: Badge(
+              isLabelVisible: _selectedIndex != 2 && orderBadge > 0,
+              label: Text(orderBadge > 9 ? '9+' : '$orderBadge'),
+              child: const Icon(Icons.assignment_outlined),
+            ),
+            label: 'Orderan',
+          ),
           const BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profil'),
           if (isAdmin)
             const BottomNavigationBarItem(icon: Icon(Icons.admin_panel_settings), label: 'Admin'),

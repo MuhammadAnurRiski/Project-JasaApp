@@ -2,7 +2,7 @@ import { Router } from "express";
 import multer from "multer";
 import { authenticate } from "../../../middleware/auth.middleware";
 import { upload } from "../../../middleware/upload.middleware";
-import { getProfile, toggleAvailability, toggleTaskAvailability, completeOnboarding, updateProfile } from "./profile.controller";
+import { getProfile, toggleAvailability, toggleTaskAvailability, completeOnboarding, updateProfile, getCounts } from "./profile.controller";
 
 const router = Router();
 
@@ -22,6 +22,7 @@ function handleMulterError(err: any, req: any, res: any, next: any) {
   next();
 }
 
+router.get("/counts", authenticate, getCounts);
 router.get("/profile", authenticate, getProfile);
 router.post("/profile/availability", authenticate, toggleAvailability);
 router.post("/profile/task-availability", authenticate, toggleTaskAvailability);

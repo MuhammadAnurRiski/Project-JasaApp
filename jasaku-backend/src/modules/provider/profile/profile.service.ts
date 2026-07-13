@@ -1,6 +1,46 @@
 import { prisma } from "../../../config/prisma";
+import { getTodayWitaDate } from "../../../utils/operating-hours";
 
 export class ProfileService {
+  async getProviderCounts(userId: string) {
+    const profile = await prisma.provider_profiles.findUnique({
+      where: { user_id: userId },
+      select: { id: true },
+    });
+    if (!profile) {
+      return { pendingRequests: 0, todayOrders: 0, upcomingOrders: 0, availableTasks: 0, myAcceptedTasks: 0 };
+    }
+
+    const todayStart = getTodayWitaDate();
+    const tomorrowStart = new Date(todayStart);
+    tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+
+    const [
+      pendingRequests,
+      todayOrders,
+      upcomingOrders,
+      availableTasks,
+      myAcceptedTasks,
+    ] = await Promise.all([
+      prisma.orders.count({
+        where: { provider_id: profile.id, status: 'pending', assignment_type: { not: 'custom_task' } },
+      }),
+      prisma.orders.count({
+        where: { provider_id: profile.id, work_date: { gte: todayStart, lt: tomorrowStart }, status: { notIn: ['cancelled', 'rejected'] } },
+      }),
+      prisma.orders.count({
+        where: { provider_id: profile.id, work_date: { gt: todayStart }, status: { notIn: ['cancelled', 'rejected'] } },
+      }),
+      prisma.custom_tasks.count({
+        where: { status: 'open' },
+      }),
+      prisma.task_providers.count({
+        where: { provider_id: profile.id, status: { in: ['accepted'] } },
+      }),
+    ]);
+
+    return { pendingRequests, todayOrders, upcomingOrders, availableTasks, myAcceptedTasks };
+  }
   async getFullProfile(userId: string) {
     const profile = await prisma.provider_profiles.findUnique({
       where: { user_id: userId },

@@ -313,4 +313,18 @@ const toggleTaskAvailability = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export { getProfile, toggleAvailability, toggleTaskAvailability, completeOnboarding, updateProfile };
+const getCounts = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      return errorResponse(res, "Anda harus login terlebih dahulu", 401);
+    }
+    const counts = await new ProfileService().getProviderCounts(userId);
+    return successResponse(res, counts, "Counts berhasil diambil");
+  } catch (err: any) {
+    console.error("[getCounts]", err);
+    return errorResponse(res, err.message);
+  }
+};
+
+export { getProfile, toggleAvailability, toggleTaskAvailability, completeOnboarding, updateProfile, getCounts };

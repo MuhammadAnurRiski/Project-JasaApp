@@ -72,6 +72,7 @@ class ApiEndpoints {
 
   // Provider Dashboard
   static const String providerProfile = '$baseUrl/api/provider/profile';
+  static const String providerCounts = '$baseUrl/api/provider/counts';
   static const String providerServices = '$baseUrl/api/provider/services';
   static const String providerAvailability = '$baseUrl/api/provider/profile/availability';
   static const String providerCompleteOnboarding = '$baseUrl/api/provider/profile/complete';

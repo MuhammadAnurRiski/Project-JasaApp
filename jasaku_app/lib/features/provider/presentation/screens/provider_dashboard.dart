@@ -17,6 +17,7 @@ import '../../../custom_tasks/presentation/pages/provider_my_bids_page.dart';
 import '../../../custom_tasks/data/custom_tasks_repository.dart';
 import '../../../custom_tasks/data/models/custom_task_model.dart';
 import 'provider_full_map_page.dart';
+import 'provider_shell.dart';
 
 class ProviderHomePage extends ConsumerStatefulWidget {
   const ProviderHomePage({super.key});
@@ -298,6 +299,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(dashboardProvider);
+    final counts = ref.watch(providerCountsProvider);
 
     if (state.isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -741,6 +743,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
                   title: 'Task Tersedia',
                   subtitle: 'Lihat dan ajukan penawaran task dari customer',
                   color: const Color(0xFF00A651),
+                  badgeCount: counts.availableTasks,
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const ProviderAvailableTasksPage()),
                   ),
@@ -751,6 +754,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
                   title: 'Task Saya',
                   subtitle: 'Lihat task yang sudah diambil',
                   color: const Color(0xFF2563EB),
+                  badgeCount: counts.myAcceptedTasks,
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const ProviderMyBidsPage()),
                   ),
@@ -834,6 +838,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
     required String subtitle,
     required Color color,
     required VoidCallback onTap,
+    int badgeCount = 0,
   }) {
     return Material(
       color: Colors.transparent,
@@ -854,13 +859,36 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
           ),
           child: Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: color, size: 24),
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(icon, color: color, size: 24),
+                  ),
+                  if (badgeCount > 0)
+                    Positioned(
+                      top: -4,
+                      right: -4,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                        child: Text(
+                          badgeCount > 9 ? '9+' : '$badgeCount',
+                          style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
               ),
               const SizedBox(width: 14),
               Expanded(
