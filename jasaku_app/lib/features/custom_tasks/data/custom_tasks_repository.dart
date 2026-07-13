@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import '../../../core/network/api_client.dart';
@@ -48,12 +49,8 @@ class CustomTasksRepository {
     });
     if (description != null) form.fields.add(MapEntry('description', description));
     if (locationDetail != null) form.fields.add(MapEntry('location_detail', locationDetail));
-    for (int i = 0; i < locations.length; i++) {
-      final l = locations[i];
-      form.fields.add(MapEntry('locations[${i}][label]', l['label']?.toString() ?? ''));
-      form.fields.add(MapEntry('locations[${i}][address]', l['address']?.toString() ?? ''));
-      form.fields.add(MapEntry('locations[${i}][lat]', l['lat'].toString()));
-      form.fields.add(MapEntry('locations[${i}][lng]', l['lng'].toString()));
+    if (locations.isNotEmpty) {
+      form.fields.add(MapEntry('locations', jsonEncode(locations)));
     }
     for (int i = 0; i < images.length; i++) {
       form.files.add(MapEntry(

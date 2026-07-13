@@ -91,19 +91,28 @@ export const registerDeviceSchema = z.object({
 export const createCustomTaskSchema = z.object({
     title: z.string().min(1, 'Judul task wajib diisi').max(150, 'Maksimal 150 karakter'),
     description: z.string().optional().nullable(),
-    budget_per_person: z.number().positive('Budget per orang harus lebih dari 0'),
-    required_people: z.number().int().min(1, 'Minimal 1 orang').default(1),
+    budget_per_person: z.coerce.number().positive('Budget per orang harus lebih dari 0'),
+    required_people: z.coerce.number().int().min(1, 'Minimal 1 orang').default(1),
     address: z.string().optional(),
     location_detail: z.string().optional().nullable(),
-    publish_days: z.number().int().min(1, 'Minimal 1 hari').max(3, 'Maksimal 3 hari').default(1),
-    lat: z.number().min(-90).max(90, 'Latitude tidak valid'),
-    lng: z.number().min(-180).max(180, 'Longitude tidak valid'),
-    locations: z.array(z.object({
-        label: z.string().optional(),
-        address: z.string().min(1, 'Alamat titik wajib diisi'),
-        lat: z.number().min(-90).max(90),
-        lng: z.number().min(-180).max(180),
-    })).optional().default([]),
+    publish_days: z.coerce.number().int().min(1, 'Minimal 1 hari').max(3, 'Maksimal 3 hari').default(1),
+    lat: z.coerce.number().min(-90).max(90, 'Latitude tidak valid'),
+    lng: z.coerce.number().min(-180).max(180, 'Longitude tidak valid'),
+    locations: z.preprocess(
+        (val) => {
+            if (Array.isArray(val)) return val;
+            if (typeof val === 'string') {
+                try { return JSON.parse(val); } catch { return []; }
+            }
+            return [];
+        },
+        z.array(z.object({
+            label: z.string().optional(),
+            address: z.string().min(1, 'Alamat titik wajib diisi'),
+            lat: z.coerce.number().min(-90).max(90),
+            lng: z.coerce.number().min(-180).max(180),
+        })).optional().default([])
+    ),
 });
 
 export const submitBidSchema = z.object({

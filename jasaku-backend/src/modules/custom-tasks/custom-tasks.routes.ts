@@ -54,7 +54,7 @@ router.get('/search-location', authenticate, async (req: Request, res: Response)
   }
 });
 
-router.post('/', authenticate, isCustomer, validate(createCustomTaskSchema), createTask);
+router.post('/', authenticate, isCustomer, upload.array('images', 5), validate(createCustomTaskSchema), createTask);
 router.get('/available', authenticate, isProvider, getAvailableTasks);
 router.get('/mine', authenticate, isCustomer, getMyTasks);
 router.get('/my-accepted', authenticate, isProvider, getMyAcceptedTasks);
