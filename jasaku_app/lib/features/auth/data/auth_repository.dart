@@ -181,12 +181,16 @@ Future<Map<String, dynamic>> registerProvider({
         ApiEndpoints.login,
         data: {'email': email, 'password': password},
       );
-      final data = response.data['data'] as Map<String, dynamic>?;
+      final body = response.data;
+      if (body is! Map<String, dynamic>) {
+        throw 'Respons server tidak valid. Silakan coba lagi.';
+      }
+      final data = body['data'] as Map<String, dynamic>?;
       final token = data?['token'] as String?;
       if (token != null) {
         await StorageService.saveToken(token);
       }
-      return response.data as Map<String, dynamic>;
+      return body;
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -206,7 +210,11 @@ Future<Map<String, dynamic>> registerProvider({
 
   String _handleError(DioException e) {
     if (e.response != null) {
-      return e.response?.data['message'] as String? ?? 'Terjadi kesalahan';
+      final data = e.response?.data;
+      if (data is Map<String, dynamic>) {
+        return data['message'] as String? ?? 'Terjadi kesalahan';
+      }
+      return 'Terjadi kesalahan dari server';
     }
     return 'Tidak dapat terhubung ke server';
   }

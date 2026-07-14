@@ -39,28 +39,31 @@ class _ProviderWelcomeScreenState extends ConsumerState<ProviderWelcomeScreen> {
 
     try {
       final response = await ApiClient().dio.get('${ApiEndpoints.baseUrl}/api/auth/me');
-      final meData = response.data['data'] as Map<String, dynamic>?;
-      if (meData != null) {
-        ref.read(authProvider.notifier).restoreSession(meData);
-        final status = ref.read(authProvider).verificationStatus;
-        if (status == 'pending' || status == 'rejected') {
-          if (mounted) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => ProviderVerificationPendingScreen(status: status!),
-              ),
-            );
+      final body = response.data;
+      if (body is Map<String, dynamic>) {
+        final meData = body['data'] as Map<String, dynamic>?;
+        if (meData != null) {
+          ref.read(authProvider.notifier).restoreSession(meData);
+          final status = ref.read(authProvider).verificationStatus;
+          if (status == 'pending' || status == 'rejected') {
+            if (mounted) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ProviderVerificationPendingScreen(status: status!),
+                ),
+              );
+            }
+            return;
+          }
+          final onboarding = ref.read(authProvider).onboardingCompleted;
+          if (onboarding == false) {
+            if (mounted) Navigator.pushReplacementNamed(context, '/provider/profile-completion');
+          } else {
+            if (mounted) Navigator.pushReplacementNamed(context, '/provider/shell');
           }
           return;
         }
-        final onboarding = ref.read(authProvider).onboardingCompleted;
-        if (onboarding == false) {
-          if (mounted) Navigator.pushReplacementNamed(context, '/provider/profile-completion');
-        } else {
-          if (mounted) Navigator.pushReplacementNamed(context, '/provider/shell');
-        }
-        return;
       }
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {

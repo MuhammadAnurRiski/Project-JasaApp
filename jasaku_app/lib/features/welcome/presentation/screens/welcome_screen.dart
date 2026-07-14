@@ -34,9 +34,12 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
 
     try {
       final response = await ApiClient().dio.get('${ApiEndpoints.baseUrl}/api/auth/me');
-      final meData = response.data['data'] as Map<String, dynamic>?;
-      if (meData != null) {
-        ref.read(authProvider.notifier).restoreSession(meData);
+      final body = response.data;
+      if (body is Map<String, dynamic>) {
+        final meData = body['data'] as Map<String, dynamic>?;
+        if (meData != null) {
+          ref.read(authProvider.notifier).restoreSession(meData);
+        }
       }
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
