@@ -6,7 +6,6 @@ import 'provider_profile_edit_screen.dart';
 import 'provider_reviews_page.dart';
 import 'provider_services_edit_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/utils/image_url.dart';
 import '../../../reports/presentation/pages/report_form_page.dart';
 import '../../../reports/presentation/pages/report_history_page.dart';

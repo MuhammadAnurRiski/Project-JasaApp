@@ -335,7 +335,7 @@ class ProviderListScreen extends StatelessWidget {
           border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -1046,7 +1046,7 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2563EB).withOpacity(0.1),
+                            color: const Color(0xFF2563EB).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Icon(
@@ -1090,7 +1090,7 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 10,
                       offset: const Offset(0, -4),
                     ),

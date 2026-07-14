@@ -550,7 +550,7 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                   children: [
                     CircleAvatar(
                       radius: 18,
-                      backgroundColor: const Color(0xFF2563EB).withOpacity(0.1),
+                      backgroundColor: const Color(0xFF2563EB).withValues(alpha: 0.1),
                       child: const Icon(Icons.person, size: 18, color: Color(0xFF2563EB)),
                     ),
                     const SizedBox(width: 12),
@@ -609,7 +609,7 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
         children: [
           CircleAvatar(
             radius: 18,
-            backgroundColor: const Color(0xFF00A651).withOpacity(0.1),
+            backgroundColor: const Color(0xFF00A651).withValues(alpha: 0.1),
             child: const Icon(Icons.person, size: 18, color: Color(0xFF00A651)),
           ),
           const SizedBox(width: 12),
@@ -629,7 +629,7 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: tpStatusColor.withOpacity(0.1),
+              color: tpStatusColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(tpStatusLabel,
@@ -662,7 +662,7 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: statusColor.withOpacity(0.1),
+        color: statusColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(statusLabel,

@@ -178,7 +178,7 @@ class _ProviderOrderManagementPageState extends ConsumerState<ProviderOrderManag
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: _statusColor(status).withOpacity(0.1),
+                          color: _statusColor(status).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -265,15 +265,13 @@ class _ProviderOrderManagementPageState extends ConsumerState<ProviderOrderManag
               '${ApiEndpoints.updateOrderStatus}${order['id']}/status',
               data: {'status': nextStatus},
             );
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Status berhasil diperbarui')));
-            }
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Status berhasil diperbarui')));
             _loadOrders();
           } catch (e) {
             final msg = e.toString();
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal: $msg')));
-            }
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal: $msg')));
           }
         },
         child: Text(label),

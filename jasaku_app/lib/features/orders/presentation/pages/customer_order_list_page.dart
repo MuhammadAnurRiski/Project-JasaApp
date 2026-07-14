@@ -93,10 +93,10 @@ class _CustomerOrderListPageState extends ConsumerState<CustomerOrderListPage> {
           builder: (ctx, setSheetState) {
             List<dynamic>? extensions;
             bool extLoading = false;
-            bool _extFetched = false;
+            bool extFetched = false;
             String? extError;
 
-            Future<void> _fetchExtensions() async {
+            Future<void> fetchExtensions() async {
               if (extensions != null) return;
               extLoading = true;
               setSheetState(() {});
@@ -113,17 +113,17 @@ class _CustomerOrderListPageState extends ConsumerState<CustomerOrderListPage> {
               }
             }
 
-            Future<List<dynamic>> _fetchPaymentAccounts() async {
+            Future<List<dynamic>> fetchPaymentAccounts() async {
               final res = await ApiClient().dio.get(
                 ApiEndpoints.paymentAccounts,
               );
               return (res.data?['data'] as List?) ?? [];
             }
 
-            Future<void> _showPaymentDialog() async {
+            Future<void> showPaymentDialog() async {
               try {
-                final accounts = await _fetchPaymentAccounts();
-                if (!ctx.mounted) return;
+                final accounts = await fetchPaymentAccounts();
+                if (!mounted) return;
                 showDialog(
                   context: context,
                   builder: (dctx) => AlertDialog(
@@ -201,14 +201,14 @@ class _CustomerOrderListPageState extends ConsumerState<CustomerOrderListPage> {
                   ),
                 );
               } catch (_) {
-                if (!ctx.mounted) return;
+                if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Gagal memuat informasi pembayaran')),
                 );
               }
             }
 
-            Future<void> _respondExtension(String extId, String action) async {
+            Future<void> respondExtension(String extId, String action) async {
               extLoading = true;
               setSheetState(() {});
               try {
@@ -218,18 +218,18 @@ class _CustomerOrderListPageState extends ConsumerState<CustomerOrderListPage> {
                 );
                 if (!ctx.mounted) return;
                 extensions = null;
-                await _fetchExtensions();
+                await fetchExtensions();
                 if (action == 'approved') {
-                  if (!ctx.mounted) return;
-                  await _showPaymentDialog();
+                  if (!mounted) return;
+                  await showPaymentDialog();
                 } else {
-                  if (!ctx.mounted) return;
+                  if (!mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Ekstensi ditolak')),
                   );
                 }
               } on DioException catch (e) {
-                if (!ctx.mounted) return;
+                if (!mounted) return;
                 final msg = e.response?.data?['message'] as String? ??
                     'Gagal merespon ekstensi';
                 ScaffoldMessenger.of(context)
@@ -240,10 +240,10 @@ class _CustomerOrderListPageState extends ConsumerState<CustomerOrderListPage> {
               }
             }
 
-            if (!_extFetched) {
-              _extFetched = true;
+            if (!extFetched) {
+              extFetched = true;
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                _fetchExtensions();
+                fetchExtensions();
               });
             }
 
@@ -369,13 +369,13 @@ class _CustomerOrderListPageState extends ConsumerState<CustomerOrderListPage> {
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     OutlinedButton(
-                                      onPressed: extLoading ? null : () => _respondExtension(extId, 'rejected'),
+                                      onPressed: extLoading ? null : () => respondExtension(extId, 'rejected'),
                                       style: OutlinedButton.styleFrom(foregroundColor: AppColors.error),
                                       child: const Text('Tolak', style: TextStyle(fontSize: 12)),
                                     ),
                                     const SizedBox(width: 8),
                                     ElevatedButton(
-                                      onPressed: extLoading ? null : () => _respondExtension(extId, 'approved'),
+                                      onPressed: extLoading ? null : () => respondExtension(extId, 'approved'),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: AppColors.primary,
                                         foregroundColor: Colors.white,
@@ -418,7 +418,7 @@ class _CustomerOrderListPageState extends ConsumerState<CustomerOrderListPage> {
                                 SizedBox(
                                   width: double.infinity,
                                   child: OutlinedButton.icon(
-                                    onPressed: extLoading ? null : _showPaymentDialog,
+                                    onPressed: extLoading ? null : showPaymentDialog,
                                     icon: const Icon(Icons.visibility, size: 14),
                                     label: const Text('Lihat Petunjuk Pembayaran', style: TextStyle(fontSize: 12)),
                                     style: OutlinedButton.styleFrom(foregroundColor: Colors.blue.shade700),

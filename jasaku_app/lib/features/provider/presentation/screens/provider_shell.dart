@@ -95,7 +95,7 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
   void _handleForegroundMessage(RemoteMessage message) {
     if (!mounted) return;
     final data = message.data as Map<String, String>? ?? {};
-    final type = data['type'] as String? ?? '';
+    final type = data['type'] ?? '';
     if (type == 'NEW_ORDER' || type == 'NEW_CUSTOM_TASK' || type == 'CUSTOM_TASK_ACCEPTED' ||
         type == 'CUSTOM_TASK_PAYOUT_CONFIRMED' || type == 'NEW_REVIEW') {
       ref.read(unreadProviderProvider.notifier).state++;

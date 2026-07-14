@@ -6,7 +6,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import '../../data/custom_tasks_repository.dart';
 import '../../data/models/custom_task_model.dart';
-import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/utils/image_url.dart';
 
 class CustomerPaymentPage extends ConsumerStatefulWidget {

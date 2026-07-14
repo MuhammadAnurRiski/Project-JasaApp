@@ -52,7 +52,6 @@ class _ProviderRegisterScreenState extends ConsumerState<ProviderRegisterScreen>
   String? _selectedPricingTypeLabel;
 
   bool _isLoadingServiceMetadata = false;
-  String? _serviceMetadataError;
   List<Map<String, dynamic>> _availableServices = [];
   List<Map<String, dynamic>> _availablePricingTypes = [];
 
@@ -80,7 +79,6 @@ class _ProviderRegisterScreenState extends ConsumerState<ProviderRegisterScreen>
   Future<void> _loadProviderServiceMetadata() async {
     setState(() {
       _isLoadingServiceMetadata = true;
-      _serviceMetadataError = null;
     });
     try {
       final repository = ProviderServicesRepository();
@@ -93,13 +91,11 @@ class _ProviderRegisterScreenState extends ConsumerState<ProviderRegisterScreen>
         _availablePricingTypes = pricingTypes;
       });
     } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _serviceMetadataError = 'Gagal memuat data layanan. Pastikan koneksi internet stabil.';
-      });
+      // error handled
     } finally {
-      if (!mounted) return;
-      setState(() => _isLoadingServiceMetadata = false);
+      if (mounted) {
+        setState(() => _isLoadingServiceMetadata = false);
+      }
     }
   }
 

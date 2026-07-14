@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/utils/image_url.dart';
 import '../providers/provider_profile_provider.dart';
 

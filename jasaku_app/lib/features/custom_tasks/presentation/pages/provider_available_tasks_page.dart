@@ -142,7 +142,7 @@ class _ProviderAvailableTasksPageState
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF00A651).withOpacity(0.1),
+                          color: const Color(0xFF00A651).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
