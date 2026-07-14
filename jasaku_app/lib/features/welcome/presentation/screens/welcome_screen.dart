@@ -32,22 +32,36 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
       return;
     }
 
-    try {
-      final response = await ApiClient().dio.get('${ApiEndpoints.baseUrl}/api/auth/me');
-      final body = response.data;
-      if (body is Map<String, dynamic>) {
-        final meData = body['data'] as Map<String, dynamic>?;
-        if (meData != null) {
-          ref.read(authProvider.notifier).restoreSession(meData);
+    for (int attempt = 0; attempt < 3; attempt++) {
+      try {
+        final response = await ApiClient().dio.get(
+          '${ApiEndpoints.baseUrl}/api/auth/me',
+        );
+        final body = response.data;
+        if (body is Map<String, dynamic>) {
+          final meData = body['data'] as Map<String, dynamic>?;
+          if (meData != null) {
+            ref.read(authProvider.notifier).restoreSession(meData);
+          }
+        }
+        break;
+      } on DioException catch (e) {
+        if (e.response?.statusCode == 401) {
+          await StorageService.deleteToken();
+          if (mounted) Navigator.pushReplacementNamed(context, '/login');
+          return;
+        }
+        if (attempt < 2) {
+          await Future.delayed(const Duration(seconds: 2));
+          continue;
+        }
+      } catch (_) {
+        if (attempt < 2) {
+          await Future.delayed(const Duration(seconds: 2));
+          continue;
         }
       }
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        await StorageService.deleteToken();
-        if (mounted) Navigator.pushReplacementNamed(context, '/login');
-        return;
-      }
-    } catch (_) {}
+    }
 
     if (mounted) Navigator.pushReplacementNamed(context, '/customer/shell');
   }
