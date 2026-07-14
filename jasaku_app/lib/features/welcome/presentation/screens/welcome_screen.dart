@@ -1,11 +1,7 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/storage.dart';
-import '../../../../core/network/api_client.dart';
-import '../../../../core/constants/api_endpoints.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
 
 class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
@@ -22,34 +18,14 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   }
 
   Future<void> _checkAuth() async {
-    await Future.delayed(const Duration(milliseconds: 1500));
+    await Future.delayed(const Duration(milliseconds: 800));
     if (!mounted) return;
 
-    debugPrint('[WelcomeScreen] _checkAuth: checking token...');
     final hasToken = await StorageService.hasToken();
-    debugPrint('[WelcomeScreen] _checkAuth: hasToken=$hasToken');
 
     if (hasToken) {
-      try {
-        debugPrint('[WelcomeScreen] _checkAuth: calling GET /api/auth/me...');
-        final response = await ApiClient().dio.get('${ApiEndpoints.baseUrl}/api/auth/me');
-        debugPrint('[WelcomeScreen] _checkAuth: response status=${response.statusCode}');
-        final meData = response.data['data'] as Map<String, dynamic>?;
-        debugPrint('[WelcomeScreen] _checkAuth: meData=${meData != null ? "OK (role=${meData['role']})" : "NULL"}');
-        if (meData != null) {
-          ref.read(authProvider.notifier).restoreSession(meData);
-        }
-        if (mounted) Navigator.pushReplacementNamed(context, '/customer/shell');
-        return;
-      } on DioException catch (e) {
-        debugPrint('[WelcomeScreen] _checkAuth: DioException status=${e.response?.statusCode} msg=${e.message}');
-        if (e.response?.statusCode == 401) {
-          await StorageService.deleteToken();
-        }
-      } catch (e) {
-        debugPrint('[WelcomeScreen] _checkAuth: error=$e');
-        // Network/timeout error — jangan hapus token
-      }
+      if (mounted) Navigator.pushReplacementNamed(context, '/customer/shell');
+      return;
     }
 
     if (mounted) Navigator.pushReplacementNamed(context, '/login');
