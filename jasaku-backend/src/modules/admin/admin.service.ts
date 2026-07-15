@@ -260,6 +260,7 @@ export class AdminService {
             select: {
                 id: true,
                 total_price: true,
+                platform_fee: true,
                 description: true,
                 work_date: true,
                 status: true,
