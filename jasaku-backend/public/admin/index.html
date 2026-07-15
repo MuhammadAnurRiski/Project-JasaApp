@@ -571,6 +571,7 @@
                     <tr>
                       <template x-if="selectMode"><td class="text-center"><input type="checkbox" :value="o.id" :checked="selectedIds.includes(o.id)" @change="toggleSelect(o.id)"></td></template>
                       <td><div><span class="font-medium text-gray-800" x-text="o.profiles_customer?.full_name || '-'"></span><span class="text-xs text-gray-400 block" x-text="o.profiles_customer?.nickname ? '@' + o.profiles_customer.nickname : ''"></span></div></td>
+                      <td class="text-gray-600" x-text="o.provider_profiles?.full_name || '-'"></td>
                       <td class="text-gray-500 text-sm" x-text="formatDate(o.created_at)"></td>
                       <td class="font-medium tabular-nums" x-text="'Rp ' + (Number(o.total_price) + Number(o.platform_fee || 0)).toLocaleString('id-ID')"></td>
                       <td><span class="badge badge-warning" x-text="o.payments?.length ? (o.payments[0].method || '-') : '-'"></span></td>
