@@ -635,23 +635,39 @@
               <div class="flex items-center gap-3">
                 <h2 class="text-lg font-semibold">Pencairan Dana ke Mitra</h2>
               </div>
-              <div class="flex items-center gap-3">
-                <span class="text-xs text-gray-400" x-text="orders.length + ' pesanan selesai'"></span>
+              <div class="flex items-center gap-2">
+                <template x-if="!selectMode">
+                  <div class="flex items-center gap-2">
+                    <button @click="toggleHistory()" class="btn-secondary btn-sm" x-text="showHistory ? 'Sembunyikan Riwayat' : 'Lihat Riwayat'"></button>
+                    <button @click="startSelect()" class="btn-danger btn-sm" x-show="confirmedOrders.length > 0"><i class="fas fa-trash-alt mr-1"></i>Hapus Riwayat</button>
+                  </div>
+                </template>
+                <template x-if="selectMode">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs text-gray-500" x-text="selectedIds.length + ' dipilih'"></span>
+                    <button @click="hideSelected()" class="btn-danger btn-sm" :disabled="selectedIds.length === 0"><i class="fas fa-eye-slash mr-1"></i>Sembunyikan</button>
+                    <button @click="cancelSelect()" class="btn-secondary btn-sm">Batal</button>
+                  </div>
+                </template>
+                <span class="text-xs text-gray-400" x-text="visibleOrders.length + ' pesanan'"></span>
                 <button @click="load()" class="btn-secondary btn-sm" :disabled="loading"><i class="fas fa-sync-alt mr-1" :class="loading ? 'fa-spin' : ''"></i>Refresh</button>
               </div>
             </div>
             <div class="p-5 pt-3">
               <template x-if="loading"><div class="space-y-3"><template x-for="i in 4"><div class="skeleton h-16 rounded-xl"></div></template></div></template>
-              <template x-if="!loading && orders.length === 0">
+              <template x-if="!loading && visibleOrders.length === 0">
                 <div class="text-center py-12">
                   <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fas fa-check-circle text-emerald-500 text-2xl"></i></div>
                   <p class="text-gray-400 text-sm font-medium">Tidak ada pesanan menunggu pencairan</p>
                 </div>
               </template>
-              <template x-if="!loading && orders.length > 0">
-                <div class="table-wrap"><table><thead><tr><th>Pelanggan</th><th>Mitra</th><th>No. Rekening Mitra</th><th>Total</th><th>Metode</th><th>Status</th><th class="text-center">Aksi</th></tr></thead><tbody>
-                  <template x-for="o in orders" :key="o.id">
+              <template x-if="!loading && visibleOrders.length > 0">
+                <div class="table-wrap"><table><thead><tr>
+                  <template x-if="selectMode"><th class="w-10"><input type="checkbox" @change="toggleSelectAll($event)" :checked="selectedIds.length === confirmedOrders.length && confirmedOrders.length > 0"></th></template>
+                  <th>Pelanggan</th><th>Mitra</th><th>No. Rekening Mitra</th><th>Total</th><th>Metode</th><th>Status</th><th class="text-center">Aksi</th></tr></thead><tbody>
+                  <template x-for="o in visibleOrders" :key="o.id">
                     <tr>
+                      <template x-if="selectMode"><td class="text-center"><input type="checkbox" :value="o.id" :checked="selectedIds.includes(o.id)" @change="toggleSelect(o.id)"></td></template>
                       <td><div><span class="font-medium text-gray-800" x-text="o.profiles_customer?.full_name || '-'"></span></div></td>
                       <td class="text-gray-600" x-text="o.provider_profiles?.full_name || '-'"></td>
                       <td>
@@ -670,16 +686,11 @@
                       <td><span class="badge badge-info">Selesai</span></td>
                       <td class="text-center">
                         <template x-if="!o.payout_confirmed">
-                          <div class="flex items-center justify-center gap-1">
-                            <button @click="confirmPayout(o.id)" :disabled="confirming === o.id" class="btn-success btn-sm">
-                              <i x-show="confirming === o.id" class="fas fa-spinner fa-spin mr-1"></i>
-                              <i x-show="confirming !== o.id" class="fas fa-check mr-1"></i>
-                              <span x-text="confirming === o.id ? 'Memproses...' : 'Konfirmasi'"></span>
-                            </button>
-                            <button @click="deleteOrder(o.id)" :disabled="confirming === o.id" class="btn-danger btn-sm" title="Hapus Order">
-                              <i class="fas fa-trash"></i>
-                            </button>
-                          </div>
+                          <button @click="confirmPayout(o.id)" :disabled="confirming === o.id" class="btn-success btn-sm">
+                            <i x-show="confirming === o.id" class="fas fa-spinner fa-spin mr-1"></i>
+                            <i x-show="confirming !== o.id" class="fas fa-check mr-1"></i>
+                            <span x-text="confirming === o.id ? 'Memproses...' : 'Konfirmasi'"></span>
+                          </button>
                         </template>
                         <template x-if="o.payout_confirmed">
                           <span class="text-xs text-emerald-600 font-medium"><i class="fas fa-check-circle mr-1"></i>Sudah Dicairkan</span>
@@ -1193,9 +1204,23 @@
 
       Alpine.data('orderPayoutPage', () => ({
         loading: true, orders: [], confirming: null,
+        showHistory: false, selectMode: false, selectedIds: [], hiddenOrders: [],
         _interval: null,
-        init() { requireAuth(); this.load(); this._interval = setInterval(() => this.load(), 15000); },
+        init() {
+          requireAuth();
+          this.hiddenOrders = JSON.parse(localStorage.getItem('payout_hidden_orders') || '[]');
+          this.load();
+          this._interval = setInterval(() => this.load(), 15000);
+        },
         destroy() { if (this._interval) clearInterval(this._interval); },
+        get confirmedOrders() { return this.orders.filter(o => o.payout_confirmed); },
+        get visibleOrders() {
+          return this.orders.filter(o => {
+            if (o.payout_confirmed && !this.showHistory) return !this.hiddenOrders.includes(o.id);
+            if (o.payout_confirmed && this.showHistory) return true;
+            return true;
+          });
+        },
         async load() {
           this.loading = true;
           try { this.orders = await apiFetch('/admin/orders/pending-payout'); } catch (e) { toast(e.message, 'error'); }
@@ -1212,16 +1237,24 @@
           } catch (e) { toast(e.message, 'error'); }
           finally { this.confirming = null; }
         },
-        async deleteOrder(orderId) {
-          const ok = await confirmModal('Hapus order ini? Order akan dibatalkan dan tidak bisa dikembalikan.');
-          if (!ok) return;
-          this.confirming = orderId;
-          try {
-            await apiFetch('/admin/orders/' + orderId, { method: 'DELETE' });
-            toast('Order berhasil dihapus');
-            this.load();
-          } catch (e) { toast(e.message, 'error'); }
-          finally { this.confirming = null; }
+        toggleHistory() { this.showHistory = !this.showHistory; },
+        startSelect() { this.selectMode = true; this.selectedIds = this.confirmedOrders.map(o => o.id); },
+        cancelSelect() { this.selectMode = false; this.selectedIds = []; },
+        toggleSelect(id) {
+          if (this.selectedIds.includes(id)) this.selectedIds = this.selectedIds.filter(x => x !== id);
+          else this.selectedIds.push(id);
+        },
+        toggleSelectAll(e) {
+          if (e.target.checked) this.selectedIds = this.confirmedOrders.map(o => o.id);
+          else this.selectedIds = [];
+        },
+        hideSelected() {
+          if (this.selectedIds.length === 0) return;
+          this.hiddenOrders = [...new Set([...this.hiddenOrders, ...this.selectedIds])];
+          localStorage.setItem('payout_hidden_orders', JSON.stringify(this.hiddenOrders));
+          toast(this.selectedIds.length + ' riwayat disembunyikan');
+          this.selectMode = false;
+          this.selectedIds = [];
         }
       }));
 
