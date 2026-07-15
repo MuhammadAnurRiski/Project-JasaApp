@@ -252,9 +252,10 @@ export class AdminService {
         });
     }
 
-    // All orders for admin monitoring
+    // All orders for admin monitoring (regular orders only, custom tasks have their own page)
     async getAllOrders() {
         const orders = await prisma.orders.findMany({
+            where: { task_provider_id: null },
             orderBy: { created_at: 'desc' },
             select: {
                 id: true,

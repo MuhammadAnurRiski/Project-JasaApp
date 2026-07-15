@@ -750,7 +750,8 @@ export class CustomTasksService {
       where: { id: tpId },
       include: {
         custom_tasks: { select: { title: true, customer_id: true } },
-        orders: { where: { status: 'pending_payment' }, take: 1 }
+        orders: { where: { status: 'pending_payment' }, take: 1 },
+        provider_profiles: { select: { full_name: true, user_id: true } },
       }
     });
     if (!tp) throw new Error('Task provider tidak ditemukan');
@@ -780,6 +781,15 @@ export class CustomTasksService {
         tp.custom_tasks.customer_id,
         'Pembayaran Dikonfirmasi!',
         `Pembayaran task "${tp.custom_tasks.title}" telah dikonfirmasi. Provider siap bekerja!`,
+        { tpId, type: 'CUSTOM_TASK_PAYMENT_CONFIRMED' }
+      );
+    } catch (_) {}
+
+    try {
+      await NotificationService.sendToUser(
+        tp.provider_profiles.user_id,
+        'Pembayaran Dikonfirmasi!',
+        `Pembayaran untuk task "${tp.custom_tasks.title}" telah dikonfirmasi admin. Anda dapat mulai mengerjakan task!`,
         { tpId, type: 'CUSTOM_TASK_PAYMENT_CONFIRMED' }
       );
     } catch (_) {}
