@@ -356,13 +356,14 @@ document.addEventListener('alpine:init', () => {
     },
     menu: sidebarMenu,
     get pageTitle() {
-      const map = { dashboard: 'Beranda', 'confirm-payment': 'Konfirmasi Bayar', 'confirm-extension': 'Konfirmasi Ekstensi', 'custom-tasks': 'Custom Task', providers: 'Mitra', 'provider-detail': 'Detail Mitra', customers: 'Pelanggan', categories: 'Kategori', services: 'Layanan', payments: 'Pembayaran', 'pricing-types': 'Tipe Harga', reports: 'Laporan' };
+      const map = { dashboard: 'Beranda', 'confirm-payment': 'Konfirmasi Bayar', 'order-payout': 'Pencairan Dana', 'confirm-extension': 'Konfirmasi Ekstensi', 'custom-tasks': 'Custom Task', providers: 'Mitra', 'provider-detail': 'Detail Mitra', customers: 'Pelanggan', categories: 'Kategori', services: 'Layanan', payments: 'Pembayaran', 'pricing-types': 'Tipe Harga', reports: 'Laporan' };
       return map[Alpine.store('nav').page] || '';
     },
     get notifDropdownItems() {
       const c = Alpine.store('notifications').counts;
       const items = [];
       if (c.pendingPayments > 0) items.push({ label: 'Konfirmasi Bayar', count: c.pendingPayments, page: 'confirm-payment', icon: 'fa-hand-holding-usd', color: 'text-amber-500' });
+      if (c.pendingOrderPayouts > 0) items.push({ label: 'Pencairan Dana', count: c.pendingOrderPayouts, page: 'order-payout', icon: 'fa-money-bill-wave', color: 'text-emerald-500' });
       if (c.pendingExtensions > 0) items.push({ label: 'Konfirmasi Ekstensi', count: c.pendingExtensions, page: 'confirm-extension', icon: 'fa-calendar-plus', color: 'text-blue-500' });
       if (c.pendingTaskPayments > 0) items.push({ label: 'Custom Task — Bayar', count: c.pendingTaskPayments, page: 'custom-tasks', icon: 'fa-tasks', color: 'text-purple-500' });
       if (c.pendingTaskPayouts > 0) items.push({ label: 'Custom Task — Pencairan', count: c.pendingTaskPayouts, page: 'custom-tasks', icon: 'fa-money-bill-wave', color: 'text-emerald-500' });

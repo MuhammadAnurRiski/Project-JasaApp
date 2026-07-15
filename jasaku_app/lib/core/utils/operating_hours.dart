@@ -1,8 +1,8 @@
 class OperatingHours {
-  static const int startHour = 8;
+  static const int startHour = 0;
   static const int startMinute = 0;
-  static const int endHour = 16;
-  static const int endMinute = 0;
+  static const int endHour = 23;
+  static const int endMinute = 59;
   static const int orderCutoffHour = 16;
   static const int orderCutoffMinute = 0;
   static const int warningStartHour = 15;

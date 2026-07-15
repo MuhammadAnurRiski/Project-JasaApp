@@ -7,6 +7,7 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/image_url.dart';
 import '../../../../core/utils/operating_hours.dart';
 import 'customer_orders.dart';
+import 'customer_provider_reviews_page.dart';
 
 /*class Providerlist extends StatelessWidget {
   final String servicesId;
@@ -590,10 +591,35 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
   bool _hasActiveOrder = false;
   bool _serviceAvailable = true;
 
+  int _selectedTab = 0;
+  List<Map<String, dynamic>>? _reviews;
+  bool _loadingReviews = false;
+  String? _errorReviews;
+
   @override
   void initState() {
     super.initState();
     _fetchStatus();
+  }
+
+  Future<void> _fetchReviews() async {
+    if (_reviews != null) return;
+    setState(() => _loadingReviews = true);
+    try {
+      final res = await ApiClient().dio.get(
+        '${ApiEndpoints.getProviderReviews}${widget.provider.id}',
+      );
+      final data = res.data['data'] as List<dynamic>? ?? [];
+      setState(() {
+        _reviews = data.map((e) => Map<String, dynamic>.from(e)).toList();
+        _loadingReviews = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorReviews = e.toString();
+        _loadingReviews = false;
+      });
+    }
   }
 
   Future<void> _fetchStatus() async {
@@ -613,6 +639,67 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
       debugPrint('[DetailProviderSheet] Status error: $e');
       setState(() => _loadingStatus = false);
     }
+  }
+
+  String _formatReviewDate(String iso) {
+    try {
+      final dt = DateTime.parse(iso);
+      const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+      return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
+    } catch (_) {
+      return iso;
+    }
+  }
+
+  Widget _buildReviewItem(Map<String, dynamic> r) {
+    final customer = r['users_reviews_customer_idTousers'] as Map<String, dynamic>?;
+    final profile = customer?['profiles_customer'] as Map<String, dynamic>?;
+    final name = profile?['full_name']?.toString() ?? 'Pelanggan';
+    final avatar = profile?['avatar_url']?.toString();
+    final rating = r['rating'] as int? ?? 0;
+    final review = r['review'] as String?;
+    final createdAt = r['created_at'] as String?;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 18,
+            backgroundImage: avatar != null ? NetworkImage(imageUrl(avatar)) : null,
+            child: avatar == null ? Icon(Icons.person, color: Colors.grey.shade400, size: 20) : null,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                const SizedBox(height: 3),
+                Row(
+                  children: List.generate(
+                    5,
+                    (j) => Icon(
+                      j < rating ? Icons.star_rounded : Icons.star_outline_rounded,
+                      size: 16,
+                      color: const Color(0xFFF59E0B),
+                    ),
+                  ),
+                ),
+                if (review != null && review.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(review, style: TextStyle(fontSize: 12, color: Colors.grey.shade700)),
+                ],
+                if (createdAt != null) ...[
+                  const SizedBox(height: 3),
+                  Text(_formatReviewDate(createdAt), style: TextStyle(fontSize: 11, color: Colors.grey.shade400)),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showScheduleDialog() async {
@@ -935,145 +1022,257 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                     ),
                     const SizedBox(height: 24),
                     // Navigasi Tab (Info, Ulasan)
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          "Info",
-                          style: TextStyle(
-                            color: Color(0xFF2563EB),
-                            fontWeight: FontWeight.w700,
-                            decoration: TextDecoration.underline,
-                            decorationThickness: 2,
+                        GestureDetector(
+                          onTap: () => setState(() => _selectedTab = 0),
+                          child: Text(
+                            "Info",
+                            style: TextStyle(
+                              color: _selectedTab == 0
+                                  ? const Color(0xFF2563EB)
+                                  : const Color(0xFF94A3B8),
+                              fontWeight: _selectedTab == 0
+                                  ? FontWeight.w700
+                                  : FontWeight.w600,
+                              decoration: _selectedTab == 0
+                                  ? TextDecoration.underline
+                                  : null,
+                              decorationThickness: 2,
+                            ),
                           ),
                         ),
-                        SizedBox(width: 48),
-                        Text(
-                          "Ulasan",
-                          style: TextStyle(
-                            color: Color(0xFF94A3B8),
-                            fontWeight: FontWeight.w600,
+                        const SizedBox(width: 48),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() => _selectedTab = 1);
+                            _fetchReviews();
+                          },
+                          child: Text(
+                            "Ulasan",
+                            style: TextStyle(
+                              color: _selectedTab == 1
+                                  ? const Color(0xFF2563EB)
+                                  : const Color(0xFF94A3B8),
+                              fontWeight: _selectedTab == 1
+                                  ? FontWeight.w700
+                                  : FontWeight.w600,
+                              decoration: _selectedTab == 1
+                                  ? TextDecoration.underline
+                                  : null,
+                              decorationThickness: 2,
+                            ),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 20),
-                    const Text(
-                      "Tentang Mitra",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1E293B),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      provider.aboutMe ??
-                          "Deskripsi tentang mitra belum diisi oleh provider.",
-                      style: const TextStyle(
-                        color: Color(0xFF475569),
-                        height: 1.5,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    if (provider.portfolios.isNotEmpty) ...[
-                      const SizedBox(height: 24),
+                    // ═══ TAB INFO ═══
+                    if (_selectedTab == 0) ...[
                       const Text(
-                        "Portofolio",
+                        "Tentang Mitra",
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF1E293B),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        height: 100,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: provider.portfolios.length,
-                          separatorBuilder: (_, __) => const SizedBox(width: 8),
-                          itemBuilder: (_, i) {
-                            final url = provider.portfolios[i];
-                            return ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: GestureDetector(
-                                onTap: () => _showImagePreview(context, url),
-                                child: Image.network(
-                                  imageUrl(url),
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.cover,
-                                  loadingBuilder: (ctx, child, progress) {
-                                    if (progress == null) return child;
-                                    return Container(
+                      const SizedBox(height: 8),
+                      Text(
+                        provider.aboutMe ??
+                            "Deskripsi tentang mitra belum diisi oleh provider.",
+                        style: const TextStyle(
+                          color: Color(0xFF475569),
+                          height: 1.5,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      if (provider.portfolios.isNotEmpty) ...[
+                        const SizedBox(height: 24),
+                        const Text(
+                          "Portofolio",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF1E293B),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          height: 100,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: provider.portfolios.length,
+                            separatorBuilder: (_, __) => const SizedBox(width: 8),
+                            itemBuilder: (_, i) {
+                              final url = provider.portfolios[i];
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: GestureDetector(
+                                  onTap: () => _showImagePreview(context, url),
+                                  child: Image.network(
+                                    imageUrl(url),
+                                    width: 100,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder: (ctx, child, progress) {
+                                      if (progress == null) return child;
+                                      return Container(
+                                        width: 100,
+                                        height: 100,
+                                        color: const Color(0xFFF1F5F9),
+                                        child: const Center(
+                                          child: SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF94A3B8)),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (_, __, ___) => Container(
                                       width: 100,
                                       height: 100,
                                       color: const Color(0xFFF1F5F9),
-                                      child: const Center(
-                                        child: SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF94A3B8)),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  errorBuilder: (_, __, ___) => Container(
-                                    width: 100,
-                                    height: 100,
-                                    color: const Color(0xFFF1F5F9),
-                                    child: const Icon(Icons.broken_image, color: Color(0xFF94A3B8)),
+                                      child: const Icon(Icons.broken_image, color: Color(0xFF94A3B8)),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 16),
+                      // Menu Jadwal Mitra
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ListTile(
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF2563EB).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.calendar_month_outlined,
+                              color: Color(0xFF2563EB),
+                              size: 20,
+                            ),
+                          ),
+                          title: const Text(
+                            'Jadwal Mitra',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: const Text(
+                            'Lihat jadwal yang sudah dibooking',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF64748B),
+                            ),
+                          ),
+                          trailing: const Icon(
+                            Icons.chevron_right,
+                            color: Color(0xFF94A3B8),
+                          ),
+                          onTap: _showScheduleDialog,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                    // ═══ TAB ULASAN ═══
+                    if (_selectedTab == 1) ...[
+                      if (_loadingReviews) ...[
+                        const SizedBox(height: 40),
+                        const Center(child: CircularProgressIndicator(color: Color(0xFF2563EB))),
+                      ] else if (_errorReviews != null) ...[
+                        const SizedBox(height: 40),
+                        Center(
+                          child: Column(
+                            children: [
+                              Icon(Icons.cloud_off_rounded, size: 40, color: Colors.grey.shade300),
+                              const SizedBox(height: 8),
+                              Text('Gagal memuat ulasan', style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+                              const SizedBox(height: 12),
+                              TextButton(
+                                onPressed: () { setState(() { _errorReviews = null; _reviews = null; }); _fetchReviews(); },
+                                child: const Text('Coba Lagi'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ] else if (_reviews == null || _reviews!.isEmpty) ...[
+                        const SizedBox(height: 40),
+                        Center(
+                          child: Column(
+                            children: [
+                              Icon(Icons.rate_review_outlined, size: 48, color: Colors.grey.shade300),
+                              const SizedBox(height: 8),
+                              Text('Belum ada ulasan', style: TextStyle(fontSize: 14, color: Colors.grey.shade500)),
+                            ],
+                          ),
+                        ),
+                      ] else ...[
+                        for (final r in _reviews!.take(3)) ...[
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => CustomerProviderReviewsPage(
+                                    providerId: widget.provider.id,
+                                    providerName: widget.provider.name,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: _buildReviewItem(r),
+                          ),
+                        ],
+                        if (_reviews!.length > 3) ...[
+                          const SizedBox(height: 8),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => CustomerProviderReviewsPage(
+                                    providerId: widget.provider.id,
+                                    providerName: widget.provider.name,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Lihat Semua Ulasan (${_reviews!.length})',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF2563EB),
                                   ),
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      ),
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 8),
+                      ],
                     ],
-                    const SizedBox(height: 16),
-                    // Menu Jadwal Mitra
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ListTile(
-                        leading: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF2563EB).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(
-                            Icons.calendar_month_outlined,
-                            color: Color(0xFF2563EB),
-                            size: 20,
-                          ),
-                        ),
-                        title: const Text(
-                          'Jadwal Mitra',
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        subtitle: const Text(
-                          'Lihat jadwal yang sudah dibooking',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF64748B),
-                          ),
-                        ),
-                        trailing: const Icon(
-                          Icons.chevron_right,
-                          color: Color(0xFF94A3B8),
-                        ),
-                        onTap: _showScheduleDialog,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
                   ],
                 ),
               ),

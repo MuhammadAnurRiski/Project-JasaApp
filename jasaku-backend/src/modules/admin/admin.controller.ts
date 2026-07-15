@@ -418,6 +418,25 @@ const confirmTaskPayout = async (req: AuthRequest, res: Response) => {
   }
 };
 
+const getCompletedOrdersPendingPayout = async (req: AuthRequest, res: Response) => {
+  try {
+    const result = await new AdminService().getCompletedOrdersPendingPayout();
+    return successResponse(res, result, "Daftar order selesai menunggu pencairan");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
+const confirmOrderPayout = async (req: AuthRequest, res: Response) => {
+  try {
+    const orderId = String(req.params.orderId);
+    const result = await new AdminService().confirmOrderPayout(orderId);
+    return successResponse(res, result, "Pencairan dana dikonfirmasi");
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
 export {
   getDashboardMetrics, getPendingProviders, verifyProvider, unverifyProvider, getProviderDetail,
   getCategories, getServicesByCategory, getPricingTypesByCategory,
@@ -440,5 +459,7 @@ export {
   confirmTaskPayout,
   getOpenReports,
   respondToReport,
-  getNotificationCounts
+  getNotificationCounts,
+  getCompletedOrdersPendingPayout,
+  confirmOrderPayout
 };

@@ -154,6 +154,8 @@ model orders {
   start_date        DateTime?           @db.Timestamp(6)
   end_date          DateTime?           @db.Timestamp(6)
   assignment_type   String?             @default("manual") @db.VarChar(20)
+  payout_confirmed  Boolean             @default(false)
+  payout_at         DateTime?           @db.Timestamp(6)
   order_attachments order_attachments[]
   order_items       order_items[]
   order_locations   order_locations[]

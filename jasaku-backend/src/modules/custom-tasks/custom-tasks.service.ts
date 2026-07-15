@@ -1031,9 +1031,8 @@ export class CustomTasksService {
       JOIN orders o ON o.task_provider_id = tp.id
       LEFT JOIN provider_payout_methods ppm ON pp.id = ppm.provider_id
       WHERE tp.status = 'completed'
-        AND tp.payout_confirmed = false
         AND o.status = 'accepted'
-      ORDER BY tp.completed_at ASC
+      ORDER BY tp.payout_confirmed ASC, tp.completed_at ASC
     `;
   }
 

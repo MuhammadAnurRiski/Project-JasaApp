@@ -22,6 +22,8 @@ import {
   confirmTaskPaymentByTask,
   confirmTaskPayout,
   getNotificationCounts,
+  getCompletedOrdersPendingPayout,
+  confirmOrderPayout,
 } from './admin.controller';
 import { confirmPaymentByAdmin, approveExtension, activateExtension } from '../orders/orders.controller';
 import { authenticate } from '../../middleware/auth.middleware';
@@ -76,6 +78,10 @@ router.post('/payment-accounts/:id/qris-upload', authenticate, isAdmin, upload.s
 router.get('/orders/pending-payment', authenticate, isAdmin, getPendingPaymentOrders);
 router.get('/orders/all', authenticate, isAdmin, getAllOrders);
 router.patch('/orders/:orderId/confirm-payment', authenticate, isAdmin, confirmPaymentByAdmin);
+
+// Payout Confirmation (Pencairan Dana) — regular orders
+router.get('/orders/pending-payout', authenticate, isAdmin, getCompletedOrdersPendingPayout);
+router.patch('/orders/:orderId/confirm-payout', authenticate, isAdmin, confirmOrderPayout);
 
 // Extensions
 router.get('/extensions/all', authenticate, isAdmin, getAllExtensions);

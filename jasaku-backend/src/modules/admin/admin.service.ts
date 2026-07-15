@@ -471,12 +471,98 @@ export class AdminService {
         });
     }
 
+    // Orders completed, pending payout (regular orders only)
+    async getCompletedOrdersPendingPayout() {
+        const orders = await prisma.orders.findMany({
+            where: {
+                status: 'completed',
+                payout_confirmed: false,
+                task_provider_id: null, // regular orders only, not custom tasks
+            },
+            orderBy: { created_at: 'desc' },
+            select: {
+                id: true,
+                total_price: true,
+                platform_fee: true,
+                work_date: true,
+                status: true,
+                payout_confirmed: true,
+                created_at: true,
+                profiles_customer: {
+                    select: { id: true, full_name: true, nickname: true }
+                },
+                provider_profiles: {
+                    select: { id: true, full_name: true }
+                },
+                payments: {
+                    select: { id: true, method: true, status: true }
+                }
+            }
+        });
+
+        const providerIds = [...new Set(orders.map(o => o.provider_profiles?.id).filter(Boolean))];
+        let payoutMethods: any[] = [];
+        if (providerIds.length > 0) {
+            payoutMethods = await prisma.$queryRaw<Array<{
+                id: string; provider_id: string; type: string;
+                provider_name: string; account_number: string; account_name: string;
+            }>>`
+                SELECT ppm.id, ppm.provider_id, ppm.type, ppm.provider_name, ppm.account_number, ppm.account_name
+                FROM provider_payout_methods ppm
+                WHERE ppm.provider_id = ANY(${providerIds}::uuid[])
+            `;
+        }
+
+        const payoutByProviderId = Object.fromEntries(
+            payoutMethods.map(pm => [pm.provider_id, pm])
+        );
+
+        return orders.map(o => ({
+            ...o,
+            provider_payout: o.provider_profiles?.id
+                ? (payoutByProviderId[o.provider_profiles.id] ?? null)
+                : null,
+        }));
+    }
+
+    async confirmOrderPayout(orderId: string) {
+        const order = await prisma.orders.findUnique({
+            where: { id: orderId },
+            select: { id: true, status: true, payout_confirmed: true, provider_id: true }
+        });
+        if (!order) throw new Error('Order tidak ditemukan');
+        if (order.status !== 'completed') throw new Error('Order belum selesai');
+        if (order.payout_confirmed) throw new Error('Payout sudah dikonfirmasi sebelumnya');
+
+        const updated = await prisma.orders.update({
+            where: { id: orderId },
+            data: { payout_confirmed: true, payout_at: new Date() }
+        });
+
+        // Get provider user_id for notification
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { id: order.provider_id },
+            select: { user_id: true, full_name: true }
+        });
+        if (profile) {
+            NotificationService.sendToUser(
+                profile.user_id,
+                'Pencairan Dana Berhasil',
+                'Dana untuk pesanan telah dikirim ke rekening Anda. Terima kasih atas kerja kerasnya!',
+                { orderId, type: 'ORDER_PAYOUT_CONFIRMED' }
+            ).catch(() => {});
+        }
+
+        return updated;
+    }
+
     async getNotificationCounts() {
         const [
             pendingPayments,
             pendingExtensions,
             pendingTaskPayments,
             pendingTaskPayouts,
+            pendingOrderPayouts,
             pendingProviders,
             openReports,
         ] = await Promise.all([
@@ -499,6 +585,10 @@ export class AdminService {
                     payout_confirmed: false,
                 }
             }),
+            // Regular orders completed, pending payout to provider
+            prisma.orders.count({
+                where: { status: 'completed', payout_confirmed: false, task_provider_id: null }
+            }),
             // Provider verifications pending
             prisma.provider_profiles.count({ where: { verification_status: 'pending' } }),
             // Open reports
@@ -510,9 +600,10 @@ export class AdminService {
             pendingExtensions,
             pendingTaskPayments,
             pendingTaskPayouts,
+            pendingOrderPayouts,
             pendingProviders,
             openReports,
-            total: pendingPayments + pendingExtensions + pendingTaskPayments + pendingProviders + openReports,
+            total: pendingPayments + pendingExtensions + pendingTaskPayments + pendingOrderPayouts + pendingProviders + openReports,
         };
     }
 }
