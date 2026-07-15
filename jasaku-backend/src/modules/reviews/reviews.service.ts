@@ -41,8 +41,15 @@ export class ReviewsService {
 
     // mendapatkan daftar review untuk provider tertentu
     async getProviderReviews(providerId: string) {
+        // Accept provider_profiles.id OR users.id
+        const profile = await prisma.provider_profiles.findUnique({
+            where: { id: providerId },
+            select: { user_id: true }
+        });
+        const userId = profile?.user_id ?? providerId;
+
         return await prisma.reviews.findMany({
-            where: { provider_id: providerId },
+            where: { provider_id: userId },
             select: {
                 id: true,
                 rating: true,
