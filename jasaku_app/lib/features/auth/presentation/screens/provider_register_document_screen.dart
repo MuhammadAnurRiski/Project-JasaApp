@@ -249,7 +249,7 @@ class _ProviderRegisterDocumentScreenState
               ),
               const SizedBox(height: 24),
               _buildUploadCard(
-                label: 'Foto Profil',
+                label: 'Unggah Foto',
                 required: true,
                 path: _profilePhotoPath,
                 onPick: () => _pickImage('profile'),
@@ -264,7 +264,7 @@ class _ProviderRegisterDocumentScreenState
               const Divider(height: 1),
               const SizedBox(height: 16),
               _buildUploadCard(
-                label: 'Foto Ijazah',
+                label: 'Upload Ijazah',
                 required: false,
                 path: _ijazahPath,
                 onPick: () => _pickImage('ijazah'),
@@ -273,7 +273,7 @@ class _ProviderRegisterDocumentScreenState
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Sertifikat Penunjang (Opsional)',
+                  const Text('Upload Sertifikat (Opsional)',
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                   TextButton.icon(
                     onPressed: _addCertificate,
@@ -699,7 +699,7 @@ class _ProviderRegisterDocumentScreenState
           children: [
             Row(
               children: [
-                const Text('Portofolio/Foto Pengalaman Kerja',
+                const Text('Upload Portofolio (Opsional)',
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
                 const Spacer(),
                 if (count > 0)
@@ -727,7 +727,7 @@ class _ProviderRegisterDocumentScreenState
                       Icon(Icons.cloud_upload_outlined,
                           color: Colors.grey[400], size: 20),
                       const SizedBox(width: 8),
-                      const Text('Portofolio/Foto Pengalaman Kerja',
+                      const Text('Upload Portofolio (Opsional)',
                           style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
                     ],
                   ),

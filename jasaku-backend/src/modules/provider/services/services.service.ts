@@ -44,7 +44,15 @@ export class ProviderServicesService {
         return await prisma.provider_services.findMany({
             where: { provider_id: profile.id },
             include: {
-                services: true,
+                services: {
+                    include: {
+                        service_pricing_units: {
+                            include: {
+                                pricing_units: true
+                            }
+                        }
+                    }
+                },
                 provider_service_prices: {
                     include: {
                         pricing_units: true,
