@@ -1,0 +1,424 @@
+@startuml LDM Jasaku
+!theme plain
+title Logical Data Model (LDM) - Jasaku
+skinparam backgroundColor #FEFEFE
+skinparam EntityBackgroundColor #FAFAFA
+skinparam EntityBorderColor #455A64
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 11
+
+entity "Role" as role {
+  * id : SERIAL <<PK>>
+  --
+  name : VARCHAR(50)
+  description : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "Pengguna" as pengguna {
+  * id : UUID <<PK>>
+  --
+  role_id : INTEGER <<FK>>
+  email : VARCHAR(255)
+  phone : VARCHAR(20)
+  password_hash : TEXT
+  google_id : VARCHAR(255)
+  is_phone_verified : BOOLEAN
+  is_email_verified : BOOLEAN
+  status : VARCHAR(20)
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "Profil Pelanggan" as profil_pelanggan {
+  * id : UUID <<PK>>
+  --
+  user_id : UUID <<FK>>
+  full_name : VARCHAR(150)
+  nickname : VARCHAR(100)
+  birth_date : DATE
+  gender : VARCHAR(10)
+  address : TEXT
+  avatar_url : TEXT
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "Profil Provider" as profil_provider {
+  * id : UUID <<PK>>
+  --
+  user_id : UUID <<FK>>
+  full_name : VARCHAR(100)
+  nickname : VARCHAR(50)
+  gender : VARCHAR(10)
+  birth_date : DATE
+  phone : VARCHAR(20)
+  address : TEXT
+  domicile : VARCHAR(100)
+  profile_photo : TEXT
+  ktp_photo : TEXT
+  selfie_photo : TEXT
+  is_verified : BOOLEAN
+  verification_status : VARCHAR(20)
+  verification_notes : TEXT
+  is_active : BOOLEAN
+  onboarding_completed : BOOLEAN
+  custom_task_enabled : BOOLEAN
+  service_available : BOOLEAN
+  task_available : BOOLEAN
+  rating : DECIMAL(2,1)
+  total_jobs : INTEGER
+  total_reviews : INTEGER
+  portfolios : TEXT[]
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "Lokasi Provider" as lokasi_provider {
+  * id : UUID <<PK>>
+  --
+  provider_id : UUID <<FK>>
+  address : TEXT
+  location : GEOMETRY(Point, 4326)
+}
+
+entity "Dokumen Provider" as dokumen_provider {
+  * id : UUID <<PK>>
+  --
+  provider_id : UUID <<FK>>
+  type : VARCHAR(30)
+  file_url : TEXT
+  category_id : UUID
+  description : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "Verifikasi Identitas" as verifikasi_identitas {
+  * id : UUID <<PK>>
+  --
+  provider_id : UUID <<FK>>
+  nik : VARCHAR
+  ocr_full_name : VARCHAR
+  ocr_birth_place : VARCHAR
+  ocr_birth_date : VARCHAR
+  ocr_address : TEXT
+  ocr_gender : VARCHAR
+  ocr_blood_type : VARCHAR
+  ocr_religion : VARCHAR
+  ocr_raw_result : JSONB
+  face_match_score : FLOAT
+  face_match_status : VARCHAR(20)
+  liveness_data : JSONB
+  liveness_status : VARCHAR(20)
+  created_at : TIMESTAMP
+  verified_at : TIMESTAMP
+}
+
+entity "Metode Pembayaran Provider" as metode_pembayaran {
+  * id : UUID <<PK>>
+  --
+  provider_id : UUID <<FK>>
+  type : VARCHAR(50)
+  provider_name : VARCHAR(100)
+  account_number : VARCHAR(100)
+  account_name : VARCHAR(150)
+  created_at : TIMESTAMP
+}
+
+entity "Perangkat Pengguna" as perangkat_pengguna {
+  * id : UUID <<PK>>
+  --
+  user_id : UUID <<FK>>
+  fcm_token : TEXT
+  device_type : VARCHAR
+  device_name : VARCHAR
+  created_at : TIMESTAMPTZ
+  updated_at : TIMESTAMPTZ
+}
+
+entity "Kategori" as kategori {
+  * id : UUID <<PK>>
+  --
+  name : VARCHAR(100)
+  description : TEXT
+  icon_url : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "Tipe Harga" as tipe_harga {
+  * id : UUID <<PK>>
+  --
+  name : VARCHAR(50)
+  default_unit : VARCHAR
+  category_id : UUID <<FK>>
+}
+
+entity "Layanan" as layanan {
+  * id : UUID <<PK>>
+  --
+  category_id : UUID <<FK>>
+  name : VARCHAR(150)
+  description : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "Layanan Provider" as layanan_provider {
+  * id : UUID <<PK>>
+  --
+  provider_id : UUID
+  service_id : UUID <<FK>>
+  description : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "Harga Layanan" as harga_layanan {
+  * id : UUID <<PK>>
+  --
+  provider_service_id : UUID <<FK>>
+  pricing_type_id : UUID <<FK>>
+  price : DECIMAL(12,2)
+  unit : VARCHAR
+  created_at : TIMESTAMP
+}
+
+entity "Pesanan" as pesanan {
+  * id : UUID <<PK>>
+  --
+  customer_id : UUID <<FK>>
+  provider_id : UUID <<FK>>
+  custom_task_id : UUID <<FK>>
+  task_provider_id : UUID <<FK>>
+  status : VARCHAR(30)
+  total_price : DECIMAL(12,2)
+  platform_fee : DECIMAL(12,2)
+  additional_fee : DECIMAL(12,2)
+  description : TEXT
+  work_date : DATE
+  start_date : TIMESTAMP
+  end_date : TIMESTAMP
+  assignment_type : VARCHAR(20)
+  payout_confirmed : BOOLEAN
+  payout_at : TIMESTAMP
+  created_at : TIMESTAMP
+}
+
+entity "Item Pesanan" as item_pesanan {
+  * id : UUID <<PK>>
+  --
+  order_id : UUID <<FK>>
+  service_id : UUID <<FK>>
+  pricing_type_id : UUID <<FK>>
+  quantity : INTEGER
+  price : DECIMAL(12,2)
+  subtotal : DECIMAL(12,2)
+}
+
+entity "Lokasi Pesanan" as lokasi_pesanan {
+  * id : UUID <<PK>>
+  --
+  order_id : UUID <<FK>>
+  address : TEXT
+  location : GEOMETRY(Point, 4326)
+}
+
+entity "Lampiran Pesanan" as lampiran_pesanan {
+  * id : UUID <<PK>>
+  --
+  order_id : UUID <<FK>>
+  file_url : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "Ekstensi Pesanan" as ekstensi_pesanan {
+  * id : UUID <<PK>>
+  --
+  order_id : UUID <<FK>>
+  provider_id : UUID
+  customer_id : UUID
+  requested_date : DATE
+  additional_cost : DECIMAL(12,2)
+  platform_fee_rate : DECIMAL(3,2)
+  extension_count : INTEGER
+  status : VARCHAR(20)
+  response_note : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "Jadwal Provider" as jadwal_provider {
+  * id : UUID <<PK>>
+  --
+  provider_id : UUID <<FK>>
+  work_date : DATE
+  is_booked : BOOLEAN
+  order_id : UUID <<FK>>
+  created_at : TIMESTAMP
+}
+
+entity "Pembayaran" as pembayaran {
+  * id : UUID <<PK>>
+  --
+  order_id : UUID <<FK>>
+  method : VARCHAR(50)
+  status : VARCHAR(30)
+  amount : DECIMAL(12,2)
+  paid_at : TIMESTAMP
+  payment_proof : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "Tugas Kustom" as tugas_kustom {
+  * id : UUID <<PK>>
+  --
+  customer_id : UUID
+  title : VARCHAR(150)
+  description : TEXT
+  budget_per_person : DECIMAL(12,0)
+  required_people : INTEGER
+  accepted_count : INTEGER
+  platform_fee_rate : DECIMAL(4,2)
+  address : TEXT
+  location_detail : TEXT
+  publish_days : INTEGER
+  expires_at : TIMESTAMP
+  payment_proof : TEXT
+  payment_status : VARCHAR(30)
+  location : GEOMETRY(Point, 4326)
+  status : VARCHAR(30)
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "Lokasi Tugas" as lokasi_tugas {
+  * id : UUID <<PK>>
+  --
+  task_id : UUID <<FK>>
+  label : VARCHAR(100)
+  address : TEXT
+  location : GEOMETRY(Point, 4326)
+  stop_order : INTEGER
+}
+
+entity "Provider Tugas" as provider_tugas {
+  * id : UUID <<PK>>
+  --
+  task_id : UUID <<FK>>
+  provider_id : UUID <<FK>>
+  status : VARCHAR(20)
+  work_status : VARCHAR(20)
+  accepted_at : TIMESTAMP
+  completed_at : TIMESTAMP
+  payout_confirmed : BOOLEAN
+  payout_at : TIMESTAMP
+}
+
+entity "Ulasan" as ulasan {
+  * id : UUID <<PK>>
+  --
+  order_id : UUID <<FK>>
+  customer_id : UUID <<FK>>
+  provider_id : UUID <<FK>>
+  rating : INTEGER
+  review : TEXT
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "Laporan" as laporan {
+  * id : UUID <<PK>>
+  --
+  reporter_id : UUID <<FK>>
+  reporter_role : VARCHAR(20)
+  order_id : UUID
+  subject : VARCHAR(200)
+  description : TEXT
+  attachments : TEXT[]
+  status : VARCHAR(20)
+  admin_response : TEXT
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+  resolved_at : TIMESTAMPTZ
+}
+
+entity "Rekening Bank Admin" as rekening_bank {
+  * id : UUID <<PK>>
+  --
+  provider_name : VARCHAR(100)
+  account_number : VARCHAR(100)
+  account_name : VARCHAR(150)
+  is_active : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "E-Wallet Admin" as ewallet_admin {
+  * id : UUID <<PK>>
+  --
+  provider_name : VARCHAR(100)
+  account_number : VARCHAR(100)
+  account_name : VARCHAR(150)
+  is_active : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "QRIS Admin" as qris_admin {
+  * id : UUID <<PK>>
+  --
+  provider_name : VARCHAR(100)
+  qris_image_url : TEXT
+  is_active : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' ============================================
+' RELASI (berdasarkan Foreign Key di DDL)
+' ============================================
+
+role ||--|{ pengguna : "memiliki"
+
+pengguna ||--|| profil_pelanggan : "memiliki profil"
+pengguna ||--|| profil_provider : "memiliki profil"
+pengguna ||--|| lokasi_provider : "memiliki lokasi"
+pengguna ||--|{ perangkat_pengguna : "memiliki perangkat"
+
+profil_provider ||--|{ dokumen_provider : "memiliki dokumen"
+profil_provider ||--|| verifikasi_identitas : "memiliki verifikasi"
+profil_provider ||--|{ metode_pembayaran : "memiliki metode bayar"
+
+kategori ||--|{ tipe_harga : "memiliki tipe harga"
+kategori ||--|{ layanan : "memiliki layanan"
+
+layanan ||--|{ layanan_provider : "ditawarkan dalam"
+
+layanan_provider ||--|{ harga_layanan : "memiliki harga"
+tipe_harga ||--|{ harga_layanan : "digunakan dalam"
+
+profil_pelanggan ||--|{ pesanan : "membuat pesanan"
+profil_provider ||--|{ pesanan : "menerima pesanan"
+tugas_kustom ||--|{ pesanan : "memiliki pesanan"
+provider_tugas ||--|{ pesanan : "memiliki pesanan"
+
+pesanan ||--|{ item_pesanan : "memiliki item"
+pesanan ||--|{ lokasi_pesanan : "memiliki lokasi"
+pesanan ||--|{ lampiran_pesanan : "memiliki lampiran"
+pesanan ||--|{ ekstensi_pesanan : "memiliki ekstensi"
+pesanan ||--|| pembayaran : "memiliki pembayaran"
+
+layanan ||--|{ item_pesanan : "tercantum dalam"
+tipe_harga ||--|{ item_pesanan : "tercantum dalam"
+
+profil_provider ||--|{ jadwal_provider : "memiliki jadwal"
+jadwal_provider }o--o{ pesanan : "terkunci jadwal"
+
+tugas_kustom ||--|{ lokasi_tugas : "memiliki lokasi"
+tugas_kustom ||--|{ provider_tugas : "diterima provider"
+profil_provider ||--|{ provider_tugas : "berpartisipasi"
+
+ulasan }o--|| pesanan : "memiliki ulasan"
+ulasan }o--|| pengguna : "menulis ulasan"
+pengguna ||--|{ ulasan : "menerima ulasan"
+
+pengguna ||--|{ laporan : "membuat laporan"
+
+@enduml

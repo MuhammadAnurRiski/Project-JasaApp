@@ -1,0 +1,177 @@
+@startuml System Architecture Overview - Component Diagram
+!theme plain
+title Jasaku - System Architecture Overview
+skinparam backgroundColor #FEFEFE
+skinparam ComponentBackgroundColor #E3F2FD
+skinparam ComponentBorderColor #1565C0
+skinparam PackageBackgroundColor #FAFAFA
+skinparam PackageBorderColor #90A4AE
+skinparam DatabaseBackgroundColor #FFF3E0
+skinparam DatabaseBorderColor #E65100
+
+package "Flutter Mobile App" as FLUTTER {
+  component "Customer App\n(blue theme)" as C_APP {
+    [main_customer.dart]
+    [Customer Shell]
+    [Auth Screens]
+    [Service Browse]
+    [Order Flow]
+    [Payment Screens]
+    [Tracking Map]
+    [Custom Task Pages]
+    [Review & Rating]
+    [Report Pages]
+  }
+
+  component "Provider App\n(teal theme)" as P_APP {
+    [main_provider.dart]
+    [Provider Shell]
+    [Auth Screens]
+    [Dashboard]
+    [Request Handling]
+    [Work Execution]
+    [Location Tracker]
+    [Service Management]
+    [Custom Task Bids]
+    [Admin Tab]
+  }
+
+  component "Shared Core" as SHARED {
+    [Dio HTTP Client\n+ JWT Interceptor]
+    [Flutter Secure Storage]
+    [Riverpod State Mgmt]
+    [Routing Service\n(OpenRouteService)]
+    [Operating Hours Utils]
+  }
+
+  component "Firebase Messaging" as FCM_CLIENT
+}
+
+package "Backend API" as BACKEND {
+  component "Express 5 + TypeScript" as EXPRESS
+
+  package "Auth Module" {
+    [auth.routes.ts]
+    [auth.controller.ts]
+    [auth.service.ts]
+    component "JWT\n(jsonwebtoken)" as JWT
+    component "Google\nOAuth2" as GAuth
+    component "bcrypt" as BCRYPT
+  }
+
+  package "Orders Module" {
+    [orders.routes.ts]
+    [orders.controller.ts]
+    [orders.service.ts]
+    component "Status State\nMachine" as ORD_SM
+    component "Operating Hours\nValidator" as OH_VAL
+  }
+
+  package "Custom Tasks Module" {
+    [custom-tasks.routes.ts]
+    [custom-tasks.controller.ts]
+    [custom-tasks.service.ts]
+    component "Task State\nMachine" as TASK_SM
+  }
+
+  package "Payments Module" {
+    [payments.routes.ts]
+    [payments.controller.ts]
+    [payments.service.ts]
+  }
+
+  package "Services Module" {
+    [services.routes.ts]
+    [services.controller.ts]
+    [services.service.ts]
+    component "PostGIS\nGeo Queries" as GEO_Q
+  }
+
+  package "Provider Module" {
+    [provider/profile/]
+    [provider/services/]
+    [provider/payout/]
+    [provider/locations/]
+  }
+
+  package "Customer Module" {
+    [customer/profile/]
+  }
+
+  package "Admin Module" {
+    [admin.routes.ts]
+    [admin.controller.ts]
+    [admin.service.ts]
+  }
+
+  package "Notifications Module" {
+    [notifications.routes.ts]
+    [notifications.controller.ts]
+    [notifications.service.ts]
+  }
+
+  package "Reviews Module" {
+    [reviews.routes.ts]
+    [reviews.controller.ts]
+    [reviews.service.ts]
+  }
+
+  package "Reports Module" {
+    [reports.routes.ts]
+    [reports.controller.ts]
+    [reports.service.ts]
+  }
+
+  component "Auth Middleware\n(JWT Verify)" as AUTH_MW
+  component "Role Middleware\n(Customer/Provider/Admin)" as ROLE_MW
+  component "Upload Middleware\n(Multer)" as UPLOAD_MW
+}
+
+package "Data Layer" as DATA {
+  database "PostgreSQL 15\n(Supabase)" as PG {
+    [users]
+    [profiles_customer]
+    [provider_profiles]
+    [orders]
+    [order_items]
+    [custom_tasks]
+    [task_providers]
+    [payments]
+    [reviews]
+    [categories]
+    [services]
+    [provider_locations\n(PostGIS)]
+    [order_locations\n(PostGIS)]
+    [provider_schedules]
+    [identity_verifications]
+  }
+}
+
+cloud "External Services" as EXT {
+  component "Firebase Cloud\nMessaging (FCM)" as FCM
+  component "Google OAuth2" as GOOGLE_EXT
+  component "OpenStreetMap\nTiles" as OSM
+  component "OpenRouteService\n(Routing)" as ORS
+  component "Photon\n(Geocoding)" as PHOTON
+}
+
+' Connections
+C_APP --> SHARED
+P_APP --> SHARED
+SHARED --> EXPRESS : HTTP/REST\n(Dio + JWT)
+
+EXPRESS --> AUTH_MW
+AUTH_MW --> ROLE_MW
+
+EXPRESS --> PG : Prisma 7\n+ @prisma/adapter-pg\n+ PostGIS
+
+EXPRESS --> FCM : Firebase Admin SDK
+EXPRESS --> GOOGLE_EXT : OAuth2 Verify
+
+C_APP --> OSM : Map Tiles
+P_APP --> OSM : Map Tiles
+P_APP --> ORS : Route Directions
+C_APP --> ORS : Route Directions
+C_APP --> PHOTON : Location Search
+
+@enduml

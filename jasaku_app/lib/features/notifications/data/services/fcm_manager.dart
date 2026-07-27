@@ -74,14 +74,11 @@ class FcmManager {
 
   Future<void> _registerDevice(String token) async {
     try {
-      final resp = await _dio.post(ApiEndpoints.registerDevice, data: {
+      await _dio.post(ApiEndpoints.registerDevice, data: {
         'fcmToken': token,
         'deviceType': defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
       });
-      debugPrint('[FCM] FcmManager._registerDevice OK: ${resp.statusCode}');
-    } catch (e) {
-      debugPrint('[FCM] FcmManager._registerDevice FAILED: $e');
-    }
+    } catch (_) {}
   }
 
   Future<void> _onForegroundMessage(RemoteMessage message) async {

@@ -69,7 +69,7 @@ class _CustomerProviderReviewsPageState
       ),
       body: _loading
           ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF2563EB)),
+              child: CircularProgressIndicator(color: AppColors.primary),
             )
           : _error != null
               ? Center(

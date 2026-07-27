@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../data/custom_tasks_repository.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/geocoding_service.dart';
 
 class CustomerCreateTaskPage extends ConsumerStatefulWidget {
   const CustomerCreateTaskPage({super.key});
@@ -117,13 +119,18 @@ class _CreateTaskPageState extends ConsumerState<CustomerCreateTaskPage> {
         'lng': p.lng,
       }).toList();
 
+      final address = await GeocodingService.reverse(
+        _baseLocation!.latitude,
+        _baseLocation!.longitude,
+      );
+
       final locDetail = _locationDetailC.text.trim();
       await _repo.createTask(
         title: _titleC.text.trim(),
         description: _descC.text.trim().isEmpty ? null : _descC.text.trim(),
         budgetPerPerson: budget,
         requiredPeople: people,
-        address: '${_baseLocation!.latitude}, ${_baseLocation!.longitude}',
+        address: address,
         lat: _baseLocation!.latitude,
         lng: _baseLocation!.longitude,
         locations: locs,
@@ -285,7 +292,7 @@ class _CreateTaskPageState extends ConsumerState<CustomerCreateTaskPage> {
                             point: _baseLocation!,
                             width: 40, height: 40,
                             child: const Icon(Icons.my_location,
-                                color: Color(0xFF2563EB), size: 32),
+                                color: AppColors.primary, size: 32),
                           ),
                         for (int i = 0; i < _points.length; i++)
                           Marker(
@@ -433,7 +440,7 @@ class _CreateTaskPageState extends ConsumerState<CustomerCreateTaskPage> {
                           fontSize: 12,
                           color: selected ? Colors.white : null)),
                   selected: selected,
-                  selectedColor: const Color(0xFF2563EB),
+                  selectedColor: AppColors.primary,
                   onSelected: (_) => setState(() => _publishDays = days),
                   visualDensity: VisualDensity.compact,
                 );

@@ -4,6 +4,7 @@ import 'package:google_mlkit_document_scanner/google_mlkit_document_scanner.dart
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
+import '../../../../core/constants/app_colors.dart';
 
 class KtpScannerScreen extends StatefulWidget {
   const KtpScannerScreen({super.key});
@@ -697,7 +698,7 @@ class _KtpScannerScreenState extends State<KtpScannerScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.document_scanner, size: 72, color: Color(0xFF2563EB)),
+          const Icon(Icons.document_scanner, size: 72, color: AppColors.primary),
           const SizedBox(height: 16),
           const Text('Scan KTP',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -710,7 +711,7 @@ class _KtpScannerScreenState extends State<KtpScannerScreen> {
             icon: const Icon(Icons.camera_alt),
             label: const Text('Buka Pemindai'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2563EB),
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),

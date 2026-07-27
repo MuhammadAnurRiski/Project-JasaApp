@@ -46,11 +46,8 @@ class _CustomerShellState extends ConsumerState<CustomerShell> {
           'fcmToken': token,
           'deviceType': 'android',
         });
-        debugPrint('[FCM] CustomerShell device registered OK');
       }
-    } catch (e) {
-      debugPrint('[FCM] CustomerShell register FAILED: $e');
-    }
+    } catch (_) {}
   }
 
   Future<void> _restoreUserIfNeeded() async {
@@ -65,8 +62,7 @@ class _CustomerShellState extends ConsumerState<CustomerShell> {
           ref.read(authProvider.notifier).restoreSession(meData);
         }
       }
-    } catch (e) {
-      debugPrint('[Auth] Session restore failed: $e');
+    } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

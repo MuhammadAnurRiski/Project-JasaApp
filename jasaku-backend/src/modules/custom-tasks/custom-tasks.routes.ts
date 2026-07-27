@@ -15,6 +15,7 @@ import {
   cancelTask,
   deleteTask,
   getTaskTracking,
+  withdrawTask,
 } from './custom-tasks.controller';
 import { authenticate } from '../../middleware/auth.middleware';
 import { isCustomer, isProvider, isAny } from '../../middleware/role.middleware';
@@ -66,6 +67,7 @@ router.patch('/:taskId/work-status', authenticate, isProvider, updateWorkStatus)
 router.get('/:taskId/payment', authenticate, isCustomer, getPaymentDetail);
 router.post('/:taskId/payment-proof', authenticate, isCustomer, upload.single('proof'), uploadPaymentProof);
 router.post('/:taskId/republish', authenticate, isCustomer, republishTask);
+router.post('/:taskId/withdraw', authenticate, isProvider, withdrawTask);
 router.post('/:taskId/cancel', authenticate, isCustomer, cancelTask);
 router.get('/:taskId/tracking', authenticate, getTaskTracking);
 router.delete('/:taskId', authenticate, isCustomer, deleteTask);

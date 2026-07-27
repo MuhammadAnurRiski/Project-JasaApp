@@ -1,0 +1,50 @@
+@startuml Order Lifecycle - Sequence Diagram
+!theme plain
+title Order Lifecycle (Regular Service)
+skinparam backgroundColor #FEFEFE
+skinparam sequenceLifeLineBorderColor #90A4AE
+
+actor "Customer" as C
+actor "Provider" as P
+actor "Admin" as A
+participant "Backend API" as B
+database "Database" as DB
+participant "FCM" as F
+
+== Create Order ==
+C -> B : POST /api/orders/orders\n(serviceId, workDate, address, lat/lng)
+B -> B : Hitung: totalPrice, platformFee
+B -> DB : INSERT orders (pending_payment)\n+ order_items + order_locations
+B --> C : order created
+
+== Payment ==
+C -> B : POST /api/payments/upload-proof/:orderId
+B -> DB : INSERT payments (payment_proof, status=pending)
+B --> C : bukti terkirim
+
+A -> B : PATCH /api/admin/orders/:orderId/confirm-payment
+B -> DB : orders.status = pending\npayments.status = paid\nUPSERT provider_schedules
+B -> F : Notify provider: "Pesanan Baru"
+B -> F : Notify customer: "Pembayaran Dikonfirmasi"
+
+== Provider Handles ==
+P -> B : PATCH /status {accepted}
+B -> DB : orders.status = accepted
+B -> F : Notify customer: "Pesanan Diterima"
+
+P -> B : PATCH /status {on_the_way}
+P -> B : PATCH /status {arrived}
+P -> B : PATCH /status {in_progress}
+P -> B : PATCH /status {completed}
+B -> DB : Update orders.status tiap transisi
+B -> F : Notify customer tiap transisi
+
+== Complete ==
+B -> DB : provider_profiles.total_jobs + 1\nClear provider_schedules
+C -> B : POST /api/reviews {rating, review}
+B -> DB : INSERT reviews\nUPDATE provider_profiles (rating, total_reviews)
+
+A -> B : PATCH /api/admin/orders/:orderId/confirm-payout
+B -> DB : payout_confirmed = true
+
+@enduml

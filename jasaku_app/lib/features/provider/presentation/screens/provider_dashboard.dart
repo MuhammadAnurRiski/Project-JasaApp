@@ -21,6 +21,7 @@ import '../../../custom_tasks/data/models/custom_task_model.dart';
 import 'provider_full_map_page.dart';
 import 'provider_shell.dart';
 import '../../../../core/utils/operating_hours.dart';
+import '../../../../core/constants/app_colors.dart';
 
 class ProviderHomePage extends ConsumerStatefulWidget {
   const ProviderHomePage({super.key});
@@ -165,7 +166,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
     switch (status) {
       case 'on_the_way': return const Color(0xFF0288D1);
       case 'arrived': return Colors.indigo;
-      case 'in_progress': return const Color(0xFF2563EB);
+      case 'in_progress': return AppColors.primary;
       case 'completed': return Colors.green;
       default: return const Color(0xFFF59E0B);
     }
@@ -299,7 +300,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
       case 'accepted': return const Color(0xFFF59E0B);
       case 'on_the_way': return const Color(0xFF0288D1);
       case 'arrived': return Colors.indigo;
-      case 'in_progress': return const Color(0xFF2563EB);
+      case 'in_progress': return AppColors.primary;
       case 'completed': return Colors.green;
       default: return Colors.grey;
     }
@@ -635,7 +636,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
                             width: double.infinity,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF2563EB),
+                                backgroundColor: AppColors.primary,
                                 padding: const EdgeInsets.symmetric(vertical: 14),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -792,7 +793,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
                   icon: Icons.handshake_outlined,
                   title: 'Task Saya',
                   subtitle: 'Lihat task yang sudah diambil',
-                  color: const Color(0xFF2563EB),
+                  color: AppColors.primary,
                   badgeCount: counts.myAcceptedTasks,
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const ProviderMyBidsPage()),
@@ -1035,7 +1036,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
             width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2563EB),
+                backgroundColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -1100,7 +1101,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
                               polylines: [
                                 Polyline(
                                   points: routePoints,
-                                  color: const Color(0xFF2563EB),
+                                  color: AppColors.primary,
                                   strokeWidth: 3,
                                 ),
                               ],
@@ -1111,7 +1112,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
                                 point: LatLng(task.lat!, task.lng!),
                                 width: 30,
                                 height: 30,
-                                child: const Icon(Icons.location_on, color: Color(0xFF2563EB), size: 30),
+                                child: const Icon(Icons.location_on, color: AppColors.primary, size: 30),
                               ),
                               ...task.locations
                                   .where((loc) => loc.lat != null && loc.lng != null)
@@ -1300,7 +1301,7 @@ class _ProviderHomePageState extends ConsumerState<ProviderHomePage> {
                           polylines: [
                             Polyline(
                               points: _routePoints,
-                              color: const Color(0xFF2563EB),
+                              color: AppColors.primary,
                               strokeWidth: 4,
                             ),
                           ],

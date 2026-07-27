@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/image_url.dart';
 import '../../../../core/utils/operating_hours.dart';
 import '../../../orders/domain/models/order_model.dart';
 import '../../../reports/presentation/pages/report_form_page.dart';
+import '../../../../core/constants/app_colors.dart';
 
 class ProviderOrderDetailPage extends StatefulWidget {
   final Map<String, dynamic> rawOrder;
@@ -186,7 +188,7 @@ class _ProviderOrderDetailPageState extends State<ProviderOrderDetailPage> {
       height: 50,
       child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF2563EB),
+          backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           elevation: 0,
@@ -235,6 +237,7 @@ class _ProviderOrderDetailPageState extends State<ProviderOrderDetailPage> {
     final address = _parseAddress();
     final location = _parseLocation();
     final customerName = (_order['profiles_customer'] as Map<String, dynamic>?)?['full_name'] as String? ?? '-';
+    final customerPhone = (_order['profiles_customer'] as Map<String, dynamic>?)?['users']?['phone'] as String?;
 
     return PopScope(
       canPop: !_updating,
@@ -287,6 +290,24 @@ class _ProviderOrderDetailPageState extends State<ProviderOrderDetailPage> {
                   ),
                   const SizedBox(height: 16),
                   _infoRow(Icons.person_outline, 'Customer', customerName),
+                  if (customerPhone != null && customerPhone.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Icon(Icons.phone_outlined, size: 16, color: Colors.grey[600]),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(customerPhone, style: TextStyle(fontSize: 13, color: Colors.grey[700])),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.call, size: 20, color: Colors.green[600]),
+                          onPressed: () => launchUrl(Uri.parse('tel:$customerPhone')),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                        ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 10),
                   _infoRow(Icons.calendar_today, 'Tanggal Kerja', _formatDate(_order['work_date'] as String?)),
                   if (_order['end_date'] != null) ...[
@@ -373,7 +394,7 @@ class _ProviderOrderDetailPageState extends State<ProviderOrderDetailPage> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.photo_library, size: 18, color: Color(0xFF2563EB)),
+                        const Icon(Icons.photo_library, size: 18, color: AppColors.primary),
                         const SizedBox(width: 8),
                         Text(
                           'Foto dari Customer (${attachments.length})',

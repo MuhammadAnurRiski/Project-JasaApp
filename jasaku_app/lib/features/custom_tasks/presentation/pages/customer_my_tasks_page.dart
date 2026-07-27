@@ -9,6 +9,7 @@ import '../../data/models/custom_task_model.dart';
 import 'customer_create_task_page.dart';
 import 'custom_task_tracking_page.dart';
 import 'task_detail_page.dart';
+import '../../../../core/constants/app_colors.dart';
 
 class CustomerMyTasksPage extends ConsumerStatefulWidget {
   const CustomerMyTasksPage({super.key});
@@ -90,7 +91,7 @@ class _CustomerMyTasksPageState extends ConsumerState<CustomerMyTasksPage> {
       effectiveStatus = 'in_progress';
     }
     final statusColor = effectiveStatus == 'open'
-        ? const Color(0xFF2563EB)
+        ? AppColors.primary
         : effectiveStatus == 'in_progress'
             ? const Color(0xFFF59E0B)
             : effectiveStatus == 'completed' || effectiveStatus == 'fulfilled'
@@ -226,8 +227,8 @@ class _CustomerMyTasksPageState extends ConsumerState<CustomerMyTasksPage> {
                       icon: const Icon(Icons.map_outlined, size: 16),
                       label: const Text('Lacak Mitra', style: TextStyle(fontSize: 13)),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF2563EB),
-                        side: const BorderSide(color: Color(0xFF2563EB)),
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(color: AppColors.primary),
                         visualDensity: VisualDensity.compact,
                       ),
                     ),
@@ -319,8 +320,8 @@ class _CustomerMyTasksPageState extends ConsumerState<CustomerMyTasksPage> {
                       icon: const Icon(Icons.refresh, size: 16),
                       label: const Text('Publikasi Ulang', style: TextStyle(fontSize: 12)),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF2563EB),
-                        side: const BorderSide(color: Color(0xFF2563EB)),
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(color: AppColors.primary),
                         visualDensity: VisualDensity.compact,
                       ),
                     ),
@@ -416,7 +417,7 @@ class _CustomerMyTasksPageState extends ConsumerState<CustomerMyTasksPage> {
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.assignment_outlined,
-                  size: 48, color: Color(0xFF2563EB)),
+                  size: 48, color: AppColors.primary),
             ),
             const SizedBox(height: 24),
             const Text('Belum ada task',
@@ -441,7 +442,7 @@ class _CustomerMyTasksPageState extends ConsumerState<CustomerMyTasksPage> {
                 icon: const Icon(Icons.add_circle_outline, size: 20),
                 label: const Text('Buat Task Baru'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2563EB),
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(

@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import '../../data/custom_tasks_repository.dart';
 import '../../data/models/custom_task_model.dart';
 import 'task_detail_page.dart';
+import '../../../../core/constants/app_colors.dart';
 
 class ProviderMyBidsPage extends ConsumerStatefulWidget {
   const ProviderMyBidsPage({super.key});
@@ -173,7 +174,7 @@ class _ProviderMyBidsPageState extends ConsumerState<ProviderMyBidsPage> {
                                   point: LatLng(task.lat!, task.lng!),
                                   width: 30,
                                   height: 30,
-                                  child: const Icon(Icons.location_on, color: Color(0xFF2563EB), size: 28),
+                                  child: const Icon(Icons.location_on, color: AppColors.primary, size: 28),
                                 ),
                                 ...task.locations
                                     .where((loc) => loc.lat != null && loc.lng != null)

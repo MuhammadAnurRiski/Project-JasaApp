@@ -1,0 +1,23 @@
+@startuml Payment & Payout - Activity Diagram
+!theme plain
+title Payment & Payout (Simplified)
+skinparam backgroundColor #FEFEFE
+skinparam ActivityBackgroundColor #FFF3E0
+skinparam ActivityDiamondBackgroundColor #FFF9C4
+
+start
+
+:Lihat rekening admin\n(bank/e-wallet/QRIS);
+:Transfer & upload bukti;
+|Admin|
+:Konfirmasi bayar;
+note right: order pending -> accepted
+
+|Provider|
+:Kerja -> selesai;
+
+|Admin|
+:Cairkan dana ke provider;
+
+stop
+@enduml

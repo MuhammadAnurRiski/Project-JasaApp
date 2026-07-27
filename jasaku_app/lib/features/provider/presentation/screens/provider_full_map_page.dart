@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../location/presentation/providers/location_tracker_provider.dart';
 import '../../../../core/utils/map_marker_utils.dart';
+import '../../../../core/constants/app_colors.dart';
 
 class ProviderFullMapPage extends ConsumerWidget {
   final LatLng? customerPos;
@@ -47,7 +48,7 @@ class ProviderFullMapPage extends ConsumerWidget {
               polylines: [
                 Polyline(
                   points: routePoints,
-                  color: const Color(0xFF2563EB),
+                  color: AppColors.primary,
                   strokeWidth: 4,
                 ),
               ],

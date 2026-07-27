@@ -120,7 +120,7 @@ class _CustomerSearchPageState extends ConsumerState<CustomerSearchPage> {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
-        leading: Icon(Icons.category, color: const Color(0xFF2563EB)),
+        leading: Icon(Icons.category, color: AppColors.primary),
         title: Text(cat.name, style: const TextStyle(fontWeight: FontWeight.w600)),
         trailing: const Icon(Icons.chevron_right, color: Colors.grey),
         onTap: () {

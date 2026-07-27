@@ -1,0 +1,25 @@
+@startuml Review & Rating - Sequence Diagram
+!theme plain
+title Review & Rating Flow
+skinparam backgroundColor #FEFEFE
+skinparam sequenceLifeLineBorderColor #90A4AE
+
+actor "Customer" as C
+actor "Provider" as P
+participant "Backend API" as B
+database "Database" as DB
+participant "FCM" as F
+
+== Submit Review ==
+C -> B : POST /api/reviews\n(orderId, providerId, rating, review)
+B -> DB : INSERT reviews (1 per order)
+B -> DB : Recalculate AVG(rating)\nUPDATE provider_profiles (rating, total_reviews)
+B -> F : Notify provider: "Review Baru" + bintang
+B --> C : success
+
+== View Reviews ==
+C -> B : GET /api/reviews/provider/:providerId
+B -> DB : SELECT reviews + customer name
+B --> C : reviews list
+
+@enduml

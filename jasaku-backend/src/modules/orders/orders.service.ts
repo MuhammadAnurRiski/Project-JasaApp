@@ -3,6 +3,8 @@ import { NotificationService } from "../notifications/notifications.service";
 import { LocationService } from "../locations/locations.service";
 import { canOrderNow, isSameWitaDate, canTransitionWorkflow, getTodayWitaDate } from "../../utils/operating-hours";
 
+const PLATFORM_FEE = 2000;
+
 // State machine: status transisi yang valid
 const VALID_TRANSITIONS: Record<string, string[]> = {
     pending_payment: ['pending', 'cancelled'], // admin konfirmasi atau customer cancel
@@ -146,12 +148,16 @@ export class OrdersService {
                 throw new Error("Ups, Jasa ini udah punya pesanan di tanggal ini. Coba pilih tanggal lain.");
             }
 
+            if (data.attachments && data.attachments.length > 5) {
+                throw new Error("Maksimal 5 lampiran.");
+            }
+
             const order = await tx.orders.create({
                 data: {
                     customer_id: customerProfile.id,
                     provider_id: providerProfile.id,
                     total_price: totalPrice,
-                    platform_fee: 2000,
+                    platform_fee: PLATFORM_FEE,
                     description: data.description,
                     work_date: parsedDate,
                     end_date: parsedDate,
@@ -181,10 +187,6 @@ export class OrdersService {
                     ST_SetSRID(ST_MakePoint(${data.lng}, ${data.lat}), 4326)
                 )
             `;
-
-            if (data.attachments && data.attachments.length > 5) {
-                throw new Error("Maksimal 5 lampiran.");
-            }
 
             if (data.attachments && data.attachments.length > 0) {
                 await tx.order_attachments.createMany({
@@ -247,7 +249,10 @@ export class OrdersService {
                         id: true,
                         full_name: true,
                         nickname: true,
-                        created_at: true
+                        created_at: true,
+                        users: {
+                            select: { phone: true }
+                        }
                     }
                 },
                 provider_profiles: {
@@ -660,37 +665,46 @@ export class OrdersService {
                 if (!check.allowed) throw new Error(check.message!);
             }
             if (status === 'completed') {
-                const check = canTransitionWorkflow('selesai');
-                if (!check.allowed) throw new Error(check.message!);
+                const hasActiveExtension = await prisma.order_extensions.count({
+                    where: { order_id: orderId, status: { in: ['pending', 'approved', 'waiting_payment', 'paid'] } }
+                }) > 0;
+                if (!hasActiveExtension) {
+                    const check = canTransitionWorkflow('selesai');
+                    if (!check.allowed) throw new Error(check.message!);
+                }
             }
         }
 
         const updateData: any = { status };
-        const updated = await prisma.orders.update({
-            where: { id: orderId },
-            data: updateData
-        });
-
-        if (status === 'completed') {
-            await prisma.provider_profiles.update({
-                where: { id: order.provider_id },
-                data: { total_jobs: { increment: 1 } }
+        const updated = await prisma.$transaction(async (tx) => {
+            const orderUpdate = await tx.orders.update({
+                where: { id: orderId },
+                data: updateData
             });
-            if (order.work_date) {
-                await prisma.provider_schedules.updateMany({
+
+            if (status === 'completed') {
+                await tx.provider_profiles.update({
+                    where: { id: order.provider_id },
+                    data: { total_jobs: { increment: 1 } }
+                });
+                if (order.work_date) {
+                    await tx.provider_schedules.updateMany({
+                        where: { provider_id: order.provider_id, work_date: order.work_date },
+                        data: { is_booked: false }
+                    });
+                }
+            }
+
+            // Bersihkan provider_schedules saat rejected agar tanggal bisa dipakai order lain
+            if (status === 'rejected' && order.work_date) {
+                await tx.provider_schedules.updateMany({
                     where: { provider_id: order.provider_id, work_date: order.work_date },
                     data: { is_booked: false }
                 });
             }
-        }
 
-        // Bersihkan provider_schedules saat rejected agar tanggal bisa dipakai order lain
-        if (status === 'rejected' && order.work_date) {
-            await prisma.provider_schedules.updateMany({
-                where: { provider_id: order.provider_id, work_date: order.work_date },
-                data: { is_booked: false }
-            });
-        }
+            return orderUpdate;
+        });
 
         // Notifikasi untuk non-accept statuses
         try {
@@ -817,7 +831,7 @@ export class OrdersService {
                 provider_id: profile.id,
                 custom_task_id: null,
                 work_date: { gte: today, lt: tomorrow },
-                status: { in: ['pending', 'accepted', 'on_the_way', 'arrived'] }
+                status: { in: ['pending', 'accepted', 'on_the_way', 'arrived', 'in_progress'] }
             },
             select: {
                 id: true,
@@ -1114,19 +1128,21 @@ export class OrdersService {
             return updated;
         }
 
-        // Approved: create payment + status pending_payment
-        await prisma.payments.create({
-            data: {
-                order_id: ext.order_id,
-                method: 'extension',
-                status: 'pending',
-                amount: ext.additional_cost,
-            }
-        });
+        // Approved: create payment + status pending_payment (atomic)
+        const updated = await prisma.$transaction(async (tx) => {
+            await tx.payments.create({
+                data: {
+                    order_id: ext.order_id,
+                    method: 'extension',
+                    status: 'pending',
+                    amount: ext.additional_cost,
+                }
+            });
 
-        const updated = await prisma.order_extensions.update({
-            where: { id: extensionId },
-            data: { status: 'pending_payment', response_note: note || null }
+            return await tx.order_extensions.update({
+                where: { id: extensionId },
+                data: { status: 'pending_payment', response_note: note || null }
+            });
         });
 
         try {
@@ -1315,5 +1331,57 @@ export class OrdersService {
         } catch (_) {}
 
         return { message: "Pembayaran berhasil dikonfirmasi, pesanan sekarang pending" };
+    }
+
+    async uploadExtensionPaymentProof(extensionId: string, userId: string, proofUrl: string) {
+        const ext = await prisma.order_extensions.findUnique({
+            where: { id: extensionId },
+            include: {
+                orders: {
+                    select: { id: true, customer_id: true }
+                }
+            }
+        });
+        if (!ext) throw new Error("Extension tidak ditemukan");
+
+        const customerProfile = await prisma.profiles_customer.findUnique({
+            where: { user_id: userId },
+            select: { id: true }
+        });
+        if (!customerProfile || ext.orders.customer_id !== customerProfile.id) {
+            throw new Error("Anda tidak berhak mengupload bukti pembayaran ini");
+        }
+
+        if (ext.status !== 'pending_payment') {
+            throw new Error("Ekstensi belum dalam status pembayaran");
+        }
+
+        const payment = await prisma.payments.findFirst({
+            where: { order_id: ext.order_id, method: 'extension', status: 'pending' }
+        });
+        if (!payment) throw new Error("Pembayaran tidak ditemukan");
+
+        await prisma.payments.update({
+            where: { id: payment.id },
+            data: { proof_url: proofUrl, status: 'proof_uploaded' }
+        });
+
+        // Notifikasi admin
+        try {
+            const adminUsers = await prisma.users.findMany({
+                where: { roles: { name: 'admin' } },
+                select: { id: true }
+            });
+            for (const admin of adminUsers) {
+                await NotificationService.sendToUser(
+                    admin.id,
+                    "Bukti Pembayaran Ekstensi",
+                    `Customer telah mengupload bukti pembayaran ekstensi. Silakan konfirmasi.`,
+                    { orderId: ext.order_id, type: "EXTENSION_PROOF_UPLOADED" }
+                );
+            }
+        } catch (_) {}
+
+        return { message: "Bukti pembayaran berhasil diupload" };
     }
 }

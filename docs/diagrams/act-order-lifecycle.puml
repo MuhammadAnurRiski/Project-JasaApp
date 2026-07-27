@@ -1,0 +1,32 @@
+@startuml Order Lifecycle - Activity Diagram
+!theme plain
+title Order Lifecycle (Simplified)
+skinparam backgroundColor #FEFEFE
+skinparam ActivityBackgroundColor #E3F2FD
+skinparam ActivityDiamondBackgroundColor #FFF9C4
+
+|Customer|
+start
+:Pilih layanan & provider;
+:Buat pesanan;
+:Transfer ke admin (rekber);
+:Upload bukti bayar;
+
+|Admin|
+:Konfirmasi pembayaran;
+
+|Provider|
+if (Terima?) then (ya)
+  :Menuju lokasi;
+  :Kerja;
+  :Selesai;
+  |Customer|
+  :Beri rating;
+  |Admin|
+  :Cairkan dana ke provider;
+else (tolak)
+  :Pesanan ditolak;
+endif
+
+stop
+@enduml

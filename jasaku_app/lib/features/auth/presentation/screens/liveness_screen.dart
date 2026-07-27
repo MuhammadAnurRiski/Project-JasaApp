@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+import '../../../../core/constants/app_colors.dart';
 
 enum LivenessChallenge { blink, smile, tilt }
 
@@ -293,7 +294,7 @@ class _LivenessScreenState extends State<LivenessScreen> {
               color: isDone
                   ? const Color(0xFF00A651)
                   : isActive
-                      ? const Color(0xFF2563EB)
+                      ? AppColors.primary
                       : Colors.grey[300],
             ),
             child: Icon(

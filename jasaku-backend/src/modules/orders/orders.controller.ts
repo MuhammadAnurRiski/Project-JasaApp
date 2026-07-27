@@ -265,4 +265,19 @@ const getPaymentAccounts = async (req: any, res: Response) => {
     }
 };
 
-export { createOrder, getOrderDetails, getOrderExtensions, getCustomerOrders, getProviderOrders, receiveOrderStatus, cancelOrder, getTodayOrders, getProviderSchedule, getProviderRequests, getOrderTracking, confirmPaymentByAdmin, requestExtension, approveExtension, respondToExtension, activateExtension, getPaymentAccounts, getPublicProviderStatus, getPublicProviderSchedule };
+const uploadExtensionPaymentProof = async (req: any, res: Response) => {
+    try {
+        const { extensionId } = req.params;
+        const userId = req.user.userId;
+        const proofUrl = req.body.proofUrl;
+        if (!proofUrl) return errorResponse(res, 'proofUrl wajib diisi', 400);
+        const ordersService = new OrdersService();
+        const result = await ordersService.uploadExtensionPaymentProof(extensionId, userId, proofUrl);
+        return successResponse(res, result, 'Bukti pembayaran ekstensi berhasil diupload');
+    }
+    catch (err: any) {
+        return errorResponse(res, err.message);
+    }
+};
+
+export { createOrder, getOrderDetails, getOrderExtensions, getCustomerOrders, getProviderOrders, receiveOrderStatus, cancelOrder, getTodayOrders, getProviderSchedule, getProviderRequests, getOrderTracking, confirmPaymentByAdmin, requestExtension, approveExtension, respondToExtension, activateExtension, getPaymentAccounts, getPublicProviderStatus, getPublicProviderSchedule, uploadExtensionPaymentProof };

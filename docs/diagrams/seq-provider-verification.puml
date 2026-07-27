@@ -1,0 +1,44 @@
+@startuml Provider Verification - Sequence Diagram
+!theme plain
+title Provider Registration & Verification
+skinparam backgroundColor #FEFEFE
+skinparam sequenceLifeLineBorderColor #90A4AE
+
+actor "Provider" as P
+actor "Admin" as A
+participant "Flutter App" as F
+participant "Backend API" as B
+database "Database" as DB
+participant "FCM" as FCM
+
+== Register ==
+P -> F : Upload dokumen\nPilih keahlian & harga\nIsi data diri
+F -> B : POST /api/auth/register/provider
+B -> DB : INSERT users + provider_profiles\n+ provider_documents + provider_services
+B -> B : Async: face match (KTP vs Selfie)
+B --> F : token + user
+
+== Admin Reviews ==
+A -> B : GET /api/admin/providers/pending
+B --> A : pending list
+A -> B : GET /api/admin/providers/:id/detail
+B --> A : profile + documents + verification data
+
+alt Verified
+  A -> B : PATCH /api/admin/providers/:id/verify\n{status: 'verified'}
+  B -> DB : is_verified=true, verification_status='verified'
+  B -> FCM : "Akun Terverifikasi"
+else Rejected
+  A -> B : PATCH /api/admin/providers/:id/verify\n{status: 'rejected', notes}
+  B -> DB : verification_status='rejected', verification_notes
+  B -> FCM : "Akun Ditolak" + alasan
+  P -> B : POST /api/auth/provider/resubmit-verification
+  B -> DB : verification_status = 'pending' (ulang)
+end
+
+== Onboarding ==
+P -> F : Lengkapi profil + payout method
+F -> B : PATCH /api/provider/profile/complete
+B -> DB : onboarding_completed=true\nINSERT provider_payout_methods
+
+@enduml

@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +10,7 @@ import '../../domain/models/payment_method_model.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/utils/image_url.dart';
+import '../../../../core/constants/app_colors.dart';
 
 class PaymentInstructionScreen extends ConsumerStatefulWidget {
   final String orderId;
@@ -165,7 +166,7 @@ class _PaymentInstructionScreenState
             width: double.infinity,
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2563EB),
+                backgroundColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
@@ -266,7 +267,7 @@ class _PaymentInstructionScreenState
             width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2563EB),
+                backgroundColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
@@ -295,7 +296,7 @@ class _PaymentInstructionScreenState
         children: [
           Row(
             children: [
-              Icon(Icons.qr_code, size: 20, color: const Color(0xFF2563EB)),
+              Icon(Icons.qr_code, size: 20, color: AppColors.primary),
               const SizedBox(width: 8),
               const Text(
                 "Pembayaran QRIS",
@@ -349,7 +350,7 @@ class _PaymentInstructionScreenState
         children: [
           Row(
             children: [
-              Icon(_iconData(method.icon), size: 20, color: const Color(0xFF2563EB)),
+              Icon(_iconData(method.icon), size: 20, color: AppColors.primary),
               const SizedBox(width: 8),
               Text(
                 method.type,
@@ -383,7 +384,7 @@ class _PaymentInstructionScreenState
           const Text("Total Transfer", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
           Text(
             "Rp ${NumberFormat('#,###', 'id_ID').format(widget.totalAmount)}",
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF2563EB)),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary),
           ),
         ],
       ),
@@ -435,7 +436,7 @@ class _PaymentInstructionScreenState
                       : const Icon(Icons.upload),
                   label: const Text("Upload"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                   ),
                 ),

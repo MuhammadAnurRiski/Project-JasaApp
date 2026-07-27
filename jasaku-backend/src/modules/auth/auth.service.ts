@@ -383,10 +383,7 @@ async registerProvider(
         if (profile.verification_status === 'pending') {
           throw new Error('Akun Anda belum diverifikasi oleh admin. Silakan tunggu konfirmasi.');
         }
-        if (profile.verification_status === 'rejected') {
-          const notes = profile.verification_notes ? ` Alasan: ${profile.verification_notes}` : '';
-          throw new Error(`Akun Anda ditolak. Silakan perbaiki sesuai saran admin.${notes}`);
-        }
+        // Rejected: biarkan login, Flutter akan nampilin screen penolakan
         // Auto-set onboarding_completed untuk provider LAMA (sudah punya tarif, bukan baru daftar 5-step)
         if (profile.verification_status === 'verified' && !profile.onboarding_completed) {
           const hasPricing = await prisma.provider_service_prices.count({

@@ -79,7 +79,7 @@ class _CustomerProvidersByCategoryState extends ConsumerState<CustomerProvidersB
                 width: double.infinity,
                 padding: const EdgeInsets.only(top: 50, bottom: 32, left: 20, right: 20),
                 decoration: const BoxDecoration(
-                  color: Colors.orange, // Menggunakan warna dasar oranye tema Jasaku
+                    color: AppColors.primary, // Warna brand Jasaku (biru)
                   borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
                 ),
                 child: Column(

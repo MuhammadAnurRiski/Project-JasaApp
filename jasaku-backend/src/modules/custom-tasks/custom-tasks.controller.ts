@@ -201,6 +201,19 @@ export const cancelTask = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const withdrawTask = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return errorResponse(res, 'Anda harus login', 401);
+
+    const taskId = String(req.params.taskId);
+    const result = await service.withdrawTask(userId, taskId);
+    return successResponse(res, result, 'Berhasil membatalkan task');
+  } catch (err: any) {
+    return errorResponse(res, err.message);
+  }
+};
+
 // Admin endpoints
 export const getPendingPaymentTasks = async (req: AuthRequest, res: Response) => {
   try {

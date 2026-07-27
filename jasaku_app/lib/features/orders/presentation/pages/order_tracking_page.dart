@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../services/routing_service.dart';
+import '../../../../core/constants/app_colors.dart';
 
 class OrderTrackingPage extends ConsumerStatefulWidget {
   final String orderId;
@@ -75,8 +76,7 @@ class _OrderTrackingPageState extends ConsumerState<OrderTrackingPage> {
       } else if (_orderPos != null) {
         _mapController.move(_orderPos!, 15.0);
       }
-    } catch (e) {
-      debugPrint('[Tracking] Error: $e');
+    } catch (_) {
       if (mounted) {
         setState(() => _isLoading = false);
       }
@@ -112,7 +112,7 @@ class _OrderTrackingPageState extends ConsumerState<OrderTrackingPage> {
                         polylines: [
                           Polyline(
                             points: _routePoints,
-                            color: const Color(0xFF2563EB),
+                            color: AppColors.primary,
                             strokeWidth: 4,
                           ),
                         ],
@@ -201,9 +201,15 @@ class _OrderTrackingPageState extends ConsumerState<OrderTrackingPage> {
 
   String _statusLabel(String status) {
     switch (status) {
+      case 'pending_payment': return 'Menunggu pembayaran';
+      case 'pending': return 'Menunggu konfirmasi';
+      case 'accepted': return 'Diterima provider';
       case 'on_the_way': return 'Provider dalam perjalanan';
       case 'arrived': return 'Provider telah tiba';
       case 'in_progress': return 'Pekerjaan sedang berlangsung';
+      case 'completed': return 'Selesai';
+      case 'rejected': return 'Ditolak provider';
+      case 'cancelled': return 'Dibatalkan';
       default: return status;
     }
   }

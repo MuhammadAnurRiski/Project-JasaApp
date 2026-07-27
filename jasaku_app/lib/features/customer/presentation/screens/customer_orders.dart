@@ -8,6 +8,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:image_picker/image_picker.dart'; // Impor Pengelola Kamera & Galeri
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/network/upload_service.dart';
 import '../../../orders/presentation/providers/orders_provider.dart';
 import '../../../orders/domain/models/order_payload_model.dart';
@@ -23,6 +24,7 @@ class CustomerOrdersPage extends ConsumerStatefulWidget {
   final String serviceId;
   final String pricingUnitId;
   final String? contractTypeId;
+  final String? pricingUnitName;
   final bool withMaterial;
   final double basePrice;
 
@@ -33,6 +35,7 @@ class CustomerOrdersPage extends ConsumerStatefulWidget {
     required this.serviceId,
     required this.pricingUnitId,
     this.contractTypeId,
+    this.pricingUnitName,
     this.withMaterial = false,
     required this.basePrice,
   });
@@ -51,7 +54,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
   final MapController _mapController = MapController();
 
   int _quantity = 1;
-  final double _platformFee = 2000;
+  final double _platformFee = ApiEndpoints.platformFee;
   bool _isFetchingGPS = false;
   bool _gpsFailed = false;
   bool _isSubmitting = false;
@@ -278,7 +281,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                               Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: const BoxDecoration(color: Color(0xFFEFF6FF), shape: BoxShape.circle),
-                                child: const Icon(Icons.inventory_2_outlined, color: Color(0xFF2563EB), size: 24),
+                                child: const Icon(Icons.inventory_2_outlined, color: AppColors.primary, size: 24),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -287,7 +290,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                                   children: [
                                     Text(widget.providerName, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                                     const SizedBox(height: 4),
-                                    Text("Rp ${NumberFormat('#,###', 'id_ID').format(widget.basePrice)} / per hari",
+                                    Text("Rp ${NumberFormat('#,###', 'id_ID').format(widget.basePrice)} / ${widget.pricingUnitName ?? 'unit'}",
                                         style: const TextStyle(fontSize: 13, color: Colors.blue, fontWeight: FontWeight.w600)),
                                   ],
                                 ),
@@ -298,7 +301,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text("Durasi Kerja (Hari)", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                              const Text("Jumlah", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
                               Row(
                                 children: [
                                   IconButton(
@@ -596,7 +599,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
+                    backgroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),

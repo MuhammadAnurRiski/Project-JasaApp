@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 
 class RoutingService {
@@ -39,9 +38,7 @@ class RoutingService {
         if (coords != null && coords.isNotEmpty) {
           return coords.map((c) => LatLng((c[1] as num).toDouble(), (c[0] as num).toDouble())).toList();
         }
-      } catch (e) {
-        debugPrint('[RoutingService] ORS error: $e');
-      }
+      } catch (_) {}
     }
     return [origin, destination];
   }

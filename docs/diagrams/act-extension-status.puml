@@ -1,0 +1,19 @@
+@startuml Extension Status - Activity Diagram
+!theme plain
+title Order Extension Status (Simplified)
+skinparam backgroundColor #FEFEFE
+skinparam ActivityBackgroundColor #FBE9E7
+skinparam ActivityDiamondBackgroundColor #FFF9C4
+
+start
+
+:Provider minta ekstensi (1-3 hari);
+if (Customer setujui?) then (ya)
+  :pending_payment;
+  :Admin aktifkan → active;
+else (tidak)
+  :rejected;
+endif
+
+stop
+@enduml

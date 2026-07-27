@@ -595,6 +595,18 @@ export class CustomTasksService {
           data: { status: 'completed' }
         });
       }
+
+      // Cleanup provider_schedules
+      const order = await prisma.orders.findFirst({
+        where: { task_provider_id: tp.id },
+        select: { work_date: true }
+      });
+      if (order?.work_date) {
+        await prisma.provider_schedules.updateMany({
+          where: { provider_id: profile.id, work_date: order.work_date },
+          data: { is_booked: false }
+        });
+      }
     }
 
     // Notifikasi customer — fire & forget
@@ -769,6 +781,60 @@ export class CustomTasksService {
     });
 
     return { message: 'Task dibatalkan' };
+  }
+
+  async withdrawTask(providerUserId: string, taskId: string) {
+    const profile = await prisma.provider_profiles.findUnique({
+      where: { user_id: providerUserId },
+      select: { id: true }
+    });
+    if (!profile) throw new Error('Profil provider tidak ditemukan');
+
+    const taskProvider = await prisma.task_providers.findFirst({
+      where: { task_id: taskId, provider_id: profile.id },
+      select: { id: true, status: true }
+    });
+    if (!taskProvider) throw new Error('Anda tidak terdaftar untuk task ini');
+    if (taskProvider.status !== 'accepted') throw new Error('Hanya bisa membatalkan task yang sudah diterima');
+
+    await prisma.$transaction(async (tx) => {
+      // Hapus order & payment terkait
+      const order = await tx.orders.findFirst({
+        where: { task_provider_id: taskProvider.id },
+        select: { id: true, work_date: true }
+      });
+      if (order) {
+        await tx.payments.deleteMany({ where: { order_id: order.id } });
+        await tx.orders.delete({ where: { id: order.id } });
+        if (order.work_date) {
+          await tx.provider_schedules.updateMany({
+            where: { provider_id: profile.id, work_date: order.work_date },
+            data: { is_booked: false }
+          });
+        }
+      }
+
+      // Hapus task_provider
+      await tx.task_providers.delete({ where: { id: taskProvider.id } });
+    });
+
+    // Notifikasi ke customer
+    try {
+      const task = await prisma.custom_tasks.findUnique({
+        where: { id: taskId },
+        select: { customer_id: true, title: true }
+      });
+      if (task) {
+        NotificationService.sendToUser(
+          task.customer_id,
+          'Provider Membatalkan',
+          `Provider membatalkan partisipasi di task "${task.title}". Task akan dibuka kembali untuk provider lain.`,
+          { taskId, type: 'CUSTOM_TASK_WITHDRAWN' }
+        ).catch(() => {});
+      }
+    } catch (_) {}
+
+    return { message: 'Berhasil membatalkan task' };
   }
 
   async confirmTaskPayment(tpId: string) {

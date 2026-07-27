@@ -1,0 +1,26 @@
+@startuml Order Status State Machine - Activity Diagram
+!theme plain
+title Order Status Flow (Simplified)
+skinparam backgroundColor #FEFEFE
+skinparam ActivityBackgroundColor #E8F5E9
+skinparam ActivityDiamondBackgroundColor #FFF9C4
+
+start
+
+:pending_payment;
+:pending;
+:accepted;
+:on_the_way;
+:arrived;
+:in_progress;
+:completed;
+
+note right
+  Bisa dibatalkan di:
+  - pending_payment (customer)
+  - pending (customer)
+  - accepted s/d arrived (customer, < 10 menit)
+end note
+
+stop
+@enduml

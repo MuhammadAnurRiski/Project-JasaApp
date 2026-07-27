@@ -63,7 +63,7 @@ class _ProviderWelcomeScreenState extends ConsumerState<ProviderWelcomeScreen> {
             if (onboarding == false) {
               if (mounted) Navigator.pushReplacementNamed(context, '/provider/profile-completion');
             } else {
-              if (mounted) Navigator.pushReplacementNamed(context, '/provider/shell');
+    if (mounted) setState(() => _checking = false);
             }
             return;
           }

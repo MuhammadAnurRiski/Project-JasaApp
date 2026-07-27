@@ -1,0 +1,22 @@
+@startuml Custom Task Status - Activity Diagram
+!theme plain
+title Custom Task Status Flow (Simplified)
+skinparam backgroundColor #FEFEFE
+skinparam ActivityBackgroundColor #E0F7FA
+skinparam ActivityDiamondBackgroundColor #FFF9C4
+
+start
+
+:open;
+note right: provider mulai terima
+
+if (Kuota penuh + bayar?) then (ya)
+  :active;
+  :provider kerja -> completed;
+  :fulfilled;
+else (belum)
+  :expired;
+endif
+
+stop
+@enduml

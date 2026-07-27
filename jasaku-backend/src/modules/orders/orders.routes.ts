@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import { createOrder, getOrderDetails, getOrderExtensions, receiveOrderStatus, getProviderOrders, getCustomerOrders, cancelOrder, getTodayOrders, getProviderSchedule, getProviderRequests, getOrderTracking, requestExtension, approveExtension, respondToExtension, activateExtension, getPaymentAccounts, getPublicProviderStatus, getPublicProviderSchedule } from './orders.controller';
+import { createOrder, getOrderDetails, getOrderExtensions, receiveOrderStatus, getProviderOrders, getCustomerOrders, cancelOrder, getTodayOrders, getProviderSchedule, getProviderRequests, getOrderTracking, requestExtension, approveExtension, respondToExtension, activateExtension, getPaymentAccounts, getPublicProviderStatus, getPublicProviderSchedule, uploadExtensionPaymentProof } from './orders.controller';
 import { authenticate } from '../../middleware/auth.middleware';
 import { isCustomer, isProvider, isAny, isAdmin } from '../../middleware/role.middleware';
 import { validate } from '../../middleware/validate.middleware';
@@ -31,5 +31,6 @@ router.post('/orders/:orderId/extend', authenticate, isProvider, requestExtensio
 router.post('/extensions/:extensionId/respond', authenticate, isCustomer, respondToExtension);
 router.post('/extensions/:extensionId/activate', authenticate, isAdmin, activateExtension);
 router.patch('/extensions/:extensionId/approve', authenticate, isAdmin, approveExtension);
+router.post('/extensions/:extensionId/payment-proof', authenticate, isCustomer, uploadExtensionPaymentProof);
 
 export default router;

@@ -102,9 +102,7 @@ class _ProviderShellState extends ConsumerState<ProviderShell> {
           myAcceptedTasks: data['myAcceptedTasks'] ?? 0,
         );
       }
-    } catch (e) {
-      debugPrint('[ProviderShell] _fetchCounts failed: $e');
-    }
+    } catch (_) {}
   }
 
   void _handleForegroundMessage(RemoteMessage message) {

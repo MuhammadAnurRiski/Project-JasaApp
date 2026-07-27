@@ -3,7 +3,7 @@ import { upload } from '../../middleware/upload.middleware';
 import { validate } from '../../middleware/validate.middleware';
 import { authenticate } from '../../middleware/auth.middleware';
 import { isProvider, isAdmin } from '../../middleware/role.middleware';
-import { registerCustomerSchema, loginSchema, googleLoginSchema } from '../../middleware/schemas';
+import { registerCustomerSchema, loginSchema, googleLoginSchema, registerProviderSchema } from '../../middleware/schemas';
 import { registerCustomer, registerProvider, login, registerAdmin, loginWithGoogle, getVerificationStatus, resubmitVerification, getMe } from "./auth.controller";
 
 const router = Router();
@@ -19,6 +19,7 @@ router.post(
     { name: 'ijazah_photo', maxCount: 1 },
     { name: 'certificate_files', maxCount: 10 },
   ]),
+  validate(registerProviderSchema),
   registerProvider
 );
 router.post('/register/admin', authenticate, isAdmin, registerAdmin);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/constants/api_endpoints.dart';
+import '../../../../core/constants/app_colors.dart';
 
 class ReviewBottomSheet extends StatefulWidget {
   final String orderId;
@@ -125,7 +126,7 @@ class _ReviewBottomSheetState extends State<ReviewBottomSheet> {
             child: ElevatedButton(
               onPressed: _rating == 0 || _isSubmitting ? null : _submit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2563EB),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),

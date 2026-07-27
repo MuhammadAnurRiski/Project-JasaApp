@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../provider/presentation/screens/provider_shell.dart';
+import '../../../../core/constants/app_colors.dart';
 
 class _PriceEntry {
   String? pricingUnitId;
@@ -400,7 +401,7 @@ class _ProviderProfileCompletionScreenState
     } else if (n.contains('Bersih') || n.contains('bersih') || n.contains('Cuci') || n.contains('cuci')) {
       return (icon: Icons.cleaning_services, color: const Color(0xFF059669), bg: const Color(0xFFE6F7F0));
     } else if (n.contains('Pindah') || n.contains('pindah') || n.contains('Angkut') || n.contains('angkut')) {
-      return (icon: Icons.local_shipping, color: const Color(0xFF2563EB), bg: const Color(0xFFE6EEFF));
+      return (icon: Icons.local_shipping, color: AppColors.primary, bg: const Color(0xFFE6EEFF));
     } else if (n.contains('Kayu') || n.contains('kayu') || n.contains('Furnitur') || n.contains('furnitur')) {
       return (icon: Icons.handyman, color: const Color(0xFF7C3AED), bg: const Color(0xFFF0E6FF));
     } else if (n.contains('AC') || n.contains('Elektronik') || n.contains('elektronik')) {

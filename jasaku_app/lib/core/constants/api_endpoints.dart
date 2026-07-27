@@ -1,5 +1,6 @@
 // Defines backend API endpoint URLs for shared Jasaku App network calls.
 class ApiEndpoints {
+  static const double platformFee = 2000;
   static const String _raw = String.fromEnvironment('BASE_URL', defaultValue: 'jasakuapp.onrender.com');
   static final String baseUrl = _raw.startsWith('http') ? _raw : 'https://$_raw';
   static final String login = '$baseUrl/api/auth/login';
@@ -13,6 +14,7 @@ class ApiEndpoints {
   static final String getProviderByService = '$baseUrl/api/services/providers/'; // + {serviceId}
   static final String getProvidersByServiceWithoutDistance = '$baseUrl/api/services/services/providers/non-location';
   static final String searchServicesApi = '$baseUrl/api/services/services/search'; // + ?q=
+  static String getServicePricingData(String serviceId) => '$baseUrl/api/services/services/$serviceId/data';
   static final String updateLocation = '$baseUrl/api/locations/update';
   static final String updateProviderService = '$baseUrl/api/provider/services/update-service';
   static final String providerAvailableServices = '$baseUrl/api/provider/services/available-services';
@@ -112,4 +114,5 @@ class ApiEndpoints {
   static final String adminAllExtensions = '$baseUrl/api/admin/extensions/all';
   static final String adminPendingExtensions = '$baseUrl/api/admin/extensions/pending';
   static String adminApproveExtension(String extensionId) => '$baseUrl/api/admin/extensions/$extensionId/approve';
+  static String uploadExtensionPaymentProof(String extensionId) => '$baseUrl/api/orders/extensions/$extensionId/payment-proof';
 }

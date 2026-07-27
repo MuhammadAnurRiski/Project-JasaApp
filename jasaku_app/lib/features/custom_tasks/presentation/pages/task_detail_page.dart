@@ -10,6 +10,7 @@ import '../../../location/presentation/providers/location_tracker_provider.dart'
 import '../../data/custom_tasks_repository.dart';
 import '../../data/models/custom_task_model.dart';
 import 'customer_payment_page.dart';
+import '../../../../core/constants/app_colors.dart';
 
 class TaskDetailPage extends ConsumerStatefulWidget {
   final String taskId;
@@ -99,7 +100,7 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
 
   Widget _buildDetail(CustomTaskModel task, NumberFormat f) {
     final allPoints = <Map<String, dynamic>>[
-      {'lat': task.lat, 'lng': task.lng, 'label': 'Lokasi Awal', 'color': const Color(0xFF2563EB)},
+      {'lat': task.lat, 'lng': task.lng, 'label': 'Lokasi Awal', 'color': AppColors.primary},
       ...task.locations.asMap().entries.map((e) => {
         'lat': e.value.lat,
         'lng': e.value.lng,
@@ -176,7 +177,7 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
             ),
             child: const Row(
               children: [
-                Icon(Icons.hourglass_empty, color: Color(0xFF2563EB)),
+                Icon(Icons.hourglass_empty, color: AppColors.primary),
                 SizedBox(width: 12),
                 Expanded(
                   child: Text('Menunggu diterima provider',
@@ -390,7 +391,7 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                             polylines: [
                               Polyline(
                                 points: _routePoints,
-                                color: const Color(0xFF2563EB),
+                                color: AppColors.primary,
                                 strokeWidth: 4,
                               ),
                             ],
@@ -405,7 +406,7 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                                 width: isFirst ? 30 : 30,
                                 height: isFirst ? 30 : 30,
                                 child: isFirst
-                                    ? const Icon(Icons.location_on, color: Color(0xFF2563EB), size: 30)
+                                    ? const Icon(Icons.location_on, color: AppColors.primary, size: 30)
                                     : Container(
                                         decoration: BoxDecoration(
                                           color: p['color'] as Color,
@@ -461,7 +462,7 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(Icons.location_on, size: 16, color: const Color(0xFF2563EB)),
+                              Icon(Icons.location_on, size: 16, color: AppColors.primary),
                               const SizedBox(width: 6),
                               Expanded(
                                 child: Text(task.address!,
@@ -550,8 +551,8 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
                   children: [
                     CircleAvatar(
                       radius: 18,
-                      backgroundColor: const Color(0xFF2563EB).withValues(alpha: 0.1),
-                      child: const Icon(Icons.person, size: 18, color: Color(0xFF2563EB)),
+                      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                      child: const Icon(Icons.person, size: 18, color: AppColors.primary),
                     ),
                     const SizedBox(width: 12),
                     Text(task.customerName ?? 'Customer',
@@ -645,7 +646,7 @@ class _TaskDetailPageState extends ConsumerState<TaskDetailPage> {
 
   Widget _statusBadge(String status) {
     final statusColor = status == 'open'
-        ? const Color(0xFF2563EB)
+        ? AppColors.primary
         : status == 'in_progress'
             ? const Color(0xFFF59E0B)
             : status == 'completed'

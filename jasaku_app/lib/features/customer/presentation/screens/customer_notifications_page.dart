@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/network/upload_service.dart';
 
 class CustomerNotificationsPage extends ConsumerStatefulWidget {
   const CustomerNotificationsPage({super.key});
@@ -80,7 +83,7 @@ class _CustomerNotificationsPageState extends ConsumerState<CustomerNotification
       final accounts = (accRes.data?['data'] as List?) ?? [];
 
       if (!mounted) return;
-      _showPaymentAccountsDialog(accounts, total);
+      _showPaymentAccountsDialog(accounts, total, extId);
 
       await _loadData();
     } catch (e) {
@@ -121,7 +124,7 @@ class _CustomerNotificationsPageState extends ConsumerState<CustomerNotification
     }
   }
 
-  void _showPaymentAccountsDialog(List<dynamic> accounts, num total) {
+  void _showPaymentAccountsDialog(List<dynamic> accounts, num total, String extId) {
     showDialog(
       context: context,
       builder: (dctx) => StatefulBuilder(
@@ -156,7 +159,7 @@ class _CustomerNotificationsPageState extends ConsumerState<CustomerNotification
                           borderRadius: BorderRadius.circular(12),
                           onTap: () {
                             Navigator.pop(dctx);
-                            _showTransferDetails(a, total);
+                            _showTransferDetails(a, total, extId);
                           },
                           child: Container(
                             padding: const EdgeInsets.all(12),
@@ -193,7 +196,7 @@ class _CustomerNotificationsPageState extends ConsumerState<CustomerNotification
     );
   }
 
-  void _showTransferDetails(Map<String, dynamic> account, num total) {
+  void _showTransferDetails(Map<String, dynamic> account, num total, String extId) {
     final type = account['type'] as String? ?? '';
     final name = account['bank_name'] ?? account['ewallet_name'] ?? account['provider_name'] ?? '-';
     final number = account['account_number'] as String? ?? '-';
@@ -203,93 +206,16 @@ class _CustomerNotificationsPageState extends ConsumerState<CustomerNotification
 
     showDialog(
       context: context,
-      builder: (dctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Icon(Icons.check_circle, size: 22, color: Color(0xFF059669)),
-            SizedBox(width: 8),
-            Expanded(child: Text('Ekstensi Disetujui!', style: TextStyle(fontSize: 16))),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Silakan transfer ke rekening berikut:', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
-            const SizedBox(height: 16),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(icon, size: 20, color: AppColors.primary),
-                      const SizedBox(width: 8),
-                      Text(type, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  const Divider(height: 24),
-                  _detailRow("Penyedia", name),
-                  const SizedBox(height: 12),
-                  _detailRow("Nomor Rekening", numberFormatted),
-                  const SizedBox(height: 12),
-                    _detailRow("Atas Nama", holder),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text("Total Transfer", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                    Text(
-                      _formatPrice(total),
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF7ED),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFFFD6A8)),
-              ),
-              child: const Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.info_outline, size: 16, color: Color(0xFFE67E22)),
-                  SizedBox(width: 8),
-                  Expanded(child: Text('Setelah transfer, admin akan melakukan konfirmasi. Silakan hubungi admin jika sudah transfer.', style: TextStyle(fontSize: 12, color: Color(0xFF9C6B3E)))),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dctx),
-            child: const Text('Tutup'),
-          ),
-        ],
+      builder: (dctx) => _ExtensionPaymentDialog(
+        extId: extId,
+        account: account,
+        total: total,
+        type: type,
+        name: name,
+        number: number,
+        holder: holder,
+        numberFormatted: numberFormatted,
+        icon: icon,
       ),
     );
   }
@@ -493,6 +419,204 @@ class _CustomerNotificationsPageState extends ConsumerState<CustomerNotification
           )),
         ],
       ),
+    );
+  }
+}
+
+class _ExtensionPaymentDialog extends StatefulWidget {
+  final String extId;
+  final Map<String, dynamic> account;
+  final num total;
+  final String type;
+  final String name;
+  final String number;
+  final String holder;
+  final String numberFormatted;
+  final IconData icon;
+
+  const _ExtensionPaymentDialog({
+    required this.extId,
+    required this.account,
+    required this.total,
+    required this.type,
+    required this.name,
+    required this.number,
+    required this.holder,
+    required this.numberFormatted,
+    required this.icon,
+  });
+
+  @override
+  State<_ExtensionPaymentDialog> createState() => _ExtensionPaymentDialogState();
+}
+
+class _ExtensionPaymentDialogState extends State<_ExtensionPaymentDialog> {
+  bool _uploading = false;
+  bool _uploaded = false;
+
+  String _formatPrice(num price) {
+    return 'Rp ${price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}';
+  }
+
+  Future<void> _uploadProof() async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+      if (picked == null) return;
+
+      setState(() => _uploading = true);
+
+      final urls = await UploadService.uploadFiles([File(picked.path)]);
+      if (urls.isEmpty) throw Exception('Gagal upload gambar');
+
+      await ApiClient().dio.post(
+        ApiEndpoints.uploadExtensionPaymentProof(widget.extId),
+        data: {'proofUrl': urls.first},
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _uploading = false;
+        _uploaded = true;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _uploading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal upload: $e'), backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: Row(
+        children: [
+          Icon(_uploaded ? Icons.check_circle : Icons.check_circle, size: 22, color: const Color(0xFF059669)),
+          const SizedBox(width: 8),
+          Expanded(child: Text(_uploaded ? 'Bukti Terkirim!' : 'Ekstensi Disetujui!', style: const TextStyle(fontSize: 16))),
+        ],
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Silakan transfer ke rekening berikut:', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(widget.icon, size: 20, color: AppColors.primary),
+                      const SizedBox(width: 8),
+                      Text(widget.type, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  const Divider(height: 24),
+                  _detailRow("Penyedia", widget.name),
+                  const SizedBox(height: 12),
+                  _detailRow("Nomor Rekening", widget.numberFormatted),
+                  const SizedBox(height: 12),
+                  _detailRow("Atas Nama", widget.holder),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text("Total Transfer", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                  Text(
+                    _formatPrice(widget.total),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            if (_uploaded)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFECFDF5),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFA7F3D0)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.check_circle, size: 18, color: Color(0xFF059669)),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Bukti pembayaran berhasil diupload. Menunggu konfirmasi admin.',
+                        style: TextStyle(fontSize: 12, color: Color(0xFF065F46)),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _uploading ? null : _uploadProof,
+                  icon: _uploading
+                      ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      : const Icon(Icons.camera_alt, size: 18),
+                  label: Text(_uploading ? 'Mengupload...' : 'Upload Bukti Transfer'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Tutup'),
+        ),
+      ],
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 13, color: Colors.grey)),
+        Flexible(
+          child: Text(
+            value,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            textAlign: TextAlign.right,
+          ),
+        ),
+      ],
     );
   }
 }

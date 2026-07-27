@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/payment_repository.dart';
 import '../../domain/models/payment_method_model.dart';
+import '../../../../core/constants/app_colors.dart';
 
 final payoutMethodsProvider = FutureProvider.autoDispose<List<PayoutMethod>>((ref) {
   return PaymentRepository().getMyPayoutMethods();
@@ -111,7 +112,7 @@ class _ProviderPayoutScreenState extends ConsumerState<ProviderPayoutScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
+                    backgroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
@@ -195,7 +196,7 @@ class _ProviderPayoutScreenState extends ConsumerState<ProviderPayoutScreen> {
         title: const Text('Metode Penerimaan', style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold)),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF2563EB),
+        backgroundColor: AppColors.primary,
         onPressed: () => _showForm(),
         child: const Icon(Icons.add, color: Colors.white),
       ),
@@ -227,7 +228,7 @@ class _ProviderPayoutScreenState extends ConsumerState<ProviderPayoutScreen> {
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   leading: CircleAvatar(
                     backgroundColor: m.type == 'bank' ? const Color(0xFFE0E7FF) : const Color(0xFFDCFCE7),
-                    child: Icon(m.type == 'bank' ? Icons.account_balance : Icons.wallet, color: m.type == 'bank' ? const Color(0xFF2563EB) : const Color(0xFF16A34A)),
+                    child: Icon(m.type == 'bank' ? Icons.account_balance : Icons.wallet, color: m.type == 'bank' ? AppColors.primary : const Color(0xFF16A34A)),
                   ),
                   title: Text(m.accountName, style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text('${m.providerName} - ${m.accountNumber}', style: const TextStyle(fontSize: 13)),

@@ -1,0 +1,24 @@
+@startuml Custom Task Flow - Activity Diagram
+!theme plain
+title Custom Task (Tender) Flow
+skinparam backgroundColor #FEFEFE
+skinparam ActivityBackgroundColor #E0F2F1
+skinparam ActivityDiamondBackgroundColor #FFF9C4
+
+start
+:Publish task\n(budget, jumlah orang, lokasi);
+
+:Provider terima task\n(hingga kuota penuh);
+
+if (Kuota penuh?) then (ya)
+  :Bayar ke admin (rekber);
+  :Admin konfirmasi pembayaran;
+  :Kerja → Selesai;
+  :Beri rating;
+  :Admin cairkan dana;
+else (belum)
+  :Tunggu provider lain;
+endif
+
+stop
+@enduml

@@ -1,0 +1,62 @@
+@startuml Custom Task - Sequence Diagram
+!theme plain
+title Custom Task (Tender) Flow
+skinparam backgroundColor #FEFEFE
+skinparam sequenceLifeLineBorderColor #90A4AE
+
+actor "Customer" as C
+actor "Provider" as P
+actor "Admin" as A
+participant "Backend API" as B
+database "Database" as DB
+participant "FCM" as F
+
+== Publish Task ==
+C -> B : POST /api/custom-tasks\n(title, budget/orang, required_people, locations)
+B -> DB : INSERT custom_tasks (status=open)\n+ task_locations
+B -> F : Notify nearby providers\n"Task Baru Tersedia"
+B --> C : task created
+
+== Provider Accept ==
+P -> B : GET /api/custom-tasks/available
+B -> DB : Query open tasks (20km, sorted by distance)
+B --> P : available tasks
+P -> B : POST /api/custom-tasks/:taskId/accept
+B -> DB : accepted_count + 1\nINSERT task_providers\nINSERT orders (pending_payment)
+B -> F : Notify customer: "Task Diterima"
+
+alt Kuota Penuh
+  B -> DB : custom_tasks.status = 'in_progress'
+  B -> F : Notify customer: "Task Siap Dibayar"
+end
+
+== Payment ==
+C -> B : GET /api/custom-tasks/:taskId/payment
+B --> C : total = (budget + fee) x accepted_count
+C -> B : POST /api/custom-tasks/:taskId/payment-proof
+B -> DB : payment_status = proof_uploaded
+B -> F : Notify admin: "Bukti Pembayaran Masuk"
+
+== Admin Confirms ==
+A -> B : PATCH /api/admin/tasks/:taskId/confirm-payment-task
+B -> DB : orders.status = accepted\npayments.status = paid\ncustom_tasks.status = active
+B -> F : Notify providers: "Mulai Bekerja"
+
+== Work Execution ==
+P -> B : PATCH /work-status {on_the_way}
+P -> B : PATCH /work-status {arrived}
+P -> B : PATCH /work-status {in_progress}
+P -> B : PATCH /work-status {completed}
+B -> DB : UPDATE task_providers + orders
+B -> F : Notify customer: "Pekerjaan Selesai"
+
+== Payout ==
+A -> B : PATCH /api/admin/tasks/:tpId/confirm-payout
+B -> DB : payout_confirmed = true
+B -> F : Notify provider: "Pencairan Berhasil"
+
+alt Semua Provider Done
+  B -> DB : custom_tasks.status = 'fulfilled'
+end
+
+@enduml

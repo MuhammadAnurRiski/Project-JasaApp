@@ -1,0 +1,41 @@
+@startuml Payment & Payout - Sequence Diagram
+!theme plain
+title Payment & Payout Flow
+skinparam backgroundColor #FEFEFE
+skinparam sequenceLifeLineBorderColor #90A4AE
+
+actor "Customer" as C
+actor "Provider" as P
+actor "Admin" as A
+participant "Backend API" as B
+database "Database" as DB
+participant "FCM" as F
+
+== Customer Pays ==
+C -> B : GET /api/orders/payment-accounts
+B --> C : rekening admin (bank/e-wallet/QRIS)
+
+C -> B : POST /api/payments/upload-proof/:orderId
+B -> DB : payments (payment_proof, status=pending)
+B --> C : bukti terkirim
+
+A -> B : PATCH /api/admin/orders/:orderId/confirm-payment
+B -> DB : orders.status = pending\npayments.status = paid
+B -> F : Notify customer + provider
+
+== Admin Confirms Payout ==
+A -> B : PATCH /api/admin/orders/:orderId/confirm-payout
+B -> DB : payout_confirmed=true, payout_at=NOW()
+B -> F : Notify provider: "Pencairan Berhasil"
+
+== Extension (opsional) ==
+P -> B : POST /api/orders/orders/:orderId/extend\n{extensionDays}
+B -> DB : INSERT order_extensions (pending_customer)
+
+C -> B : POST /api/orders/extensions/:id/respond\n{action: 'approved'}
+B -> DB : extension.status = pending_payment
+
+A -> B : POST /api/admin/extensions/:id/activate
+B -> DB : extension.status = active\norders.additional_fee + end_date updated
+
+@enduml

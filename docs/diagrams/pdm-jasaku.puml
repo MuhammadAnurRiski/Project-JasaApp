@@ -1,0 +1,408 @@
+@startuml PDM Jasaku
+!theme plain
+title Physical Data Model (PDM) - Jasaku
+skinparam backgroundColor #FEFEFE
+skinparam EntityBackgroundColor #FFF3E0
+skinparam EntityBorderColor #E65100
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 10
+
+entity "roles" as t1 {
+  * id : SERIAL <<PK>>
+  --
+  name : VARCHAR(50)
+  description : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "users" as t2 {
+  * id : UUID <<PK>>
+  --
+  role_id : INTEGER <<FK>>
+  email : VARCHAR(255)
+  phone : VARCHAR(20)
+  password_hash : TEXT
+  google_id : VARCHAR(255)
+  is_phone_verified : BOOLEAN
+  is_email_verified : BOOLEAN
+  status : VARCHAR(20)
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "profiles_customer" as t3 {
+  * id : UUID <<PK>>
+  --
+  user_id : UUID <<FK>>
+  full_name : VARCHAR(150)
+  nickname : VARCHAR(100)
+  birth_date : DATE
+  gender : VARCHAR(10)
+  address : TEXT
+  avatar_url : TEXT
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "provider_profiles" as t4 {
+  * id : UUID <<PK>>
+  --
+  user_id : UUID <<FK>>
+  full_name : VARCHAR(100)
+  nickname : VARCHAR(50)
+  gender : VARCHAR(10)
+  birth_date : DATE
+  phone : VARCHAR(20)
+  address : TEXT
+  domicile : VARCHAR(100)
+  profile_photo : TEXT
+  ktp_photo : TEXT
+  selfie_photo : TEXT
+  is_verified : BOOLEAN
+  verification_status : VARCHAR(20)
+  verification_notes : TEXT
+  is_active : BOOLEAN
+  onboarding_completed : BOOLEAN
+  custom_task_enabled : BOOLEAN
+  service_available : BOOLEAN
+  task_available : BOOLEAN
+  rating : DECIMAL(2,1)
+  total_jobs : INTEGER
+  total_reviews : INTEGER
+  portfolios : TEXT[]
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "provider_locations" as t5 {
+  * id : UUID <<PK>>
+  --
+  provider_id : UUID <<FK>>
+  address : TEXT
+  location : GEOMETRY(Point,4326)
+}
+
+entity "provider_documents" as t6 {
+  * id : UUID <<PK>>
+  --
+  provider_id : UUID <<FK>>
+  type : VARCHAR(30)
+  file_url : TEXT
+  category_id : UUID
+  description : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "provider_payout_methods" as t7 {
+  * id : UUID <<PK>>
+  --
+  provider_id : UUID <<FK>>
+  type : VARCHAR(50)
+  provider_name : VARCHAR(100)
+  account_number : VARCHAR(100)
+  account_name : VARCHAR(150)
+  created_at : TIMESTAMP
+}
+
+entity "identity_verifications" as t8 {
+  * id : UUID <<PK>>
+  --
+  provider_id : UUID <<FK>>
+  nik : VARCHAR
+  ocr_full_name : VARCHAR
+  ocr_birth_place : VARCHAR
+  ocr_birth_date : VARCHAR
+  ocr_address : TEXT
+  ocr_gender : VARCHAR
+  ocr_blood_type : VARCHAR
+  ocr_religion : VARCHAR
+  ocr_raw_result : JSONB
+  face_match_score : FLOAT
+  face_match_status : VARCHAR(20)
+  liveness_data : JSONB
+  liveness_status : VARCHAR(20)
+  created_at : TIMESTAMP
+  verified_at : TIMESTAMP
+}
+
+entity "user_devices" as t9 {
+  * id : UUID <<PK>>
+  --
+  user_id : UUID <<FK>>
+  fcm_token : TEXT
+  device_type : VARCHAR
+  device_name : VARCHAR
+  created_at : TIMESTAMPTZ
+  updated_at : TIMESTAMPTZ
+}
+
+entity "categories" as t10 {
+  * id : UUID <<PK>>
+  --
+  name : VARCHAR(100)
+  description : TEXT
+  icon_url : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "pricing_types" as t11 {
+  * id : UUID <<PK>>
+  --
+  category_id : UUID <<FK>>
+  name : VARCHAR(50)
+  default_unit : VARCHAR
+}
+
+entity "services" as t12 {
+  * id : UUID <<PK>>
+  --
+  category_id : UUID <<FK>>
+  name : VARCHAR(150)
+  description : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "provider_services" as t13 {
+  * id : UUID <<PK>>
+  --
+  provider_id : UUID
+  service_id : UUID <<FK>>
+  description : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "provider_service_prices" as t14 {
+  * id : UUID <<PK>>
+  --
+  provider_service_id : UUID <<FK>>
+  pricing_type_id : UUID <<FK>>
+  price : DECIMAL(12,2)
+  unit : VARCHAR
+  created_at : TIMESTAMP
+}
+
+entity "orders" as t15 {
+  * id : UUID <<PK>>
+  --
+  customer_id : UUID <<FK>>
+  provider_id : UUID <<FK>>
+  custom_task_id : UUID <<FK>>
+  task_provider_id : UUID <<FK>>
+  status : VARCHAR(30)
+  total_price : DECIMAL(12,2)
+  platform_fee : DECIMAL(12,2)
+  additional_fee : DECIMAL(12,2)
+  description : TEXT
+  work_date : DATE
+  start_date : TIMESTAMP
+  end_date : TIMESTAMP
+  assignment_type : VARCHAR(20)
+  payout_confirmed : BOOLEAN
+  payout_at : TIMESTAMP
+  created_at : TIMESTAMP
+}
+
+entity "order_items" as t16 {
+  * id : UUID <<PK>>
+  --
+  order_id : UUID <<FK>>
+  service_id : UUID <<FK>>
+  pricing_type_id : UUID <<FK>>
+  quantity : INTEGER
+  price : DECIMAL(12,2)
+  subtotal : DECIMAL(12,2)
+}
+
+entity "order_locations" as t17 {
+  * id : UUID <<PK>>
+  --
+  order_id : UUID <<FK>>
+  address : TEXT
+  location : GEOMETRY(Point,4326)
+}
+
+entity "order_attachments" as t18 {
+  * id : UUID <<PK>>
+  --
+  order_id : UUID <<FK>>
+  file_url : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "order_extensions" as t19 {
+  * id : UUID <<PK>>
+  --
+  order_id : UUID <<FK>>
+  provider_id : UUID
+  customer_id : UUID
+  requested_date : DATE
+  additional_cost : DECIMAL(12,2)
+  platform_fee_rate : DECIMAL(3,2)
+  extension_count : INTEGER
+  status : VARCHAR(20)
+  response_note : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "provider_schedules" as t20 {
+  * id : UUID <<PK>>
+  --
+  provider_id : UUID <<FK>>
+  work_date : DATE
+  is_booked : BOOLEAN
+  order_id : UUID <<FK>>
+  created_at : TIMESTAMP
+}
+
+entity "payments" as t21 {
+  * id : UUID <<PK>>
+  --
+  order_id : UUID <<FK>>
+  method : VARCHAR(50)
+  status : VARCHAR(30)
+  amount : DECIMAL(12,2)
+  paid_at : TIMESTAMP
+  payment_proof : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "admin_bank_accounts" as t22 {
+  * id : UUID <<PK>>
+  --
+  provider_name : VARCHAR(100)
+  account_number : VARCHAR(100)
+  account_name : VARCHAR(150)
+  is_active : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "admin_ewallet_accounts" as t23 {
+  * id : UUID <<PK>>
+  --
+  provider_name : VARCHAR(100)
+  account_number : VARCHAR(100)
+  account_name : VARCHAR(150)
+  is_active : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "admin_qris_accounts" as t24 {
+  * id : UUID <<PK>>
+  --
+  provider_name : VARCHAR(100)
+  qris_image_url : TEXT
+  is_active : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "custom_tasks" as t25 {
+  * id : UUID <<PK>>
+  --
+  customer_id : UUID
+  title : VARCHAR(150)
+  description : TEXT
+  budget_per_person : DECIMAL(12,0)
+  required_people : INTEGER
+  accepted_count : INTEGER
+  platform_fee_rate : DECIMAL(4,2)
+  address : TEXT
+  location_detail : TEXT
+  publish_days : INTEGER
+  expires_at : TIMESTAMP
+  payment_proof : TEXT
+  payment_status : VARCHAR(30)
+  location : GEOMETRY(Point,4326)
+  status : VARCHAR(30)
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "task_locations" as t26 {
+  * id : UUID <<PK>>
+  --
+  task_id : UUID <<FK>>
+  label : VARCHAR(100)
+  address : TEXT
+  location : GEOMETRY(Point,4326)
+  stop_order : INTEGER
+}
+
+entity "task_providers" as t27 {
+  * id : UUID <<PK>>
+  --
+  task_id : UUID <<FK>>
+  provider_id : UUID <<FK>>
+  status : VARCHAR(20)
+  work_status : VARCHAR(20)
+  accepted_at : TIMESTAMP
+  completed_at : TIMESTAMP
+  payout_confirmed : BOOLEAN
+  payout_at : TIMESTAMP
+}
+
+entity "reviews" as t28 {
+  * id : UUID <<PK>>
+  --
+  order_id : UUID <<FK>>
+  customer_id : UUID <<FK>>
+  provider_id : UUID <<FK>>
+  rating : INTEGER
+  review : TEXT
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "reports" as t29 {
+  * id : UUID <<PK>>
+  --
+  reporter_id : UUID <<FK>>
+  reporter_role : VARCHAR(20)
+  order_id : UUID
+  subject : VARCHAR(200)
+  description : TEXT
+  attachments : TEXT[]
+  status : VARCHAR(20)
+  admin_response : TEXT
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+  resolved_at : TIMESTAMPTZ
+}
+
+t1 ||--|{ t2
+t2 ||--|| t3
+t2 ||--|| t4
+t2 ||--|| t5
+t2 ||--|{ t9
+t4 ||--|{ t6
+t4 ||--|| t8
+t4 ||--|{ t7
+t10 ||--|{ t11
+t10 ||--|{ t12
+t12 ||--|{ t13
+t13 ||--|{ t14
+t11 ||--|{ t14
+t3 ||--|{ t15
+t4 ||--|{ t15
+t25 ||--|{ t15
+t27 ||--|{ t15
+t15 ||--|{ t16
+t15 ||--|{ t17
+t15 ||--|{ t18
+t15 ||--|{ t19
+t15 ||--|{ t21
+t12 ||--|{ t16
+t11 ||--|{ t16
+t4 ||--|{ t20
+t15 ||--o{ t20
+t25 ||--|{ t26
+t25 ||--|{ t27
+t4 ||--|{ t27
+t15 ||--o| t28
+t2 ||--|{ t28 : "customer_id"
+t2 ||--|{ t28 : "provider_id"
+t2 ||--|{ t29
+
+@enduml

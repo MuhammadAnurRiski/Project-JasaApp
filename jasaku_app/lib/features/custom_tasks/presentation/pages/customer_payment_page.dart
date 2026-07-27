@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../data/custom_tasks_repository.dart';
 import '../../data/models/custom_task_model.dart';
 import '../../../../core/utils/image_url.dart';
+import '../../../../core/constants/app_colors.dart';
 
 class CustomerPaymentPage extends ConsumerStatefulWidget {
   final String taskId;
@@ -190,7 +191,7 @@ class _CustomerPaymentPageState extends ConsumerState<CustomerPaymentPage> {
                                 style: TextStyle(fontSize: 10,
                                     fontWeight: FontWeight.w600,
                                     color: a.type == 'bank'
-                                        ? const Color(0xFF2563EB)
+                                        ? AppColors.primary
                                         : a.type == 'qris'
                                             ? const Color(0xFF10B981)
                                             : const Color(0xFFEF4444))),
@@ -251,8 +252,8 @@ class _CustomerPaymentPageState extends ConsumerState<CustomerPaymentPage> {
                     icon: const Icon(Icons.camera_alt_outlined, size: 18),
                     label: Text(_proofFile != null ? 'Ganti Bukti' : 'Pilih Foto'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF2563EB),
-                      side: const BorderSide(color: Color(0xFF2563EB)),
+                      foregroundColor: AppColors.primary,
+                      side: const BorderSide(color: AppColors.primary),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -342,7 +343,7 @@ class _CustomerPaymentPageState extends ConsumerState<CustomerPaymentPage> {
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2563EB),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

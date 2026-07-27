@@ -7,6 +7,7 @@ import 'provider_order_detail_page.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../core/constants/app_colors.dart';
 
 class ProviderOrderManagementPage extends ConsumerStatefulWidget {
   const ProviderOrderManagementPage({super.key});
@@ -253,7 +254,7 @@ class _ProviderOrderManagementPageState extends ConsumerState<ProviderOrderManag
       height: 36,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF2563EB),
+          backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           elevation: 0,

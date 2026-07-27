@@ -12,7 +12,7 @@ import 'customer_orders.dart';
 import 'customer_provider_reviews_page.dart';
 
 // --- SCREEN UTAMA: DAFTAR MITRA DARI DATABASE (GAMBAR 1) ---
-class ProviderListScreen extends StatelessWidget {
+class ProviderListScreen extends StatefulWidget {
   final String servicesId;
   final String servicesName;
 
@@ -21,6 +21,53 @@ class ProviderListScreen extends StatelessWidget {
     required this.servicesId,
     required this.servicesName,
   });
+
+  @override
+  State<ProviderListScreen> createState() => _ProviderListScreenState();
+}
+
+class _ProviderListScreenState extends State<ProviderListScreen> {
+  String? _selectedPricingUnitId;
+  String? _selectedContractTypeId;
+  String? _selectedPricingUnitName;
+
+  List<Map<String, dynamic>> _pricingUnits = [];
+  List<Map<String, dynamic>> _contractTypes = [];
+  bool _loadingPricing = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPricingData();
+  }
+
+  Future<void> _fetchPricingData() async {
+    try {
+      final res = await ApiClient().dio.get(
+        ApiEndpoints.getServicePricingData(widget.servicesId),
+      );
+      final data = res.data['data'] as Map<String, dynamic>? ?? {};
+      final units = (data['pricingUnits'] as List?) ?? [];
+      final contracts = (data['contractTypes'] as List?) ?? [];
+      if (mounted) {
+        setState(() {
+          _pricingUnits = units.map((e) => Map<String, dynamic>.from(e)).toList();
+          _contractTypes = contracts.map((e) => Map<String, dynamic>.from(e)).toList();
+          _loadingPricing = false;
+          // Auto-select first pricing unit if available
+          if (_pricingUnits.isNotEmpty) {
+            _selectedPricingUnitId = _pricingUnits.first['id']?.toString();
+            _selectedPricingUnitName = _pricingUnits.first['name']?.toString();
+          }
+          if (_contractTypes.isNotEmpty) {
+            _selectedContractTypeId = _contractTypes.first['id']?.toString();
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _loadingPricing = false);
+    }
+  }
 
   Future<Position> _getCurrentLocation() async {
     bool enabled = await Geolocator.isLocationServiceEnabled();
@@ -67,7 +114,7 @@ class ProviderListScreen extends StatelessWidget {
   Future<List<ProviderModel>> _fetchProviderList() async {
     try {
       final response = await ApiClient().dio.get(
-        '${ApiEndpoints.getProvidersByServiceWithoutDistance}/$servicesId',
+        '${ApiEndpoints.getProvidersByServiceWithoutDistance}/${widget.servicesId}',
       );
 
       if (response.data == null || response.data['data'] == null) {
@@ -92,8 +139,7 @@ class ProviderListScreen extends StatelessWidget {
             .map((item) {
               try {
                 return ProviderModel.fromJson(item as Map<String, dynamic>);
-              } catch (e) {
-                debugPrint("Gagal parsing satu item provider: $e");
+              } catch (_) {
                 return null;
               }
             })
@@ -104,8 +150,7 @@ class ProviderListScreen extends StatelessWidget {
       Position? userPos;
       try {
         userPos = await _getCurrentLocation();
-      } catch (e) {
-        debugPrint("Gagal mendapat lokasi: $e");
+      } catch (_) {
         return providers;
       }
 
@@ -137,10 +182,8 @@ class ProviderListScreen extends StatelessWidget {
 
       return providers;
     } on DioException catch (e) {
-      debugPrint("[ProviderList] DioError: ${e.response?.statusCode} ${e.message}");
       throw Exception(e.response?.data['message'] ?? e.message);
-    } catch (e) {
-      debugPrint("[ProviderList] Error: $e");
+    } catch (_) {
       throw Exception("Gagal memproses data dari server.");
     }
   }
@@ -153,34 +196,93 @@ class ProviderListScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: const BackButton(color: Colors.black),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              servicesName,
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 16,
-                fontWeight: FontWeight.w700, // Font tebal sesuai figma
-                fontFamily:
-                    'PlusJakartaSans', // Jika proyekmu memakai font custom
-              ),
-            ),
-            Text(
-              servicesName,
-              style: const TextStyle(
-                color: Color(0xFF64748B),
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+        title: Text(
+          widget.servicesName,
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         actions: [],
       ),
-      body: FutureBuilder<List<ProviderModel>>(
-        future: _fetchProviderList(),
-        builder: (context, snapshot) {
+      body: Column(
+        children: [
+          // Pricing Unit & Contract Type Selection
+          if (!_loadingPricing && (_pricingUnits.length > 1 || _contractTypes.length > 1))
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              color: Colors.white,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (_contractTypes.length > 1) ...[
+                    const Text('Sistem Pekerjaan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
+                    const SizedBox(height: 6),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: _contractTypes.map((ct) {
+                          final id = ct['id']?.toString();
+                          final name = ct['name']?.toString() ?? '';
+                          final isSelected = _selectedContractTypeId == id;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: ChoiceChip(
+                              label: Text(name, style: TextStyle(fontSize: 13, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500, color: isSelected ? Colors.white : const Color(0xFF475569))),
+                              selected: isSelected,
+                              selectedColor: AppColors.primary,
+                              backgroundColor: const Color(0xFFF1F5F9),
+                              onSelected: (_) {
+                                setState(() {
+                                  _selectedContractTypeId = id;
+                                });
+                              },
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  if (_pricingUnits.length > 1) ...[
+                    const Text('Satuan Pembayaran', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
+                    const SizedBox(height: 6),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: _pricingUnits.map((pu) {
+                          final id = pu['id']?.toString();
+                          final name = pu['name']?.toString() ?? '';
+                          final unit = pu['unit']?.toString() ?? '';
+                          final isSelected = _selectedPricingUnitId == id;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: ChoiceChip(
+                              label: Text('$name ($unit)', style: TextStyle(fontSize: 13, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500, color: isSelected ? Colors.white : const Color(0xFF475569))),
+                              selected: isSelected,
+                              selectedColor: AppColors.primary,
+                              backgroundColor: const Color(0xFFF1F5F9),
+                              onSelected: (_) {
+                                setState(() {
+                                  _selectedPricingUnitId = id;
+                                  _selectedPricingUnitName = name;
+                                });
+                              },
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          // Provider List
+          Expanded(
+            child: FutureBuilder<List<ProviderModel>>(
+              future: _fetchProviderList(),
+              builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(color: Colors.blue),
@@ -224,6 +326,9 @@ class ProviderListScreen extends StatelessWidget {
             },
           );
         },
+      ),
+          ),
+        ],
       ),
     );
   }
@@ -424,9 +529,9 @@ class ProviderListScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Rp ${_formatPrice(provider.basePrice)}',
+                      'Rp ${_formatPrice(provider.priceForUnit(_selectedPricingUnitId))}',
                       style: const TextStyle(
-                        color: Color(0xFF2563EB),
+                        color: AppColors.primary,
                         fontWeight: FontWeight.w800,
                         fontSize: 15,
                       ),
@@ -442,7 +547,10 @@ class ProviderListScreen extends StatelessWidget {
                       builder:
                           (context) => DetailProviderSheet(
                             provider: provider,
-                            servicesId: servicesId,
+                            servicesId: widget.servicesId,
+                            selectedPricingUnitId: _selectedPricingUnitId,
+                            selectedContractTypeId: _selectedContractTypeId,
+                            selectedPricingUnitName: _selectedPricingUnitName,
                           ),
                     );
                   },
@@ -452,7 +560,7 @@ class ProviderListScreen extends StatelessWidget {
                       Text(
                         "Lihat Profil",
                         style: TextStyle(
-                          color: Color(0xFF2563EB),
+                          color: AppColors.primary,
                           fontWeight: FontWeight.w700,
                           fontSize: 13,
                         ),
@@ -460,7 +568,7 @@ class ProviderListScreen extends StatelessWidget {
                       Icon(
                         Icons.chevron_right_rounded,
                         size: 18,
-                        color: Color(0xFF2563EB),
+                        color: AppColors.primary,
                       ),
                     ],
                   ),
@@ -479,11 +587,17 @@ class ProviderListScreen extends StatelessWidget {
 class DetailProviderSheet extends StatefulWidget {
   final ProviderModel provider;
   final String servicesId;
+  final String? selectedPricingUnitId;
+  final String? selectedContractTypeId;
+  final String? selectedPricingUnitName;
 
   const DetailProviderSheet({
     super.key,
     required this.provider,
     required this.servicesId,
+    this.selectedPricingUnitId,
+    this.selectedContractTypeId,
+    this.selectedPricingUnitName,
   });
 
   @override
@@ -537,8 +651,7 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
         _serviceAvailable = data['is_active'] as bool? ?? true;
         _loadingStatus = false;
       });
-    } catch (e) {
-      debugPrint('[DetailProviderSheet] Status error: $e');
+    } catch (_) {
       setState(() => _loadingStatus = false);
     }
   }
@@ -629,7 +742,7 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                     children: bookedDates.map((d) {
                       final months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
                       return ListTile(
-                        leading: const Icon(Icons.calendar_today, color: Color(0xFF2563EB)),
+                        leading: const Icon(Icons.calendar_today, color: AppColors.primary),
                         title: Text('${d.day} ${months[d.month]} ${d.year}'),
                       );
                     }).toList(),
@@ -890,12 +1003,12 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                           Icon(
                             Icons.verified_user,
                             size: 16,
-                            color: Color(0xFF2563EB),
+                            color: AppColors.primary,
                           ),
                           Text(
                             " Terverifikasi",
                             style: TextStyle(
-                              color: Color(0xFF2563EB),
+                              color: AppColors.primary,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
@@ -913,7 +1026,7 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                             "Info",
                             style: TextStyle(
                               color: _selectedTab == 0
-                                  ? const Color(0xFF2563EB)
+                                  ? AppColors.primary
                                   : const Color(0xFF94A3B8),
                               fontWeight: _selectedTab == 0
                                   ? FontWeight.w700
@@ -935,7 +1048,7 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                             "Ulasan",
                             style: TextStyle(
                               color: _selectedTab == 1
-                                  ? const Color(0xFF2563EB)
+                                  ? AppColors.primary
                                   : const Color(0xFF94A3B8),
                               fontWeight: _selectedTab == 1
                                   ? FontWeight.w700
@@ -1040,12 +1153,12 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF2563EB).withValues(alpha: 0.1),
+                              color: AppColors.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: const Icon(
                               Icons.calendar_month_outlined,
-                              color: Color(0xFF2563EB),
+                              color: AppColors.primary,
                               size: 20,
                             ),
                           ),
@@ -1073,7 +1186,7 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                     if (_selectedTab == 1) ...[
                       if (_loadingReviews) ...[
                         const SizedBox(height: 40),
-                        const Center(child: CircularProgressIndicator(color: Color(0xFF2563EB))),
+                        const Center(child: CircularProgressIndicator(color: AppColors.primary)),
                       ] else if (_errorReviews != null) ...[
                         const SizedBox(height: 40),
                         Center(
@@ -1145,7 +1258,7 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                                   style: const TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
-                                    color: Color(0xFF2563EB),
+                                    color: AppColors.primary,
                                   ),
                                 ),
                               ),
@@ -1196,27 +1309,28 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                                     return;
                                   }
 
-                                  Navigator.pop(context);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) => CustomerOrdersPage(
-                                            providerId: provider.id,
-                                            providerName: provider.name,
-                                            serviceId: widget.servicesId,
-                                            pricingUnitId: provider.pricingUnitId!,
-                                            contractTypeId: provider.contractTypeId,
-                                            basePrice:
-                                                provider.basePrice?.toDouble() ?? 0.0,
-                                          ),
+                                   Navigator.pop(context);
+                                   Navigator.push(
+                                     context,
+                                     MaterialPageRoute(
+                                       builder:
+                                           (context) => CustomerOrdersPage(
+                                             providerId: provider.id,
+                                             providerName: provider.name,
+                                             serviceId: widget.servicesId,
+                                             pricingUnitId: widget.selectedPricingUnitId ?? provider.pricingUnitId!,
+                                             contractTypeId: widget.selectedContractTypeId ?? provider.contractTypeId,
+                                             pricingUnitName: widget.selectedPricingUnitName,
+                                             basePrice:
+                                                 provider.priceForUnit(widget.selectedPricingUnitId ?? provider.pricingUnitId)?.toDouble() ?? 0.0,
+                                           ),
                                     ),
                                   );
                                 },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: (_hasActiveOrder || !_serviceAvailable || !OperatingHours.isWithinOperatingHours())
                                 ? const Color(0xFF94A3B8)
-                                : const Color(0xFF2563EB),
+                                : AppColors.primary,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             elevation: 0,
                             shape: RoundedRectangleBorder(
@@ -1330,6 +1444,7 @@ class ProviderModel {
   final double? lat;
   final double? lng;
   final bool isActive;
+  final List<Map<String, dynamic>> allPricing;
 
   ProviderModel({
     required this.id,
@@ -1350,7 +1465,27 @@ class ProviderModel {
     this.lat,
     this.lng,
     this.isActive = true,
+    this.allPricing = const [],
   });
+
+  Map<String, dynamic>? getPricingEntry(String? pricingUnitId) {
+    if (pricingUnitId == null || allPricing.isEmpty) return null;
+    try {
+      return allPricing.firstWhere(
+        (e) => e['pricing_unit_id']?.toString() == pricingUnitId,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  int? priceForUnit(String? pricingUnitId) {
+    final entry = getPricingEntry(pricingUnitId);
+    if (entry == null) return basePrice;
+    final raw = entry['price'];
+    if (raw == null) return basePrice;
+    return raw is num ? raw.toInt() : int.tryParse(raw.toString()) ?? basePrice;
+  }
 
   factory ProviderModel.fromJson(Map<String, dynamic> json) {
     final providerProfilesList = json['provider_profiles'] as List<dynamic>?;
@@ -1432,6 +1567,11 @@ class ProviderModel {
     // ✅ Parse portfolios
     final portfoliosRaw = profileData?['portfolios'] as List<dynamic>?;
 
+    // ✅ Parse all pricing entries
+    final allPricing = pricesList
+        ?.map((e) => Map<String, dynamic>.from(e as Map))
+        .toList() ?? [];
+
     return ProviderModel(
       id:
           profileData?['provider_id']?.toString() ??
@@ -1460,6 +1600,7 @@ class ProviderModel {
       lat: parsedLat,
       lng: parsedLng,
       isActive: profileData?['is_active'] as bool? ?? true,
+      allPricing: allPricing,
     );
   }
 }

@@ -9,6 +9,7 @@ import 'provider_register_terms_screen.dart';
 import 'provider_register_success_screen.dart';
 import 'ktp_scanner_screen.dart';
 import 'liveness_screen.dart';
+import '../../../../core/constants/app_colors.dart';
 
 class ProviderRegisterDocumentScreen extends ConsumerStatefulWidget {
   final RegisterState state;
@@ -567,7 +568,7 @@ class _ProviderRegisterDocumentScreenState
                       color: const Color(0xFFEFF6FF),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.document_scanner, color: Color(0xFF2563EB), size: 22),
+                    child: const Icon(Icons.document_scanner, color: AppColors.primary, size: 22),
                   ),
                   const SizedBox(width: 12),
                   Expanded(

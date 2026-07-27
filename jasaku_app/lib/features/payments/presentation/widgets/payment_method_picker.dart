@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/payment_repository.dart';
 import '../../domain/models/payment_method_model.dart';
+import '../../../../core/constants/app_colors.dart';
 
 final paymentMethodsProvider = FutureProvider.autoDispose<List<PaymentMethod>>((ref) {
   return PaymentRepository().getPaymentMethods();
@@ -38,18 +39,18 @@ class PaymentMethodPicker extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
-                    Icon(_iconData(m.icon), size: 22, color: selected ? const Color(0xFF2563EB) : Colors.grey),
+                    Icon(_iconData(m.icon), size: 22, color: selected ? AppColors.primary : Colors.grey),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(m.type, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: selected ? const Color(0xFF2563EB) : Colors.black87)),
+                          Text(m.type, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: selected ? AppColors.primary : Colors.black87)),
                           Text(m.description, style: const TextStyle(fontSize: 11, color: Colors.grey)),
                         ],
                       ),
                     ),
-                    Icon(selected ? Icons.radio_button_checked : Icons.radio_button_off, color: selected ? const Color(0xFF2563EB) : Colors.grey, size: 20),
+                    Icon(selected ? Icons.radio_button_checked : Icons.radio_button_off, color: selected ? AppColors.primary : Colors.grey, size: 20),
                   ],
                 ),
               ),

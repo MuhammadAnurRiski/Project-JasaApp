@@ -1,0 +1,30 @@
+@startuml Provider Registration - Activity Diagram
+!theme plain
+title Provider Registration & Verification (Simplified)
+skinparam backgroundColor #FEFEFE
+skinparam ActivityBackgroundColor #F3E5F5
+skinparam ActivityDiamondBackgroundColor #FFF9C4
+
+start
+
+:Step 1: Upload dokumen\n(KTP, foto, selfie);
+:Step 2: Pilih keahlian & harga;
+:Step 3: Review;
+:Step 4: Isi data diri & password;
+
+|Admin|
+if (Lengkap & valid?) then (ya)
+  :Setujui → "Terverifikasi";
+else (tidak)
+  :Tolak + alasan;
+  |Provider|
+  :Perbaiki & ajukan ulang;
+  stop
+endif
+
+|Provider|
+:Lengkapi profil & payout method;
+:Mulai kerja;
+
+stop
+@enduml

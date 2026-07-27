@@ -1,0 +1,42 @@
+@startuml Authentication Flow - Activity Diagram
+!theme plain
+title Authentication (Simplified)
+skinparam backgroundColor #FEFEFE
+skinparam ActivityBackgroundColor #E8EAF6
+skinparam ActivityDiamondBackgroundColor #FFF9C4
+
+start
+
+if (Punya akun?) then (ya)
+  :Login;
+else (belum)
+  if (Daftar sebagai?) then (Customer)
+    :Isi data diri;
+    :Buat akun;
+  else (Provider)
+    :4 step wizard\n(data, dokumen, keahlian);
+    :Buat akun;
+    :Menunggu verifikasi admin;
+    stop
+  endif
+endif
+
+if (Metode login?) then (Email)
+  :Masukkan email & password;
+else (Google)
+  :Login via Google;
+endif
+
+if (Provider?) then (ya)
+  if (Terverifikasi?) then (ya)
+    :Masuk ke dashboard;
+  else (belum/ditolak)
+    :Tampil "Verifikasi Pending";
+    stop
+  endif
+else (tidak)
+  :Masuk ke beranda;
+endif
+
+stop
+@enduml

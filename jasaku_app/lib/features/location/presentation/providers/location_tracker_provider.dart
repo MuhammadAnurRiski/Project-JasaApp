@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:dio/dio.dart';
@@ -37,8 +36,7 @@ class LocationTrackerNotifier extends StateNotifier<LocationTrackerState> {
       final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       state = LocationTrackerState(currentPosition: pos, isTracking: true);
       _sendLocation();
-    } catch (e) {
-      debugPrint('[LocationTracker] Initial position error: $e');
+    } catch (_) {
       return;
     }
 
@@ -46,9 +44,7 @@ class LocationTrackerNotifier extends StateNotifier<LocationTrackerState> {
       (position) {
         state = LocationTrackerState(currentPosition: position, isTracking: true);
       },
-      onError: (error) {
-        debugPrint('[LocationTracker] Stream error: $error');
-      },
+      onError: (error) {},
     );
 
     _updateTimer = Timer.periodic(const Duration(seconds: 30), (_) {
@@ -73,9 +69,7 @@ class LocationTrackerNotifier extends StateNotifier<LocationTrackerState> {
         ApiEndpoints.updateLocation,
         data: {'lat': pos.latitude, 'lng': pos.longitude},
       );
-    } catch (e) {
-      debugPrint('[LocationTracker] Failed to send: $e');
-    }
+    } catch (_) {}
   }
 
   @override

@@ -1,0 +1,39 @@
+@startuml Location Tracking - Sequence Diagram
+!theme plain
+title Location Tracking & Routing
+skinparam backgroundColor #FEFEFE
+skinparam sequenceLifeLineBorderColor #90A4AE
+
+actor "Provider" as P
+actor "Customer" as C
+participant "Flutter Provider" as FP
+participant "Flutter Customer" as FC
+participant "Backend API" as B
+database "PostGIS" as DB
+participant "ORS API" as ORS
+
+== Provider Location Update (Background) ==
+loop Setiap 30 detik
+  P -> FP : GPS position updated
+  FP -> B : PUT /api/locations/update {lat, lng}
+  B -> DB : UPSERT provider_locations\n(ST_SetSRID(ST_MakePoint))
+end
+
+== Customer Tracks Provider ==
+C -> FC : Buka halaman tracking
+FC -> B : GET /api/orders/orders/:orderId/tracking
+B -> DB : SELECT orders + provider_locations\n+ order_locations
+B --> FC : status + providerLocation + orderLocation
+
+FC -> ORS : GET route (providerLocation → orderLocation)
+ORS --> FC : polyline coordinates
+FC -> C : Tampilkan map\n(marker provider, marker customer, rute)
+
+loop Live tracking
+  FC -> B : GET /api/locations/provider/:providerId
+  B --> FC : {lat, lng}
+  FC -> ORS : Recalculate route
+  FC -> C : Update marker + polyline
+end
+
+@enduml

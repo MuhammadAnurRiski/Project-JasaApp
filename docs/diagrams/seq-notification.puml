@@ -1,0 +1,39 @@
+@startuml Push Notification - Sequence Diagram
+!theme plain
+title Push Notification (FCM)
+skinparam backgroundColor #FEFEFE
+skinparam sequenceLifeLineBorderColor #90A4AE
+
+participant "Flutter App" as F
+participant "Backend API" as B
+database "Database" as DB
+participant "Firebase FCM" as FCM
+
+== Device Registration ==
+F -> F : App start → getToken()
+F -> B : POST /api/notifications/devices/register\n{fcmToken, deviceType}
+B -> DB : UPSERT user_devices
+
+== Send Notification ==
+B -> DB : SELECT user_devices WHERE user_id
+B -> FCM : sendEachForMulticast(tokens, {title, body, data})
+FCM --> B : results
+B -> DB : Cleanup invalid tokens
+
+note over B,FCM
+  **Notif Types:**
+  - NEW_ORDER → Provider
+  - ORDER_ACCEPTED/REJECTED → Customer
+  - ON_THE_WAY/ARRIVED/IN_PROGRESS/COMPLETED → Customer
+  - PAYMENT_CONFIRMED → Customer
+  - NEW_CUSTOM_TASK → Providers
+  - CUSTOM_TASK_ACCEPTED → Customer
+  - PROVIDER_VERIFIED/REJECTED → Provider
+  - NEW_REVIEW → Provider
+end note
+
+== Flutter Handles Tap ==
+F -> F : onMessageOpenedApp
+F -> F : Parse data.type → Navigate
+
+@enduml

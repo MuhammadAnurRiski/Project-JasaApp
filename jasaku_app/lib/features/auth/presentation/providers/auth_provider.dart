@@ -1,7 +1,6 @@
 // StateNotifier Riverpod untuk mengelola login, register, dan role guard Jasaku App.
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/auth_repository.dart';
 import '../../domain/models/user_model.dart';
@@ -217,22 +216,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
   void _reRegisterFcmToken() async {
     try {
       final fcmToken = await FirebaseMessaging.instance.getToken();
-      debugPrint('[FCM] Token obtained');
       if (fcmToken != null) {
         final dio = ApiClient().dio;
-        final savedJwt = await StorageService.getToken();
-        debugPrint('[FCM] JWT saved: ${savedJwt != null}');
-        final resp = await dio.post(ApiEndpoints.registerDevice, data: {
+        await dio.post(ApiEndpoints.registerDevice, data: {
           'fcmToken': fcmToken,
           'deviceType': Platform.isIOS ? 'ios' : 'android',
         });
-        debugPrint('[FCM] Register device response: ${resp.statusCode}');
-      } else {
-        debugPrint('[FCM] FCM token is NULL');
       }
-    } catch (e) {
-      debugPrint('[FCM] Register device FAILED: $e');
-    }
+    } catch (_) {}
   }
 
   Future<bool> loginWithGoogle({required String expectedRole}) async {
@@ -304,7 +295,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       final onboardingCompleted =
           data['profile']?['onboarding_completed'] as bool?;
-      state = AuthState(user: user, onboardingCompleted: onboardingCompleted);
+      final verificationStatus =
+          data['profile']?['verification_status'] as String?;
+      final verificationNotes =
+          data['profile']?['verification_notes'] as String?;
+      state = AuthState(
+        user: user,
+        onboardingCompleted: onboardingCompleted,
+        verificationStatus: verificationStatus,
+        verificationNotes: verificationNotes,
+      );
       _reRegisterFcmToken();
       return true;
       } else {

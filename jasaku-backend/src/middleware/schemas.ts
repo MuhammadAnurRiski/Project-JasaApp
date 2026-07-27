@@ -149,3 +149,54 @@ export const getAvailableTasksQuerySchema = z.object({
     lng: z.coerce.number().min(-180).max(180).optional(),
     radius: z.coerce.number().positive().optional(),
 });
+
+const parseJsonArray = (val: unknown): any[] => {
+    if (Array.isArray(val)) return val;
+    if (typeof val === 'string') {
+        try { return JSON.parse(val); } catch { return []; }
+    }
+    return [];
+};
+
+export const registerProviderSchema = z.object({
+    full_name: z.string().min(1, 'Nama lengkap wajib diisi').max(100),
+    nickname: z.string().optional(),
+    email: z.string().email('Email tidak valid'),
+    password: z.string().min(6, 'Password minimal 6 karakter'),
+    phone: z.string().min(1, 'Nomor telepon wajib diisi'),
+    birthDate: z.string().optional(),
+    gender: z.enum(['Laki-laki', 'Perempuan', 'laki-laki', 'perempuan', 'male', 'female']).optional(),
+    address: z.string().min(1, 'Alamat wajib diisi'),
+    domicile: z.string().optional(),
+    province: z.string().optional(),
+    city: z.string().optional(),
+    district: z.string().optional(),
+    village: z.string().optional(),
+    services: z.preprocess(parseJsonArray, z.array(z.object({
+        serviceId: z.string().uuid(),
+        pricingUnitId: z.string().uuid().optional(),
+        price: z.number().positive().optional(),
+    }))).optional().default([]),
+    certificates: z.preprocess(parseJsonArray, z.array(z.object({
+        categoryId: z.string().uuid(),
+        description: z.string().optional(),
+    }))).optional().default([]),
+    ocr_nik: z.string().optional(),
+    ocr_full_name: z.string().optional(),
+    ocr_birth_place: z.string().optional(),
+    ocr_birth_date: z.string().optional(),
+    ocr_address: z.string().optional(),
+    ocr_gender: z.string().optional(),
+    ocr_blood_type: z.string().optional(),
+    ocr_religion: z.string().optional(),
+    liveness_data: z.preprocess(
+        (val) => {
+            if (typeof val === 'object' && val !== null) return val;
+            if (typeof val === 'string') {
+                try { return JSON.parse(val); } catch { return null; }
+            }
+            return null;
+        },
+        z.object({}).passthrough().nullable()
+    ).optional(),
+});

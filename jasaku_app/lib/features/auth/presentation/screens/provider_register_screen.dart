@@ -6,6 +6,7 @@ import '../../../provider/data/provider_services_repository.dart';
 import '../providers/auth_provider.dart';
 import 'provider_location_permission_screen.dart';
 import 'provider_login_screen.dart';
+import '../../../../core/constants/app_colors.dart';
 
 class ProviderRegisterScreen extends ConsumerStatefulWidget {
   const ProviderRegisterScreen({super.key});
@@ -664,7 +665,7 @@ Widget _buildSkillStep() {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2563EB)),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
             onPressed: () => setState(() => _addService()),
             icon: const Icon(Icons.add, color: Colors.white),
             label: const Text('Tambahkan Jasa Ke List', style: TextStyle(color: Colors.white)),

@@ -1,0 +1,44 @@
+@startuml Authentication - Sequence Diagram
+!theme plain
+title Authentication Flow
+skinparam backgroundColor #FEFEFE
+skinparam sequenceLifeLineBorderColor #90A4AE
+
+actor "User" as U
+participant "Flutter App" as F
+participant "Backend API" as B
+database "Database" as DB
+participant "Google" as G
+
+== Register Customer ==
+U -> F : Isi data diri
+F -> B : POST /api/auth/register/customer
+B -> DB : INSERT users + profiles_customer
+B --> F : token + user
+F -> F : Simpan JWT
+
+== Register Provider ==
+U -> F : 4-step wizard\n(dokumen, keahlian, harga, data diri)
+F -> B : POST /api/auth/register/provider (multipart)
+B -> DB : INSERT users + provider_profiles\n+ provider_documents + provider_services
+B -> B : Async: face match (KTP vs Selfie)
+B --> F : token + user
+
+== Login Email ==
+U -> F : Email + password
+F -> B : POST /api/auth/login
+B -> DB : Find user by email
+B -> B : Compare bcrypt hash
+B --> F : token + user + profile
+F -> F : Simpan JWT → navigasi berdasarkan role
+
+== Login Google ==
+U -> F : Tap Google Login
+F -> G : Google Sign-In
+G --> F : idToken
+F -> B : POST /api/auth/login/google {idToken}
+B -> G : Verify token
+B -> DB : Find / create user
+B --> F : token + user + profile
+
+@enduml

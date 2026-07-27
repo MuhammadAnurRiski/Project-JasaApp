@@ -64,7 +64,7 @@ class _CustomerHomeState extends ConsumerState<CustomerHome> {
         bgColor = const Color(0xFFD1FAE5);
       } else if (name.contains('Pindahan') || name.contains('pindahan')) {
         icon = Icons.local_shipping;
-        iconColor = const Color(0xFF2563EB);
+        iconColor = AppColors.primary;
         bgColor = const Color(0xFFDBEAFE);
       } else if (name.contains('Kayu') || name.contains('kayu')) {
         icon = Icons.handyman;
@@ -127,7 +127,7 @@ class _CustomerHomeState extends ConsumerState<CustomerHome> {
       ),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
+          colors: [AppColors.primary, Color(0xFF1D4ED8)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
