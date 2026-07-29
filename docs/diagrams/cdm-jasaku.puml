@@ -1,73 +1,100 @@
 @startuml CDM Jasaku
 !theme plain
-title Conceptual Data Model (CDM) - Jasaku
-skinparam backgroundColor #FEFEFE
-skinparam EntityBackgroundColor #E3F2FD
-skinparam EntityBorderColor #1565C0
+left to right direction
+skinparam backgroundColor #FFFFFF
 skinparam defaultFontName Segoe UI
-skinparam defaultFontSize 12
+skinparam defaultFontSize 14
+skinparam EntityFontSize 16
+skinparam EntityFontStyle bold
+skinparam EntityAttributeFontSize 13
+skinparam EntityAttributeFontStyle bold
+skinparam ArrowFontSize 13
+skinparam ArrowFontStyle bold
+skinparam linetype polyline
+skinparam nodesep 60
+skinparam ranksep 15
+skinparam padding 1
+skinparam entitymargin 3
+skinparam EntityBackgroundColor #FFFFFF
+skinparam EntityBorderColor #37474F
+skinparam EntityFontColor #212121
+skinparam EntityHeaderBackgroundColor #455A64
+skinparam EntityAttributeIconSize 0
 
-entity "Role" as role
-entity "Pengguna" as pengguna
-entity "Profil Pelanggan" as profil_pelanggan
-entity "Profil Provider" as profil_provider
-entity "Lokasi Provider" as lokasi_provider
-entity "Dokumen Provider" as dokumen_provider
-entity "Verifikasi Identitas" as verifikasi_identitas
-entity "Metode Pembayaran Provider" as metode_pembayaran
-entity "Perangkat Pengguna" as perangkat_pengguna
-entity "Kategori" as kategori
-entity "Tipe Harga" as tipe_harga
-entity "Layanan" as layanan
-entity "Layanan Provider" as layanan_provider
-entity "Harga Layanan" as harga_layanan
-entity "Pesanan" as pesanan
-entity "Item Pesanan" as item_pesanan
-entity "Lokasi Pesanan" as lokasi_pesanan
-entity "Lampiran Pesanan" as lampiran_pesanan
-entity "Ekstensi Pesanan" as ekstensi_pesanan
-entity "Jadwal Provider" as jadwal_provider
-entity "Pembayaran" as pembayaran
-entity "Tugas Kustom" as tugas_kustom
-entity "Lokasi Tugas" as lokasi_tugas
-entity "Provider Tugas" as provider_tugas
-entity "Ulasan" as ulasan
-entity "Laporan" as laporan
-entity "Rekening Bank Admin" as rekening_bank
-entity "E-Wallet Admin" as ewallet_admin
-entity "QRIS Admin" as qris_admin
+entity "Role" as role { }
+entity "Pengguna" as pengguna { }
+entity "Profil Pelanggan" as profil_pelanggan { }
+entity "Profil Mitra Jasa" as profil_provider { }
+entity "Lokasi Mitra" as lokasi_provider { }
+entity "Dokumen Mitra" as dokumen_provider { }
+entity "Verifikasi Identitas" as verifikasi_identitas { }
+entity "Metode Payout Mitra" as metode_pembayaran { }
+entity "Kategori" as kategori { }
+entity "Layanan" as layanan { }
+entity "Satuan Harga" as satuan_harga { }
+entity "Tipe Kontrak" as tipe_kontrak { }
+entity "Layanan Mitra" as layanan_provider { }
+entity "Harga Layanan Mitra" as harga_layanan { }
+entity "Layanan-Satuan Harga" as layanan_satuan { }
+entity "Layanan-Tipe Kontrak" as layanan_kontrak { }
+entity "Pesanan" as pesanan { }
+entity "Item Pesanan" as item_pesanan { }
+entity "Lokasi Pesanan" as lokasi_pesanan { }
+entity "Lampiran Pesanan" as lampiran_pesanan { }
+entity "Ekstensi Pesanan" as ekstensi_pesanan { }
+entity "Pembayaran" as pembayaran { }
+entity "Jadwal Mitra" as jadwal_provider { }
+entity "Tugas Kustom" as tugas_kustom { }
+entity "Lokasi Tugas" as lokasi_tugas { }
+entity "Mitra Tugas" as provider_tugas { }
+entity "Ulasan" as ulasan { }
+entity "Laporan" as laporan { }
+entity "Wilayah" as wilayah { }
+entity "Rekening Bank" as rekening_bank { }
+entity "E-Wallet" as ewallet_admin { }
+entity "QRIS" as qris_admin { }
 
 role ||--|{ pengguna : "memiliki"
 pengguna ||--|| profil_pelanggan : "memiliki profil"
 pengguna ||--|| profil_provider : "memiliki profil"
 pengguna ||--|| lokasi_provider : "memiliki lokasi"
-pengguna ||--|{ perangkat_pengguna : "memiliki perangkat"
+
 profil_provider ||--|{ dokumen_provider : "memiliki dokumen"
 profil_provider ||--|| verifikasi_identitas : "memiliki verifikasi"
-profil_provider ||--|{ metode_pembayaran : "memiliki metode bayar"
-kategori ||--|{ tipe_harga : "memiliki tipe harga"
-kategori ||--|{ layanan : "memiliki layanan"
-layanan ||--|{ layanan_provider : "ditawarkan dalam"
-layanan_provider ||--|{ harga_layanan : "memiliki harga"
-tipe_harga ||--|{ harga_layanan : "digunakan dalam"
-profil_pelanggan ||--|{ pesanan : "membuat pesanan"
-profil_provider ||--|{ pesanan : "menerima pesanan"
-tugas_kustom ||--|{ pesanan : "memiliki pesanan"
-provider_tugas ||--|{ pesanan : "memiliki pesanan"
-pesanan ||--|{ item_pesanan : "memiliki item"
-pesanan ||--|{ lokasi_pesanan : "memiliki lokasi"
-pesanan ||--|{ lampiran_pesanan : "memiliki lampiran"
-pesanan ||--|{ ekstensi_pesanan : "memiliki ekstensi"
-pesanan ||--|{ pembayaran : "memiliki pembayaran"
-layanan ||--|{ item_pesanan : "tercantum dalam"
-tipe_harga ||--|{ item_pesanan : "tercantum dalam"
+profil_provider ||--|{ metode_pembayaran : "memiliki payout"
 profil_provider ||--|{ jadwal_provider : "memiliki jadwal"
-pesanan ||--o{ jadwal_provider : "terkunci jadwal"
+
+kategori ||--|{ layanan : "memiliki layanan"
+layanan ||--|{ layanan_provider : "ditawarkan"
+layanan_provider ||--|{ harga_layanan : "memiliki harga"
+satuan_harga ||--|{ harga_layanan : "digunakan"
+tipe_kontrak ||--o{ harga_layanan : "opsional"
+layanan ||--|{ layanan_satuan : "tersedia satuan"
+satuan_harga ||--|{ layanan_satuan : "tersedia di"
+layanan ||--|{ layanan_kontrak : "tersedia kontrak"
+tipe_kontrak ||--|{ layanan_kontrak : "tersedia di"
+
+profil_pelanggan ||--|{ pesanan : "membuat"
+profil_provider ||--|{ pesanan : "menerima"
+tugas_kustom ||--o{ pesanan : "berasal dari"
+provider_tugas ||--o{ pesanan : "berasal dari"
+jadwal_provider }o--o{ pesanan : "terkunci jadwal"
+
+pesanan ||--|{ item_pesanan : "memiliki item"
+pesanan ||--o{ lokasi_pesanan : "memiliki lokasi"
+pesanan ||--o{ lampiran_pesanan : "memiliki lampiran"
+pesanan ||--o{ ekstensi_pesanan : "memiliki ekstensi"
+pesanan ||--|| pembayaran : "memiliki pembayaran"
+layanan ||--|{ item_pesanan : "tercantum dalam"
+satuan_harga ||--|{ item_pesanan : "terspesifikasi"
+tipe_kontrak ||--o{ item_pesanan : "opsional"
+
 tugas_kustom ||--|{ lokasi_tugas : "memiliki lokasi"
-tugas_kustom ||--|{ provider_tugas : "diterima provider"
+tugas_kustom ||--|{ provider_tugas : "diterima mitra"
 profil_provider ||--|{ provider_tugas : "berpartisipasi"
-pesanan ||--o| ulasan : "memiliki ulasan"
-pengguna ||--|{ ulasan : "menulis ulasan"
+
+ulasan }o--|| pesanan : "memiliki ulasan"
+ulasan }o--|| pengguna : "menulis"
 pengguna ||--|{ ulasan : "menerima ulasan"
 pengguna ||--|{ laporan : "membuat laporan"
 

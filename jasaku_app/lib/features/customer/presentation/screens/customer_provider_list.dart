@@ -188,6 +188,41 @@ class _ProviderListScreenState extends State<ProviderListScreen> {
     }
   }
 
+  /// Filter provider berdasarkan satuan pembayaran & sistem pekerjaan
+  List<ProviderModel> _filterProviders(List<ProviderModel> providers) {
+    if (_selectedPricingUnitId == null && _selectedContractTypeId == null) {
+      return providers;
+    }
+
+    String? perHariId;
+    for (final u in _pricingUnits) {
+      if (u['name'] == 'per_hari') {
+        perHariId = u['id']?.toString();
+        break;
+      }
+    }
+
+    return providers.where((p) {
+      if (p.allPricing.isEmpty) {
+        return _selectedPricingUnitId == null || _selectedPricingUnitId == perHariId;
+      }
+
+      bool matchesPricing = true;
+      bool matchesContract = true;
+
+      if (_selectedPricingUnitId != null) {
+        matchesPricing = p.getPricingEntry(_selectedPricingUnitId) != null;
+      }
+      if (_selectedContractTypeId != null) {
+        matchesContract = p.allPricing.any(
+          (e) => e['contract_type_id']?.toString() == _selectedContractTypeId,
+        );
+      }
+
+      return matchesPricing && matchesContract;
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -253,7 +288,7 @@ class _ProviderListScreenState extends State<ProviderListScreen> {
                       child: Row(
                         children: _pricingUnits.map((pu) {
                           final id = pu['id']?.toString();
-                          final name = pu['name']?.toString() ?? '';
+                          final name = (pu['name']?.toString() ?? '').replaceAll('_', ' ');
                           final unit = pu['unit']?.toString() ?? '';
                           final isSelected = _selectedPricingUnitId == id;
                           return Padding(
@@ -302,7 +337,8 @@ class _ProviderListScreenState extends State<ProviderListScreen> {
             );
           }
 
-          final providers = snapshot.data ?? [];
+          final allProviders = snapshot.data ?? [];
+          final providers = _filterProviders(allProviders);
 
           if (providers.isEmpty) {
             return const Center(

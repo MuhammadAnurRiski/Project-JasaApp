@@ -54,6 +54,8 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
   final MapController _mapController = MapController();
 
   int _quantity = 1;
+  final TextEditingController _lengthController = TextEditingController();
+  final TextEditingController _widthController = TextEditingController();
   final double _platformFee = ApiEndpoints.platformFee;
   bool _isFetchingGPS = false;
   bool _gpsFailed = false;
@@ -66,9 +68,44 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
   // 🟢 STATE METODE PEMBAYARAN — selalu rekber
   String _selectedPaymentMethod = '';
 
+  bool get _isAreaBased => (widget.pricingUnitName ?? '').contains('meter persegi');
+  bool get _isLengthBased => (widget.pricingUnitName ?? '').contains('meter panjang');
+
+  double get _computedArea {
+    if (!_isAreaBased) return 0;
+    final l = double.tryParse(_lengthController.text) ?? 0;
+    final w = double.tryParse(_widthController.text) ?? 0;
+    return l * w;
+  }
+
+  double get _computedLength {
+    if (!_isLengthBased) return 0;
+    return double.tryParse(_lengthController.text) ?? 0;
+  }
+
+  int get _effectiveQuantity {
+    if (_isAreaBased) return _computedArea.round().clamp(1, 999999);
+    if (_isLengthBased) return _computedLength.round().clamp(1, 999999);
+    return _quantity;
+  }
+
+  String get _quantityUnitLabel {
+    if (_isAreaBased) return 'm²';
+    if (_isLengthBased) return 'm';
+    return (widget.pricingUnitName ?? 'unit').replaceAll('per ', '').trim();
+  }
+
+  String get _quantityInputLabel {
+    if (_isAreaBased) return 'Luas Area';
+    if (_isLengthBased) return 'Panjang';
+    return 'Jumlah';
+  }
+
   @override
   void initState() {
     super.initState();
+    _lengthController.addListener(() => setState(() {}));
+    _widthController.addListener(() => setState(() {}));
     _getCurrentCustomerLocation();
   }
 
@@ -77,6 +114,8 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
     _dateController.dispose();
     _addressController.dispose();
     _descController.dispose();
+    _lengthController.dispose();
+    _widthController.dispose();
     super.dispose();
   }
 
@@ -213,9 +252,147 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
     }
   }
 
+  Widget _buildQuantityInput() {
+    if (_isAreaBased) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Luas Area', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _lengthController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    hintText: 'Panjang',
+                    suffixText: 'm',
+                    fillColor: const Color(0xFFF8FAFC),
+                    filled: true,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  ),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text('\u00D7', style: TextStyle(fontSize: 18, color: Colors.grey[600])),
+              ),
+              Expanded(
+                child: TextField(
+                  controller: _widthController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    hintText: 'Lebar',
+                    suffixText: 'm',
+                    fillColor: const Color(0xFFF8FAFC),
+                    filled: true,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  ),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF0F9FF),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Luas: ${_computedArea.toStringAsFixed(1)} $_quantityUnitLabel',
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0369A1)),
+                ),
+                Text(
+                  'Rp ${NumberFormat('#,###', 'id_ID').format((widget.basePrice * _computedArea).round())}',
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (_isLengthBased) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Panjang', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _lengthController,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(
+              hintText: 'Masukkan panjang',
+              suffixText: 'm',
+              fillColor: const Color(0xFFF8FAFC),
+              filled: true,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            ),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF0F9FF),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '${_computedLength.toStringAsFixed(1)} m',
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0369A1)),
+                ),
+                Text(
+                  'Rp ${NumberFormat('#,###', 'id_ID').format((widget.basePrice * _computedLength).round())}',
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Default: stepper
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text('$_quantityInputLabel ($_quantityUnitLabel)', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+        Row(
+          children: [
+            IconButton(
+              onPressed: _quantity > 1 ? () => setState(() => _quantity--) : null,
+              icon: const Icon(Icons.remove_circle_outline),
+            ),
+            Text("$_quantity", style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            IconButton(
+              onPressed: () => setState(() => _quantity++),
+              icon: const Icon(Icons.add_circle_outline, color: Colors.blue),
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    double totalServicePrice = widget.basePrice * _quantity;
+    double totalServicePrice = widget.basePrice * _effectiveQuantity;
     double grandTotal = totalServicePrice + _platformFee;
 
     ref.listen<OrderFormState>(orderFormProvider, (previous, next) {
@@ -290,7 +467,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                                   children: [
                                     Text(widget.providerName, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                                     const SizedBox(height: 4),
-                                    Text("Rp ${NumberFormat('#,###', 'id_ID').format(widget.basePrice)} / ${widget.pricingUnitName ?? 'unit'}",
+                                    Text("Rp ${NumberFormat('#,###', 'id_ID').format(widget.basePrice)} / ${widget.pricingUnitName?.replaceAll('_', ' ') ?? 'unit'}",
                                         style: const TextStyle(fontSize: 13, color: Colors.blue, fontWeight: FontWeight.w600)),
                                   ],
                                 ),
@@ -298,25 +475,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                             ],
                           ),
                           const Divider(height: 24),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text("Jumlah", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-                              Row(
-                                children: [
-                                  IconButton(
-                                    onPressed: _quantity > 1 ? () => setState(() => _quantity--) : null,
-                                    icon: const Icon(Icons.remove_circle_outline),
-                                  ),
-                                  Text("$_quantity", style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                                  IconButton(
-                                    onPressed: () => setState(() => _quantity++),
-                                    icon: const Icon(Icons.add_circle_outline, color: Colors.blue),
-                                  ),
-                                ],
-                              )
-                            ],
-                          )
+                          _buildQuantityInput(),
                         ],
                       ),
                     ),
@@ -573,8 +732,10 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text("Harga Jasa", style: TextStyle(color: Colors.grey)),
-                  Text("Rp ${NumberFormat('#,###', 'id_ID').format(totalServicePrice)}")
+                  Text("${NumberFormat('#,###', 'id_ID').format(widget.basePrice)} x $_effectiveQuantity $_quantityUnitLabel",
+                      style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                  Text("Rp ${NumberFormat('#,###', 'id_ID').format(totalServicePrice)}",
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
                 ],
               ),
               const SizedBox(height: 6),
@@ -638,7 +799,7 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                           pricingUnitId: widget.pricingUnitId,
                           contractTypeId: widget.contractTypeId,
                           withMaterial: widget.withMaterial,
-                          quantity: _quantity,
+                          quantity: _effectiveQuantity,
                           description: _descController.text,
                           workDate: _dateController.text,
                           address: _addressController.text,

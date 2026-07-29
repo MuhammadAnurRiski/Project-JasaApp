@@ -284,6 +284,9 @@ export class OrdersService {
                                 created_at: true
                             }
                         },
+                        pricing_units: {
+                            select: { name: true, unit: true }
+                        },
                     }
                 },
                 order_locations: {
@@ -463,7 +466,8 @@ export class OrdersService {
                         quantity: true,
                         price: true,
                         subtotal: true,
-                        services: { select: { id: true, name: true, created_at: true } }
+                        services: { select: { id: true, name: true, created_at: true } },
+                        pricing_units: { select: { name: true, unit: true } },
                     }
                 },
                 order_locations: { select: { address: true } }
@@ -566,7 +570,8 @@ export class OrdersService {
                         quantity: true,
                         price: true,
                         subtotal: true,
-                        services: { select: { id: true, name: true } }
+                        services: { select: { id: true, name: true } },
+                        pricing_units: { select: { name: true, unit: true } },
                     }
                 },
                 order_locations: { select: { address: true } }

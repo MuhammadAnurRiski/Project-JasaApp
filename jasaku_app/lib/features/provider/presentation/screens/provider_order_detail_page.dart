@@ -454,8 +454,10 @@ class _ProviderOrderDetailPageState extends State<ProviderOrderDetailPage> {
                     ...items.map((item) {
                       final serviceName = (item['services'] as Map<String, dynamic>?)?['name'] as String? ?? '-';
                       final qty = item['quantity'] ?? 1;
+                      final unit = (item['pricing_units'] as Map<String, dynamic>?)?['unit'] as String? ?? '';
                       final price = _formatPrice(item['price']);
                       final subtotal = _formatPrice(item['subtotal']);
+                      final qtyLabel = unit.isNotEmpty ? '$qty $unit' : '$qty';
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Row(
@@ -465,7 +467,7 @@ class _ProviderOrderDetailPageState extends State<ProviderOrderDetailPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(serviceName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-                                  Text('$qty x $price', style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+                                  Text('$qtyLabel x $price', style: TextStyle(fontSize: 12, color: Colors.grey[500])),
                                 ],
                               ),
                             ),
