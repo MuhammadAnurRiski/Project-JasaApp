@@ -50,6 +50,11 @@ export class ProviderServicesService {
                             include: {
                                 pricing_units: true
                             }
+                        },
+                        service_contract_types: {
+                            include: {
+                                contract_types: true
+                            }
                         }
                     }
                 },

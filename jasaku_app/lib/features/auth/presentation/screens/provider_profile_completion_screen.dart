@@ -9,15 +9,17 @@ import '../../../provider/presentation/screens/provider_shell.dart';
 
 class _PriceEntry {
   String? pricingUnitId;
+  String? contractTypeId;
   final TextEditingController priceController;
   final TextEditingController priceWithMaterialController;
-  bool hasMaterial;
+  bool plusMaterial;
 
   _PriceEntry({
     this.pricingUnitId,
+    this.contractTypeId,
     String price = '',
     String priceWithMaterial = '',
-    this.hasMaterial = false,
+    this.plusMaterial = false,
   })  : priceController = TextEditingController(text: price),
         priceWithMaterialController =
             TextEditingController(text: priceWithMaterial);
@@ -46,6 +48,8 @@ class _ProviderProfileCompletionScreenState
   final Map<String, TextEditingController> _descControllers = {};
   final Map<String, List<_PriceEntry>> _servicePriceEntries = {};
   final Map<String, List<Map<String, dynamic>>> _validUnitsPerService = {};
+  final Map<String, List<Map<String, dynamic>>> _validContractTypesPerService =
+      {};
 
   bool _usePayout = false;
   String _payoutType = 'bank';
@@ -78,19 +82,25 @@ class _ProviderProfileCompletionScreenState
             [];
         _validUnitsPerService[svcId] = validUnits;
 
+        final validContractTypes =
+            (svc['services']?['service_contract_types'] as List?)
+                    ?.map((sct) => sct['contract_types'] as Map<String, dynamic>)
+                    .toList() ??
+                [];
+        _validContractTypesPerService[svcId] = validContractTypes;
+
         final existingPrices = svc['provider_service_prices'] as List? ?? [];
         final entries = <_PriceEntry>[];
 
         if (existingPrices.isNotEmpty) {
           for (final ep in existingPrices) {
             final puId = ep['pricing_unit_id'] as String?;
-            final puData = validUnits.where((u) => u['id'] == puId).toList();
             entries.add(_PriceEntry(
               pricingUnitId: puId,
+              contractTypeId: ep['contract_type_id'] as String?,
               price: _formatPrice(ep['price']),
               priceWithMaterial: _formatPrice(ep['price_with_material']),
-              hasMaterial: puData.isNotEmpty &&
-                  puData.first['has_material'] == true,
+              plusMaterial: ep['plus_material'] == true,
             ));
           }
         }
@@ -156,29 +166,48 @@ class _ProviderProfileCompletionScreenState
     setState(() => _submitting = true);
 
     try {
-      final servicesPayload = _services.map((svc) {
+      final servicesPayload = <Map<String, dynamic>>[];
+      for (final svc in _services) {
         final svcId = svc['id'] as String;
         final entries = _servicePriceEntries[svcId] ?? [];
-        final prices = entries
-            .where((e) =>
-                e.pricingUnitId != null &&
-                e.priceController.text.trim().isNotEmpty)
-            .map((e) {
+        final requiresContractType =
+            (_validContractTypesPerService[svcId]?.isNotEmpty ?? false);
+
+        final prices = <Map<String, dynamic>>[];
+        for (final e in entries) {
+          if (e.pricingUnitId == null ||
+              e.priceController.text.trim().isEmpty) {
+            continue;
+          }
+          if (requiresContractType && e.contractTypeId == null) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                      'Pilih tipe pekerjaan (Harian/Borongan) untuk harga ${svc['services']?['name'] ?? ''}'),
+                  backgroundColor: Colors.orange,
+                ),
+              );
+            }
+            return;
+          }
           final pwMat = e.priceWithMaterialController.text.trim();
-          return {
+          prices.add({
             'pricingUnitId': e.pricingUnitId,
+            'contractTypeId': e.contractTypeId,
             'price': int.tryParse(e.priceController.text.trim()) ?? 0,
             'priceWithMaterial':
                 pwMat.isNotEmpty ? int.tryParse(pwMat) : null,
-          };
-        }).toList();
+            'plusMaterial': e.plusMaterial,
+          });
+        }
 
-        return {
+        servicesPayload.add({
           'serviceId': svc['service_id'],
           'description': _descControllers[svcId]?.text.trim() ?? '',
           'prices': prices,
-        };
-      }).toList();
+        });
+      }
 
       final formDataMap = <String, dynamic>{
         'services': jsonEncode(servicesPayload),
@@ -521,7 +550,13 @@ class _ProviderProfileCompletionScreenState
                   ...entries.asMap().entries.map((entry) {
                     final idx = entry.key;
                     final priceEntry = entry.value;
-                    return _buildPriceEntry(svcId, priceEntry, validUnits, idx, cs);
+                    return _buildPriceEntry(
+                        svcId,
+                        priceEntry,
+                        validUnits,
+                        _validContractTypesPerService[svcId] ?? [],
+                        idx,
+                        cs);
                   }),
                   const SizedBox(height: 4),
                   GestureDetector(
@@ -563,6 +598,7 @@ class _ProviderProfileCompletionScreenState
     String svcId,
     _PriceEntry priceEntry,
     List<Map<String, dynamic>> validUnits,
+    List<Map<String, dynamic>> validContractTypes,
     int index,
     ColorScheme cs,
   ) {
@@ -634,9 +670,6 @@ class _ProviderProfileCompletionScreenState
                     onChanged: (v) {
                       setState(() {
                         priceEntry.pricingUnitId = v;
-                        final unitData = _findUnit(validUnits, v);
-                        priceEntry.hasMaterial =
-                            unitData?['has_material'] == true;
                       });
                     },
                   ),
@@ -659,6 +692,43 @@ class _ProviderProfileCompletionScreenState
                 ],
               ],
             ),
+            if (validContractTypes.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                value: priceEntry.contractTypeId,
+                isExpanded: true,
+                decoration: InputDecoration(
+                  labelText: 'Tipe Pekerjaan',
+                  labelStyle: TextStyle(color: cs.onSurfaceVariant),
+                  filled: true,
+                  fillColor: cs.surfaceContainerLow.withValues(alpha: 0.4),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: cs.outlineVariant),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide:
+                        BorderSide(color: cs.primary, width: 1.5),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14, vertical: 12),
+                  isDense: true,
+                ),
+                items: validContractTypes.map((ct) {
+                  final name = ct['name'] as String? ?? '';
+                  return DropdownMenuItem(
+                    value: ct['id'] as String,
+                    child: Text(name, style: const TextStyle(fontSize: 13)),
+                  );
+                }).toList(),
+                onChanged: (v) {
+                  setState(() => priceEntry.contractTypeId = v);
+                },
+              ),
+            ],
             if (priceEntry.pricingUnitId != null) ...[
               const SizedBox(height: 10),
               TextFormField(
@@ -695,7 +765,20 @@ class _ProviderProfileCompletionScreenState
                       horizontal: 14, vertical: 12),
                 ),
               ),
-              if (priceEntry.hasMaterial) ...[
+              const SizedBox(height: 4),
+              SwitchListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  'Harga termasuk Material',
+                  style: TextStyle(
+                      fontSize: 13, color: cs.onSurfaceVariant),
+                ),
+                value: priceEntry.plusMaterial,
+                onChanged: (v) =>
+                    setState(() => priceEntry.plusMaterial = v),
+              ),
+              if (priceEntry.plusMaterial) ...[
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: priceEntry.priceWithMaterialController,

@@ -109,6 +109,27 @@ export class ProfileService {
           });
           if (!existing) continue;
 
+          const allowedPricingUnits = await tx.service_pricing_units.findMany({
+            where: { service_id: svc.serviceId },
+            select: { pricing_unit_id: true },
+          });
+          const allowedPricingUnitIds = allowedPricingUnits.map((spu: any) => spu.pricing_unit_id);
+
+          const allowedContractTypes = await tx.service_contract_types.findMany({
+            where: { service_id: svc.serviceId },
+            select: { contract_type_id: true },
+          });
+          const allowedContractTypeIds = allowedContractTypes.map((sct: any) => sct.contract_type_id);
+
+          for (const p of svc.prices) {
+            if (!allowedPricingUnitIds.includes(p.pricingUnitId)) {
+              throw new Error(`Unit harga ${p.pricingUnitId} tidak tersedia untuk layanan ini`);
+            }
+            if (p.contractTypeId && !allowedContractTypeIds.includes(p.contractTypeId)) {
+              throw new Error(`Tipe kontrak ${p.contractTypeId} tidak tersedia untuk layanan ini`);
+            }
+          }
+
           await tx.provider_services.update({
             where: { id: existing.id },
             data: { description: svc.description },
