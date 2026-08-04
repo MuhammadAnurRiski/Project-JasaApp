@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/models/portfolio_item.dart';
 import '../providers/provider_profile_provider.dart';
 import '../../../payments/presentation/screens/provider_payout_screen.dart';
 import 'provider_profile_edit_screen.dart';
@@ -388,29 +389,88 @@ class _ProviderProfilePageState extends ConsumerState<ProviderProfilePage> {
                 spacing: 8,
                 runSpacing: 8,
                 children:
-                    state.portfolios.map((url) {
-                      return ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          imageUrl(url),
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover,
-                          errorBuilder:
-                              (_, __, ___) => Container(
-                                width: 100,
-                                height: 100,
-                                color: cs.surfaceContainerHighest,
-                                child: Icon(
-                                  Icons.broken_image,
-                                  color: cs.onSurfaceVariant,
-                                ),
-                              ),
-                        ),
-                      );
+                    state.portfolios.map((item) {
+                      if (item.isImage) {
+                        return _buildPortfolioImage(item, cs);
+                      }
+                      return _buildPortfolioChip(item, cs);
                     }).toList(),
               ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPortfolioImage(PortfolioItem item, ColorScheme cs) {
+    return GestureDetector(
+      onTap: () => _showImagePreview(item.url),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          imageUrl(item.url),
+          width: 100,
+          height: 100,
+          fit: BoxFit.cover,
+          errorBuilder:
+              (_, __, ___) => Container(
+                width: 100,
+                height: 100,
+                color: cs.surfaceContainerHighest,
+                child: Icon(
+                  Icons.broken_image,
+                  color: cs.onSurfaceVariant,
+                ),
+              ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPortfolioChip(PortfolioItem item, ColorScheme cs) {
+    return GestureDetector(
+      onTap: () => item.open(),
+      child: Container(
+        width: 160,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: cs.outlineVariant),
+        ),
+        child: Row(
+          children: [
+            Icon(item.isLink ? Icons.link : Icons.insert_drive_file_outlined,
+                size: 22, color: cs.primary),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                item.displayLabel,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 12, color: cs.onSurface),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showImagePreview(String url) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.black,
+        child: InteractiveViewer(
+          child: Image.network(
+            imageUrl(url),
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) => const SizedBox(
+              height: 200,
+              child: Icon(Icons.broken_image, color: Colors.white54, size: 48),
+            ),
+          ),
         ),
       ),
     );

@@ -3,8 +3,8 @@ import 'package:dio/dio.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/constants/api_endpoints.dart';
 import '../../../core/utils/storage.dart';
-import 'dart:convert'; // 🟢 WAJIB untuk fungsi jsonEncode
-import 'dart:io'; // 🟢 WAJIB untuk tipe File pada portofolio provider
+import 'dart:convert';
+import '../presentation/providers/register_state.dart';
 
 class AuthRepository {
   final Dio _dio = ApiClient().dio;
@@ -59,7 +59,7 @@ Future<Map<String, dynamic>> registerProvider({
   String? profilePhotoPath,
   String? ktpPhotoPath,
   String? selfiePhotoPath,
-  List<File>? portfolioFiles,
+  List<RegisterPortfolioEntry>? portfolios,
   String? ijazahPhotoPath,
   List<Map<String, dynamic>>? certificates,
   required List<Map<String, dynamic>> selectedServices,
@@ -123,17 +123,30 @@ Future<Map<String, dynamic>> registerProvider({
       );
     }
 
-    if (portfolioFiles != null && portfolioFiles.isNotEmpty) {
-      final List<MultipartFile> portfolioMultipartList = [];
-      for (var file in portfolioFiles) {
-        portfolioMultipartList.add(
-          await MultipartFile.fromFile(
-            file.path,
-            filename: file.path.split(RegExp(r'[/\\]')).last,
-          ),
+    if (portfolios != null && portfolios.isNotEmpty) {
+      final uploadEntries =
+          portfolios.where((e) => e.type != 'link' && e.file != null).toList();
+      final links = portfolios.where((e) => e.type == 'link').toList();
+      if (uploadEntries.isNotEmpty) {
+        final List<MultipartFile> portfolioMultipartList = [];
+        for (final e in uploadEntries) {
+          portfolioMultipartList.add(
+            await MultipartFile.fromFile(
+              e.file!.path,
+              filename: e.file!.path.split(RegExp(r'[/\\]')).last,
+            ),
+          );
+        }
+        formDataMap['portfolios'] = portfolioMultipartList;
+        formDataMap['portfolio_metas'] = jsonEncode(
+          uploadEntries.map((e) => {'type': e.type, 'label': e.label}).toList(),
         );
       }
-      formDataMap['portfolios'] = portfolioMultipartList;
+      if (links.isNotEmpty) {
+        formDataMap['portfolio_links'] = jsonEncode(
+          links.map((e) => {'type': 'link', 'url': e.url, 'label': e.label}).toList(),
+        );
+      }
     }
 
     // Ijazah

@@ -1,5 +1,19 @@
 import 'dart:io';
 
+class RegisterPortfolioEntry {
+  String type;
+  File? file;
+  String url;
+  String label;
+
+  RegisterPortfolioEntry({
+    this.type = 'image',
+    this.file,
+    this.url = '',
+    this.label = '',
+  });
+}
+
 class RegisterState {
   String phone = '';
   List<Map<String, dynamic>> selectedServices = [];
@@ -20,7 +34,7 @@ class RegisterState {
   String? selfiePhotoPath;
   String? ijazahPhotoPath;
   List<Map<String, dynamic>> certificates = [];
-  List<File> portfolioFiles = [];
+  List<RegisterPortfolioEntry> portfolios = [];
   bool termsAgreed = false;
 
   // OCR KTP

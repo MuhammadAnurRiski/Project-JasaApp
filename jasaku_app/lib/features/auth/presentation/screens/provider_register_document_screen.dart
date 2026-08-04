@@ -30,7 +30,7 @@ class _ProviderRegisterDocumentScreenState
   String? _ktpPhotoPath;
   String? _selfiePhotoPath;
   String? _ijazahPath;
-  List<File> _portfolioFiles = [];
+  List<RegisterPortfolioEntry> _portfolios = [];
   List<Map<String, dynamic>> _certificates = [];
 
   @override
@@ -41,7 +41,7 @@ class _ProviderRegisterDocumentScreenState
     _ktpPhotoPath = s.ktpPhotoPath;
     _selfiePhotoPath = s.selfiePhotoPath;
     _ijazahPath = s.ijazahPhotoPath;
-    _portfolioFiles = List.from(s.portfolioFiles);
+    _portfolios = List.from(s.portfolios);
     _certificates = List.from(s.certificates);
   }
 
@@ -87,28 +87,167 @@ class _ProviderRegisterDocumentScreenState
     }
   }
 
-  Future<void> _pickPortfolio() async {
-    if (_portfolioFiles.length >= 3) {
+  Future<void> _showAddPortfolioMenu() async {
+    if (_portfolios.length >= 5) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Maksimal 3 foto portofolio')),
+          const SnackBar(content: Text('Maksimal 5 portofolio')),
         );
       }
       return;
     }
-    final xs = await _picker.pickMultiImage();
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Text('Tambah Portofolio',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.image_outlined),
+              title: const Text('Foto'),
+              subtitle: const Text('Unggah gambar'),
+              onTap: () => Navigator.pop(context, 'image'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.insert_drive_file_outlined),
+              title: const Text('File'),
+              subtitle: const Text('PDF, DOC, XLS, PPT, ZIP'),
+              onTap: () => Navigator.pop(context, 'file'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.link),
+              title: const Text('Link'),
+              subtitle: const Text('Tautan eksternal'),
+              onTap: () => Navigator.pop(context, 'link'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (choice == null) return;
+    switch (choice) {
+      case 'image':
+        await _pickPortfolioImages();
+        break;
+      case 'file':
+        await _pickPortfolioFile();
+        break;
+      case 'link':
+        await _addPortfolioLink();
+        break;
+    }
+  }
+
+  Future<void> _pickPortfolioImages() async {
+    final remaining = 5 - _portfolios.length;
+    if (remaining <= 0) return;
+    final xs = await _picker.pickMultiImage(limit: remaining);
+    if (xs.isEmpty) return;
     setState(() {
       for (final x in xs) {
-        if (_portfolioFiles.length < 3) {
-          _portfolioFiles.add(File(x.path));
-        }
+        if (_portfolios.length >= 5) break;
+        _portfolios
+            .add(RegisterPortfolioEntry(type: 'image', file: File(x.path)));
       }
+    });
+  }
+
+  Future<void> _pickPortfolioFile() async {
+    final remaining = 5 - _portfolios.length;
+    if (remaining <= 0) return;
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: remaining > 1,
+      type: FileType.custom,
+      allowedExtensions: [
+        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip',
+      ],
+    );
+    if (result == null || result.files.isEmpty) return;
+    setState(() {
+      for (final f in result.files) {
+        if (_portfolios.length >= 5) break;
+        final path = f.path;
+        if (path == null) continue;
+        _portfolios.add(RegisterPortfolioEntry(
+          type: 'file',
+          file: File(path),
+          label: f.name,
+        ));
+      }
+    });
+  }
+
+  Future<void> _addPortfolioLink() async {
+    final urlCtrl = TextEditingController();
+    final labelCtrl = TextEditingController();
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Tambah Link'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: urlCtrl,
+              keyboardType: TextInputType.url,
+              decoration: const InputDecoration(
+                labelText: 'URL',
+                hintText: 'https://...',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: labelCtrl,
+              decoration: const InputDecoration(
+                labelText: 'Judul (opsional)',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Tambah'),
+          ),
+        ],
+      ),
+    );
+    final url = urlCtrl.text.trim();
+    final label = labelCtrl.text.trim();
+    urlCtrl.dispose();
+    labelCtrl.dispose();
+    if (saved != true || url.isEmpty) return;
+    final uri = Uri.tryParse(url);
+    if (uri == null ||
+        !uri.hasScheme ||
+        (uri.scheme != 'http' && uri.scheme != 'https')) {
+      _showError('URL tidak valid. Gunakan http:// atau https://');
+      return;
+    }
+    setState(() {
+      _portfolios.add(RegisterPortfolioEntry(
+        type: 'link',
+        url: url,
+        label: label,
+      ));
     });
   }
 
   void _removePortfolio(int index) {
     setState(() {
-      _portfolioFiles.removeAt(index);
+      _portfolios.removeAt(index);
     });
   }
 
@@ -136,7 +275,7 @@ class _ProviderRegisterDocumentScreenState
     s.selfiePhotoPath = _selfiePhotoPath;
     s.ijazahPhotoPath = _ijazahPath;
     s.certificates = _certificates.where((c) => c['filePath'] != null).toList();
-    s.portfolioFiles = _portfolioFiles;
+    s.portfolios = _portfolios;
 
     final agreed = await Navigator.push<bool>(
       context,
@@ -183,7 +322,7 @@ class _ProviderRegisterDocumentScreenState
             selfiePhotoPath: s.selfiePhotoPath,
             ijazahPhotoPath: s.ijazahPhotoPath,
             certificates: s.certificates.isNotEmpty ? s.certificates : null,
-            portfolioFiles: s.portfolioFiles.isNotEmpty ? s.portfolioFiles : null,
+            portfolios: s.portfolios.isNotEmpty ? s.portfolios : null,
             services: s.selectedServices,
             ocrNik: s.ocrNik,
             ocrFullName: s.ocrFullName,
@@ -681,9 +820,9 @@ class _ProviderRegisterDocumentScreenState
   }
 
   Widget _buildPortfolioCard() {
-    final count = _portfolioFiles.length;
+    final count = _portfolios.length;
     return GestureDetector(
-      onTap: count < 3 ? _pickPortfolio : null,
+      onTap: count < 5 ? _showAddPortfolioMenu : null,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(12),
@@ -704,7 +843,7 @@ class _ProviderRegisterDocumentScreenState
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
                 const Spacer(),
                 if (count > 0)
-                  Text('$count/3',
+                  Text('$count/5',
                       style: TextStyle(fontSize: 12, color: Colors.grey[500])),
                 const Icon(Icons.chevron_right,
                     color: Color(0xFF7A7A7A), size: 20),
@@ -718,7 +857,7 @@ class _ProviderRegisterDocumentScreenState
                       children: [
                         for (int i = 0; i < count; i++)
                           _buildPortfolioThumb(i),
-                        if (count < 3)
+                        if (count < 5)
                           _buildPortfolioAddButton(),
                       ],
                     ),
@@ -728,8 +867,8 @@ class _ProviderRegisterDocumentScreenState
                       Icon(Icons.cloud_upload_outlined,
                           color: Colors.grey[400], size: 20),
                       const SizedBox(width: 8),
-                      const Text('Upload Portofolio (Opsional)',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                      const Text('Foto, file, atau link',
+                          style: TextStyle(fontSize: 13, color: Colors.grey)),
                     ],
                   ),
           ],
@@ -739,26 +878,61 @@ class _ProviderRegisterDocumentScreenState
   }
 
   Widget _buildPortfolioThumb(int index) {
+    final entry = _portfolios[index];
+    Widget content;
+    if (entry.type == 'image' && entry.file != null) {
+      content = ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.file(
+          entry.file!,
+          width: 64,
+          height: 64,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => Container(
+            width: 64,
+            height: 64,
+            color: Colors.grey.shade200,
+            child: const Icon(Icons.broken_image, color: Colors.grey, size: 24),
+          ),
+        ),
+      );
+    } else {
+      content = Container(
+        width: 140,
+        height: 64,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              entry.type == 'link'
+                  ? Icons.link
+                  : Icons.insert_drive_file_outlined,
+              size: 18,
+              color: const Color(0xFF00A651),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                entry.label.isNotEmpty ? entry.label : entry.url,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 10, color: Colors.grey.shade700),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: Stack(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.file(
-              _portfolioFiles[index],
-              width: 64,
-              height: 64,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 64,
-                height: 64,
-                color: Colors.grey.shade200,
-                child: const Icon(Icons.broken_image,
-                    color: Colors.grey, size: 24),
-              ),
-            ),
-          ),
+          content,
           Positioned(
             top: -6,
             right: -6,
@@ -782,7 +956,7 @@ class _ProviderRegisterDocumentScreenState
 
   Widget _buildPortfolioAddButton() {
     return GestureDetector(
-      onTap: _pickPortfolio,
+      onTap: _showAddPortfolioMenu,
       child: Container(
         width: 64,
         height: 64,

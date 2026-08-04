@@ -1,5 +1,5 @@
-import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/models/portfolio_item.dart';
 import '../../data/provider_profile_repository.dart';
 
 class ProfileState {
@@ -24,7 +24,7 @@ class ProfileState {
   final int servicesCount;
   final List<Map<String, dynamic>> services;
   final List<Map<String, dynamic>> payoutMethods;
-  final List<String> portfolios;
+  final List<PortfolioItem> portfolios;
 
   const ProfileState({
     this.isLoading = true,
@@ -71,7 +71,7 @@ class ProfileState {
     int? servicesCount,
     List<Map<String, dynamic>>? services,
     List<Map<String, dynamic>>? payoutMethods,
-    List<String>? portfolios,
+    List<PortfolioItem>? portfolios,
   }) {
     return ProfileState(
       isLoading: isLoading ?? false,
@@ -141,7 +141,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
                 .toList() ??
             [],
         portfolios: (data['portfolios'] as List?)
-                ?.map((e) => e.toString())
+                ?.map((e) => PortfolioItem.fromEncoded(e))
                 .toList() ??
             [],
       );
@@ -160,7 +160,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     String? domicile,
     String? profilePhotoPath,
     List<String>? portfolios,
-    List<File>? newPortfolioFiles,
+    List<NewPortfolioFile>? newPortfolioFiles,
   }) async {
     try {
       await _repo.updateProfile(

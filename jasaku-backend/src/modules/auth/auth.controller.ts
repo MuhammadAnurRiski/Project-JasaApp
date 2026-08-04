@@ -42,7 +42,23 @@ const registerProvider = async (req: any, res: Response) => {
     const profile_photo = await uploadFile(req.files?.['profile_photo']?.[0], 'provider/profile-photo') || req.body.profile_photo;
     const ktp_photo = await uploadFile(req.files?.['ktp_photo']?.[0], 'provider/ktp') || req.body.ktp_photo;
     const selfie_photo = await uploadFile(req.files?.['selfie_photo']?.[0], 'provider/selfie') || req.body.selfie_photo;
-    const portfolios = await uploadMultiple(req.files?.['portfolios'] || [], 'provider/portfolios');
+
+    const portfolioMetas: Array<{ type?: string; label?: string }> = req.body.portfolio_metas
+      ? (typeof req.body.portfolio_metas === 'string' ? JSON.parse(req.body.portfolio_metas) : req.body.portfolio_metas)
+      : [];
+    const portfolioLinks: Array<{ type?: string; url?: string; label?: string }> = req.body.portfolio_links
+      ? (typeof req.body.portfolio_links === 'string' ? JSON.parse(req.body.portfolio_links) : req.body.portfolio_links)
+      : [];
+    const uploadedPortfolios = await uploadMultiple(req.files?.['portfolios'] || [], 'provider/portfolios');
+    const uploadedPortfolioItems = uploadedPortfolios.map((url, i) => {
+      const meta = portfolioMetas[i] || {};
+      const type = meta.type === 'file' ? 'file' : 'image';
+      return JSON.stringify({ type, url, label: meta.label || '' });
+    });
+    const portfolioLinkItems = portfolioLinks.map((l) =>
+      JSON.stringify({ type: 'link', url: l.url || '', label: l.label || '' })
+    );
+    const portfolios = [...portfolioLinkItems, ...uploadedPortfolioItems];
     
     // Ijazah & Sertifikat
     const ijazah_photo = await uploadFile(req.files?.['ijazah_photo']?.[0], 'provider/documents') || null;

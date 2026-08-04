@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../provider/data/provider_services_repository.dart';
 import '../providers/auth_provider.dart';
+import '../providers/register_state.dart';
 import 'provider_location_permission_screen.dart';
 import 'provider_login_screen.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -289,7 +290,11 @@ class _ProviderRegisterScreenState extends ConsumerState<ProviderRegisterScreen>
           profilePhotoPath: _profilePhotoPath,
           ktpPhotoPath: _ktpPhotoPath,
           selfiePhotoPath: _selfiePhotoPath,
-          portfolioFiles: _portfolioFiles,
+          portfolios: _portfolioFiles.isNotEmpty
+              ? _portfolioFiles
+                  .map((f) => RegisterPortfolioEntry(type: 'image', file: f))
+                  .toList()
+              : null,
           ijazahPhotoPath: _ijazahPath,
           certificates: _certificates.where((c) => c['filePath'] != null).toList(),
           services: _selectedServices,

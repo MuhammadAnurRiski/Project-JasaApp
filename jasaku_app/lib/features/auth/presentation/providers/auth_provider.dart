@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/auth_repository.dart';
 import '../../domain/models/user_model.dart';
+import 'register_state.dart';
 import '../../../services/auth_services.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/network/api_client.dart';
@@ -96,7 +97,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     String? profilePhotoPath,
     String? ktpPhotoPath,
     String? selfiePhotoPath,
-    List<File>? portfolioFiles,
+    List<RegisterPortfolioEntry>? portfolios,
     String? ijazahPhotoPath,
     List<Map<String, dynamic>>? certificates,
     required List<Map<String, dynamic>> services,
@@ -129,7 +130,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         profilePhotoPath: profilePhotoPath,
         ktpPhotoPath: ktpPhotoPath,
         selfiePhotoPath: selfiePhotoPath,
-        portfolioFiles: portfolioFiles,
+        portfolios: portfolios,
         ijazahPhotoPath: ijazahPhotoPath,
         certificates: certificates,
         selectedServices: services,

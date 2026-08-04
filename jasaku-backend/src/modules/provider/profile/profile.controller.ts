@@ -11,12 +11,25 @@ function normalizePath(p: string | null | undefined): string | null {
   return p.startsWith('/') ? p : `/${p}`;
 }
 
+function normalizePortfolio(p: string): string {
+  if (p.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(p);
+      parsed.url = normalizePath(parsed.url) || '';
+      return JSON.stringify(parsed);
+    } catch (_) {
+      return p;
+    }
+  }
+  return normalizePath(p) || '';
+}
+
 function normalizePaths(profile: any) {
   return {
     profile_photo: normalizePath(profile.profile_photo),
     ktp_photo: normalizePath(profile.ktp_photo),
     selfie_photo: normalizePath(profile.selfie_photo),
-    portfolios: (profile.portfolios || []).map((p: string) => normalizePath(p)),
+    portfolios: (profile.portfolios || []).map((p: string) => normalizePortfolio(p)),
   };
 }
 
@@ -232,13 +245,26 @@ const updateProfile = async (req: AuthRequest, res: Response) => {
     const selfiePhoto = await uploadFile(files?.['selfie_photo']?.[0], 'provider/selfie');
     const uploadedDocuments = await uploadMultiple(files?.['documents'] || [], 'provider/documents');
 
-    const existingPortfolios: string[] = req.body.existing_portfolios
-      ? (typeof req.body.existing_portfolios === 'string'
-          ? JSON.parse(req.body.existing_portfolios)
-          : req.body.existing_portfolios)
-      : [];
+    const parseJson = (raw: any, fallback: any) => {
+      if (!raw) return fallback;
+      return typeof raw === 'string' ? JSON.parse(raw) : raw;
+    };
+
+    const portfolioItems: string[] = parseJson(
+      req.body.portfolio_items ?? req.body.existing_portfolios,
+      []
+    );
+
+    const newPortfolioMetas: Array<{ type?: string; label?: string }> =
+      parseJson(req.body.new_portfolio_metas, []);
+
     const uploadedPortfolios = await uploadMultiple(files?.['portfolios'] || [], 'provider/portfolios');
-    const portfolios = [...existingPortfolios, ...uploadedPortfolios];
+    const newPortfolioItems = uploadedPortfolios.map((url, i) => {
+      const meta = newPortfolioMetas[i] || {};
+      const type = meta.type === 'file' ? 'file' : 'image';
+      return JSON.stringify({ type, url, label: meta.label || '' });
+    });
+    const portfolios = [...portfolioItems, ...newPortfolioItems];
 
     let birthDate: string | undefined;
     if (req.body.birth_date) {

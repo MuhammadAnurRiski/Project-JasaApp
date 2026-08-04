@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart' as latlong;
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/api_endpoints.dart';
+import '../../../../core/models/portfolio_item.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/image_url.dart';
 import '../../../../core/utils/operating_hours.dart';
@@ -1138,37 +1139,75 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                             itemCount: provider.portfolios.length,
                             separatorBuilder: (_, __) => const SizedBox(width: 8),
                             itemBuilder: (_, i) {
-                              final url = provider.portfolios[i];
-                              return ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: GestureDetector(
-                                  onTap: () => _showImagePreview(context, url),
-                                  child: Image.network(
-                                    imageUrl(url),
-                                    width: 100,
-                                    height: 100,
-                                    fit: BoxFit.cover,
-                                    loadingBuilder: (ctx, child, progress) {
-                                      if (progress == null) return child;
-                                      return Container(
+                              final item = provider.portfolios[i];
+                              if (item.isImage) {
+                                return ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: GestureDetector(
+                                    onTap: () => _showImagePreview(context, item.url),
+                                    child: Image.network(
+                                      imageUrl(item.url),
+                                      width: 100,
+                                      height: 100,
+                                      fit: BoxFit.cover,
+                                      loadingBuilder: (ctx, child, progress) {
+                                        if (progress == null) return child;
+                                        return Container(
+                                          width: 100,
+                                          height: 100,
+                                          color: const Color(0xFFF1F5F9),
+                                          child: const Center(
+                                            child: SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF94A3B8)),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      errorBuilder: (_, __, ___) => Container(
                                         width: 100,
                                         height: 100,
                                         color: const Color(0xFFF1F5F9),
-                                        child: const Center(
-                                          child: SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF94A3B8)),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    errorBuilder: (_, __, ___) => Container(
-                                      width: 100,
-                                      height: 100,
-                                      color: const Color(0xFFF1F5F9),
-                                      child: const Icon(Icons.broken_image, color: Color(0xFF94A3B8)),
+                                        child: const Icon(Icons.broken_image, color: Color(0xFF94A3B8)),
+                                      ),
                                     ),
+                                  ),
+                                );
+                              }
+                              return GestureDetector(
+                                onTap: () => item.open(),
+                                child: Container(
+                                  width: 160,
+                                  height: 100,
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF8FAFC),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Icon(
+                                        item.isLink
+                                            ? Icons.link
+                                            : Icons.insert_drive_file_outlined,
+                                        size: 24,
+                                        color: const Color(0xFF00A651),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        item.displayLabel,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          color: Color(0xFF475569),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               );
@@ -1487,7 +1526,7 @@ class ProviderModel {
   final int? totalReviews;
   final int? experience;
   final String? aboutMe;
-  final List<String> portfolios;
+  final List<PortfolioItem> portfolios;
   final double? lat;
   final double? lng;
   final bool isActive;
@@ -1638,7 +1677,8 @@ class ProviderModel {
       pricingUnitId: pricingUnitId,
       contractTypeId: contractTypeId,
       withMaterial: withMaterial,
-      portfolios: portfoliosRaw?.map((e) => e.toString()).toList() ?? [],
+      portfolios:
+          portfoliosRaw?.map((e) => PortfolioItem.fromEncoded(e)).toList() ?? [],
       experience: parsedExperience,
       aboutMe:
           json['description']?.toString() ??

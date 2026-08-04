@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import '../../../core/constants/api_endpoints.dart';
+import '../../../core/models/portfolio_item.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/utils/image_compressor.dart';
 
@@ -23,7 +24,7 @@ class ProviderProfileRepository {
     String? domicile,
     String? profilePhotoPath,
     List<String>? portfolios,
-    List<File>? newPortfolioFiles,
+    List<NewPortfolioFile>? newPortfolioFiles,
     String? ktpPhotoPath,
     String? selfiePhotoPath,
     List<File>? documentFiles,
@@ -37,7 +38,9 @@ class ProviderProfileRepository {
     if (phone != null) formDataMap['phone'] = phone;
     if (address != null) formDataMap['address'] = address;
     if (domicile != null) formDataMap['domicile'] = domicile;
-    if (portfolios != null) formDataMap['existing_portfolios'] = jsonEncode(portfolios);
+    if (portfolios != null) {
+      formDataMap['portfolio_items'] = jsonEncode(portfolios);
+    }
     if (deleteDocumentIds != null && deleteDocumentIds.isNotEmpty) {
       formDataMap['delete_documents'] = jsonEncode(deleteDocumentIds);
     }
@@ -49,15 +52,28 @@ class ProviderProfileRepository {
       );
     }
     if (newPortfolioFiles != null && newPortfolioFiles.isNotEmpty) {
-      final compressedFiles = await Future.wait(
-        newPortfolioFiles.map((f) => compressImage(f)),
-      );
-      formDataMap['portfolios'] = await Future.wait(
-        compressedFiles.map((f) => MultipartFile.fromFile(
-          f.path,
-          filename: f.path.split(RegExp(r'[/\\]')).last,
-        )),
-      );
+      final files = <MultipartFile>[];
+      final metas = <Map<String, dynamic>>[];
+      for (final entry in newPortfolioFiles) {
+        if (entry.type == PortfolioType.image) {
+          final compressed = await compressImage(entry.file);
+          files.add(await MultipartFile.fromFile(
+            compressed.path,
+            filename: entry.file.path.split(RegExp(r'[/\\]')).last,
+          ));
+        } else {
+          files.add(await MultipartFile.fromFile(
+            entry.file.path,
+            filename: entry.file.path.split(RegExp(r'[/\\]')).last,
+          ));
+        }
+        metas.add({
+          'type': entry.type.name,
+          'label': entry.label,
+        });
+      }
+      formDataMap['portfolios'] = files;
+      formDataMap['new_portfolio_metas'] = jsonEncode(metas);
     }
     if (ktpPhotoPath != null) {
       final compressed = await compressImage(File(ktpPhotoPath));

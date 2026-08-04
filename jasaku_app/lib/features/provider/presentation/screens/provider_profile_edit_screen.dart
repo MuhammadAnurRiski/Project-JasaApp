@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../../core/models/portfolio_item.dart';
 import '../../../../core/utils/image_url.dart';
 import '../providers/provider_profile_provider.dart';
 
@@ -26,8 +28,12 @@ class _ProviderProfileEditScreenState extends ConsumerState<ProviderProfileEditS
   bool _submitting = false;
   String? _profilePhotoPath;
   List<String> _existingPortfolios = [];
-  final List<File> _newPortfolioFiles = [];
+  final List<NewPortfolioFile> _newPortfolioFiles = [];
+  final List<PortfolioItem> _newPortfolioLinks = [];
   bool _hasChanges = false;
+
+  int get _portfolioCount =>
+      _existingPortfolios.length + _newPortfolioFiles.length + _newPortfolioLinks.length;
 
   @override
   void initState() {
@@ -47,7 +53,7 @@ class _ProviderProfileEditScreenState extends ConsumerState<ProviderProfileEditS
         orElse: () => '',
       );
     }
-    _existingPortfolios = List<String>.from(s.portfolios);
+    _existingPortfolios = s.portfolios.map((e) => e.encode()).toList();
   }
 
   @override
@@ -115,43 +121,164 @@ class _ProviderProfileEditScreenState extends ConsumerState<ProviderProfileEditS
     }
   }
 
-  Future<void> _pickPortfolio() async {
-    final source = await showModalBottomSheet<ImageSource>(
+  Future<void> _showAddPortfolioMenu() async {
+    if (_portfolioCount >= 5) return;
+    final choice = await showModalBottomSheet<String>(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (_) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Pilih Sumber', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              const SizedBox(height: 16),
-              ListTile(
-                leading: const Icon(Icons.photo_library_outlined),
-                title: const Text('Galeri'),
-                onTap: () => Navigator.pop(context, ImageSource.gallery),
-              ),
-              ListTile(
-                leading: const Icon(Icons.camera_alt_outlined),
-                title: const Text('Kamera'),
-                onTap: () => Navigator.pop(context, ImageSource.camera),
-              ),
-            ],
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Text('Tambah Portofolio',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.image_outlined),
+              title: const Text('Foto'),
+              subtitle: const Text('Unggah gambar'),
+              onTap: () => Navigator.pop(context, 'image'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.insert_drive_file_outlined),
+              title: const Text('File'),
+              subtitle: const Text('PDF, DOC, XLS, PPT, ZIP'),
+              onTap: () => Navigator.pop(context, 'file'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.link),
+              title: const Text('Link'),
+              subtitle: const Text('Tautan eksternal'),
+              onTap: () => Navigator.pop(context, 'link'),
+            ),
+          ],
         ),
       ),
     );
-    if (source == null) return;
-    final x = await _picker.pickImage(source: source);
-    if (x != null) {
-      setState(() {
-        _newPortfolioFiles.add(File(x.path));
-        _hasChanges = true;
-      });
+    if (choice == null) return;
+    switch (choice) {
+      case 'image':
+        await _pickPortfolioImages();
+        break;
+      case 'file':
+        await _pickPortfolioFile();
+        break;
+      case 'link':
+        await _addPortfolioLink();
+        break;
     }
+  }
+
+  Future<void> _pickPortfolioImages() async {
+    final remaining = 5 - _portfolioCount;
+    if (remaining <= 0) return;
+    final xs = await _picker.pickMultiImage(limit: remaining);
+    if (xs.isEmpty) return;
+    setState(() {
+      for (final x in xs) {
+        if (_portfolioCount >= 5) break;
+        _newPortfolioFiles.add(NewPortfolioFile(
+          file: File(x.path),
+          type: PortfolioType.image,
+        ));
+      }
+      _hasChanges = true;
+    });
+  }
+
+  Future<void> _pickPortfolioFile() async {
+    final remaining = 5 - _portfolioCount;
+    if (remaining <= 0) return;
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: remaining > 1,
+      type: FileType.custom,
+      allowedExtensions: [
+        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip',
+      ],
+    );
+    if (result == null || result.files.isEmpty) return;
+    setState(() {
+      for (final f in result.files) {
+        if (_portfolioCount >= 5) break;
+        final path = f.path;
+        if (path == null) continue;
+        _newPortfolioFiles.add(NewPortfolioFile(
+          file: File(path),
+          type: PortfolioType.file,
+          label: f.name,
+        ));
+      }
+      _hasChanges = true;
+    });
+  }
+
+  Future<void> _addPortfolioLink() async {
+    final urlCtrl = TextEditingController();
+    final labelCtrl = TextEditingController();
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Tambah Link'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: urlCtrl,
+              keyboardType: TextInputType.url,
+              decoration: const InputDecoration(
+                labelText: 'URL',
+                hintText: 'https://...',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: labelCtrl,
+              decoration: const InputDecoration(
+                labelText: 'Judul (opsional)',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Tambah'),
+          ),
+        ],
+      ),
+    );
+    final url = urlCtrl.text.trim();
+    final label = labelCtrl.text.trim();
+    urlCtrl.dispose();
+    labelCtrl.dispose();
+    if (!mounted) return;
+    if (saved != true || url.isEmpty) return;
+    final uri = Uri.tryParse(url);
+    if (uri == null ||
+        !uri.hasScheme ||
+        (uri.scheme != 'http' && uri.scheme != 'https')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('URL tidak valid. Gunakan http:// atau https://')),
+      );
+      return;
+    }
+    setState(() {
+      _newPortfolioLinks.add(PortfolioItem(
+        type: PortfolioType.link,
+        url: url,
+        label: label,
+      ));
+      _hasChanges = true;
+    });
   }
 
   void _removeExistingPortfolio(int index) {
@@ -168,9 +295,19 @@ class _ProviderProfileEditScreenState extends ConsumerState<ProviderProfileEditS
     });
   }
 
+  void _removeNewPortfolioLink(int index) {
+    setState(() {
+      _newPortfolioLinks.removeAt(index);
+      _hasChanges = true;
+    });
+  }
+
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
-    if (!_hasChanges && _profilePhotoPath == null && _newPortfolioFiles.isEmpty) {
+    if (!_hasChanges &&
+        _profilePhotoPath == null &&
+        _newPortfolioFiles.isEmpty &&
+        _newPortfolioLinks.isEmpty) {
       Navigator.pop(context, false);
       return;
     }
@@ -186,7 +323,10 @@ class _ProviderProfileEditScreenState extends ConsumerState<ProviderProfileEditS
       address: _addressCtrl.text.trim(),
       domicile: _domicileCtrl.text.trim(),
       profilePhotoPath: _profilePhotoPath,
-      portfolios: _existingPortfolios,
+      portfolios: [
+        ..._existingPortfolios,
+        ..._newPortfolioLinks.map((e) => e.encode()),
+      ],
       newPortfolioFiles: _newPortfolioFiles,
     );
 
@@ -349,16 +489,14 @@ class _ProviderProfileEditScreenState extends ConsumerState<ProviderProfileEditS
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.onSurface)),
             TextButton.icon(
-              onPressed: _existingPortfolios.length + _newPortfolioFiles.length >= 5
-                  ? null
-                  : _pickPortfolio,
+              onPressed: _portfolioCount >= 5 ? null : _showAddPortfolioMenu,
               icon: const Icon(Icons.add_photo_alternate_outlined, size: 20),
               label: const Text('Tambah'),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        if (_existingPortfolios.isEmpty && _newPortfolioFiles.isEmpty)
+        if (_portfolioCount == 0)
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 32),
@@ -380,28 +518,76 @@ class _ProviderProfileEditScreenState extends ConsumerState<ProviderProfileEditS
             spacing: 8,
             runSpacing: 8,
             children: [
-              ..._existingPortfolios.asMap().entries.map((e) => _buildPortfolioThumb(
-                url: e.value,
-                isNetwork: true,
+              ..._existingPortfolios.asMap().entries.map((e) => _buildPortfolioItemView(
+                item: PortfolioItem.fromEncoded(e.value),
                 onDelete: () => _removeExistingPortfolio(e.key),
               )),
-              ..._newPortfolioFiles.asMap().entries.map((e) => _buildPortfolioThumb(
-                file: e.value,
-                isNetwork: false,
+              ..._newPortfolioFiles.asMap().entries.map((e) => _buildPortfolioItemView(
+                newFile: e.value,
                 onDelete: () => _removeNewPortfolio(e.key),
+              )),
+              ..._newPortfolioLinks.asMap().entries.map((e) => _buildPortfolioItemView(
+                item: e.value,
+                onDelete: () => _removeNewPortfolioLink(e.key),
               )),
             ],
           ),
         const SizedBox(height: 4),
-        Text('Maksimal 5 foto', style: TextStyle(fontSize: 11, color: Colors.grey.shade400)),
+        Text('Maksimal 5 item (gambar, file, atau link)',
+            style: TextStyle(fontSize: 11, color: Colors.grey.shade400)),
       ],
     );
   }
 
+  Widget _buildPortfolioItemView({
+    PortfolioItem? item,
+    NewPortfolioFile? newFile,
+    required VoidCallback onDelete,
+  }) {
+    if (newFile != null) {
+      if (newFile.type == PortfolioType.image) {
+        return _buildPortfolioThumb(
+          child: Image.file(newFile.file, fit: BoxFit.cover),
+          onDelete: onDelete,
+        );
+      }
+      return _buildPortfolioChip(
+        icon: Icons.insert_drive_file_outlined,
+        label: newFile.label,
+        onDelete: onDelete,
+      );
+    }
+    if (item == null) return const SizedBox.shrink();
+    switch (item.type) {
+      case PortfolioType.image:
+        return _buildPortfolioThumb(
+          child: Image.network(
+            imageUrl(item.url),
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Container(
+              color: const Color(0xFFF1F5F9),
+              child: const Icon(Icons.broken_image, color: Color(0xFF94A3B8)),
+            ),
+          ),
+          onDelete: onDelete,
+        );
+      case PortfolioType.file:
+        return _buildPortfolioChip(
+          icon: Icons.insert_drive_file_outlined,
+          label: item.displayLabel,
+          onDelete: onDelete,
+        );
+      case PortfolioType.link:
+        return _buildPortfolioChip(
+          icon: Icons.link,
+          label: item.displayLabel,
+          onDelete: onDelete,
+        );
+    }
+  }
+
   Widget _buildPortfolioThumb({
-    String? url,
-    File? file,
-    required bool isNetwork,
+    required Widget child,
     required VoidCallback onDelete,
   }) {
     return Stack(
@@ -411,21 +597,62 @@ class _ProviderProfileEditScreenState extends ConsumerState<ProviderProfileEditS
           child: SizedBox(
             width: 90,
             height: 90,
-            child: isNetwork
-                ? Image.network(
-                    imageUrl(url),
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: const Color(0xFFF1F5F9),
-                      child: const Icon(Icons.broken_image, color: Color(0xFF94A3B8)),
-                    ),
-                  )
-                : Image.file(file!, fit: BoxFit.cover),
+            child: child,
           ),
         ),
         Positioned(
           top: 4,
           right: 4,
+          child: GestureDetector(
+            onTap: onDelete,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: const BoxDecoration(
+                color: Colors.black54,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.close_rounded, size: 14, color: Colors.white),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPortfolioChip({
+    required IconData icon,
+    required String label,
+    required VoidCallback onDelete,
+  }) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: 160,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: 22, color: const Color(0xFF00A651)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF475569)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Positioned(
+          top: -6,
+          right: -6,
           child: GestureDetector(
             onTap: onDelete,
             child: Container(
