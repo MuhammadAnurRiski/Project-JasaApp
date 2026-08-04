@@ -123,8 +123,7 @@ class DashboardState {
             final dt = DateTime.parse(createdAt);
             if (dt.year == now.year && dt.month == now.month) {
               final price = _parsePriceDouble(order['total_price']);
-              final fee = _parsePriceDouble(order['platform_fee']);
-              total += (price - fee);
+              total += price;
             }
           } catch (_) {}
         }

@@ -59,26 +59,6 @@ app.use('/api/wilayah', wilayahRoutes);
 // Static files — landing page & APK downloads
 app.use('/', express.static('public'));
 
-// Periodic cleanup: hard-delete cancelled/rejected orders older than 2 minutes
-const cleanupInterval = 60_000; // every 60s
-setInterval(async () => {
-  try {
-    const { prisma } = await import('./config/prisma');
-    const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
-    const result = await prisma.orders.deleteMany({
-      where: {
-        status: { in: ["cancelled", "rejected"] },
-        created_at: { lt: twoMinutesAgo }
-      }
-    });
-    if (result.count > 0) {
-      console.log(`🧹 Cleaned up ${result.count} stale cancelled/rejected orders`);
-    }
-  } catch (err) {
-    // silent
-  }
-}, cleanupInterval);
-
 // Global error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('========== UNHANDLED ERROR ==========');

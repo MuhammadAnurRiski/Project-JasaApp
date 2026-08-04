@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/constants/api_endpoints.dart';
+import '../../../../core/utils/service_icons.dart';
 import '../providers/register_state.dart';
 import 'provider_register_personal_screen.dart';
-import '../../../../core/constants/app_colors.dart';
 
 class ProviderRegisterCategoryScreen extends StatefulWidget {
   final RegisterState state;
@@ -259,47 +259,13 @@ class _CategorySection extends StatelessWidget {
     required this.onToggle,
   });
 
-  ({IconData icon, Color color, Color bg}) _catIcon(String name) {
-    final n = name.trim();
-    if (n.contains('Listrik') || n.contains('listrik')) {
-      return (icon: Icons.electric_bolt, color: const Color(0xFFFFB300), bg: const Color(0xFFFEF3C7));
-    } else if (n.contains('Bangunan') || n.contains('bangunan')) {
-      return (icon: Icons.home_repair_service, color: const Color(0xFFFF6B00), bg: const Color(0xFFFFEDD5));
-    } else if (n.contains('Kebersihan') || n.contains('kebersihan')) {
-      return (icon: Icons.cleaning_services, color: const Color(0xFF059669), bg: const Color(0xFFD1FAE5));
-    } else if (n.contains('Pindahan') || n.contains('pindahan')) {
-      return (icon: Icons.local_shipping, color: AppColors.primary, bg: const Color(0xFFDBEAFE));
-    } else if (n.contains('Kayu') || n.contains('kayu')) {
-      return (icon: Icons.handyman, color: const Color(0xFF7C3AED), bg: const Color(0xFFEDE9FE));
-    } else if (n.contains('AC') || n.contains('Elektronik') || n.contains('elektronik')) {
-      return (icon: Icons.ac_unit, color: const Color(0xFF0891B2), bg: const Color(0xFFCFFAFE));
-    }
-    return (icon: Icons.build_circle, color: const Color(0xFF6B7280), bg: const Color(0xFFF3F4F6));
-  }
+  ({IconData icon, Color color, Color bg}) _catIcon(String name) => categoryIconFor(name);
 
-  ({IconData icon, Color color, Color bg}) _serviceIcon(String name) {
-    final n = name.trim();
-    if (n.contains('Listrik') || n.contains('listrik')) {
-      return (icon: Icons.electric_bolt, color: const Color(0xFFFFB300), bg: const Color(0xFFFFF8E1));
-    } else if (n.contains('Bangunan') || n.contains('bangunan') || n.contains('bangun') || n.contains('Keramik') || n.contains('keramik')) {
-      return (icon: Icons.home_repair_service, color: const Color(0xFFFF6B00), bg: const Color(0xFFFFF0E0));
-    } else if (n.contains('Bersih') || n.contains('bersih') || n.contains('Cuci') || n.contains('cuci')) {
-      return (icon: Icons.cleaning_services, color: const Color(0xFF059669), bg: const Color(0xFFE6F7F0));
-    } else if (n.contains('Pindah') || n.contains('pindah') || n.contains('Angkut') || n.contains('angkut')) {
-      return (icon: Icons.local_shipping, color: AppColors.primary, bg: const Color(0xFFE6EEFF));
-    } else if (n.contains('Kayu') || n.contains('kayu') || n.contains('Furnitur') || n.contains('furnitur')) {
-      return (icon: Icons.handyman, color: const Color(0xFF7C3AED), bg: const Color(0xFFF0E6FF));
-    } else if (n.contains('AC') || n.contains('Elektronik') || n.contains('elektronik')) {
-      return (icon: Icons.ac_unit, color: const Color(0xFF0891B2), bg: const Color(0xFFE0F7FA));
-    } else if (n.contains('Cat') || n.contains('cat') || n.contains('Pengecatan') || n.contains('pengecatan')) {
-      return (icon: Icons.format_paint, color: const Color(0xFFE91E63), bg: const Color(0xFFFCE4EC));
-    } else if (n.contains('Taman') || n.contains('taman') || n.contains('Berkebun') || n.contains('berkebun')) {
-      return (icon: Icons.yard, color: const Color(0xFF4CAF50), bg: const Color(0xFFE8F5E9));
-    } else if (n.contains('Plumbing') || n.contains('plumbing') || n.contains('Pipa') || n.contains('pipa') || n.contains('ledeng')) {
-      return (icon: Icons.plumbing, color: const Color(0xFF00BCD4), bg: const Color(0xFFE0F7FA));
-    }
-    return (icon: Icons.build_circle, color: const Color(0xFF6B7280), bg: const Color(0xFFF3F4F6));
-  }
+  ({IconData icon, Color color, Color bg}) _serviceIcon(
+    String name,
+    String? categoryName,
+  ) =>
+      serviceIconFor(name, categoryName);
 
   @override
   Widget build(BuildContext context) {
@@ -343,7 +309,10 @@ class _CategorySection extends StatelessWidget {
             final id = svc['id'] as String;
             final name = svc['name'] as String? ?? '';
             final isSelected = selectedIds.contains(id);
-            final svcIcon = _serviceIcon(name);
+            final categoryName =
+                (svc['categories'] as Map<String, dynamic>?)?['name']
+                    as String?;
+            final svcIcon = _serviceIcon(name, categoryName);
             return GestureDetector(
               onTap: () => onToggle(svc),
               child: AnimatedContainer(

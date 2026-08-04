@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -318,8 +319,24 @@ class _CustomerOrderListPageState extends ConsumerState<CustomerOrderListPage> {
                   _detailRow(Icons.description_outlined, 'Deskripsi',
                       order.description ?? '-'),
                   const SizedBox(height: 10),
-                  _detailRow(Icons.monetization_on_outlined, 'Total Harga',
+                  _detailRow(Icons.monetization_on_outlined, 'Harga Layanan',
                       'Rp ${order.formattedPrice}'),
+                  if (order.platformFee > 0) ...[
+                    const SizedBox(height: 8),
+                    _detailRow(
+                      Icons.receipt_long_outlined,
+                      'Biaya Aplikasi',
+                      'Rp ${NumberFormat('#,###', 'id_ID').format(order.platformFee)}',
+                    ),
+                  ],
+                  if (order.platformFee > 0) ...[
+                    const SizedBox(height: 8),
+                    _detailRow(
+                      Icons.verified_outlined,
+                      'Total Dibayar',
+                      'Rp ${NumberFormat('#,###', 'id_ID').format(order.totalPrice + order.platformFee)}',
+                    ),
+                  ],
                   const SizedBox(height: 8),
 
                   // Extension section

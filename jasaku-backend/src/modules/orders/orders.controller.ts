@@ -34,23 +34,25 @@ const createOrder = async (req: any, res: Response) => {
 const getOrderDetails = async (req: any, res: Response) => {
     try {
         const { orderId } = req.params;
+        const userId = req.user?.userId;
         const ordersService = new OrdersService();
-        const result = await ordersService.getOrderDetails(orderId);
+        const result = await ordersService.getOrderDetails(orderId, userId);
         if (!result) {
             return errorResponse(res, 'Order tidak ditemukan', 404);
         }
         return successResponse(res, result, 'Detail order berhasil diambil');
     }
-    catch (err: any) {     
-        return errorResponse(res, err.message);
+    catch (err: any) {
+        return errorResponse(res, err.message, err.status || 500);
     }
 };
 
 const getOrderExtensions = async (req: any, res: Response) => {
     try {
         const { orderId } = req.params;
+        const userId = req.user?.userId;
         const ordersService = new OrdersService();
-        const result = await ordersService.getOrderExtensions(orderId);
+        const result = await ordersService.getOrderExtensions(orderId, userId);
         return successResponse(res, result, 'Ekstensi order berhasil diambil');
     }
     catch (err: any) {
@@ -198,7 +200,7 @@ const confirmPaymentByAdmin = async (req: any, res: Response) => {
         return successResponse(res, result, 'Pembayaran berhasil dikonfirmasi');
     }
     catch (err: any) {
-        return errorResponse(res, err.message);
+        return errorResponse(res, err.message, err.status || 500);
     }
 };
 

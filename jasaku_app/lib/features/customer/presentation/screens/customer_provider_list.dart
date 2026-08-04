@@ -1334,11 +1334,23 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                           onPressed: (_hasActiveOrder || !_serviceAvailable || !OperatingHours.isWithinOperatingHours())
                               ? null
                               : () {
-                                  if (provider.pricingUnitId == null) {
+                                  final selectedUnitId = widget.selectedPricingUnitId ?? provider.pricingUnitId;
+                                  if (selectedUnitId == null) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text(
                                           'Tidak dapat memproses pesanan: pricing unit tidak tersedia.',
+                                        ),
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  final unitPrice = provider.priceForUnit(selectedUnitId);
+                                  if (unitPrice == null || unitPrice <= 0) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Harga layanan belum tersedia untuk mitra ini. Silakan pilih mitra lain.',
                                         ),
                                       ),
                                     );
@@ -1354,15 +1366,14 @@ class _DetailProviderSheetState extends State<DetailProviderSheet> {
                                              providerId: provider.id,
                                              providerName: provider.name,
                                              serviceId: widget.servicesId,
-                                             pricingUnitId: widget.selectedPricingUnitId ?? provider.pricingUnitId!,
+                                             pricingUnitId: selectedUnitId,
                                              contractTypeId: widget.selectedContractTypeId ?? provider.contractTypeId,
                                              pricingUnitName: widget.selectedPricingUnitName,
-                                             basePrice:
-                                                 provider.priceForUnit(widget.selectedPricingUnitId ?? provider.pricingUnitId)?.toDouble() ?? 0.0,
+                                             basePrice: unitPrice.toDouble(),
                                            ),
-                                    ),
-                                  );
-                                },
+                                     ),
+                                   );
+                                 },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: (_hasActiveOrder || !_serviceAvailable || !OperatingHours.isWithinOperatingHours())
                                 ? const Color(0xFF94A3B8)

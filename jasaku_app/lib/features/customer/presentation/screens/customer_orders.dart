@@ -784,6 +784,15 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                       );
                       return;
                     }
+                    if (_selectedPaymentMethod.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Pilih metode pembayaran terlebih dahulu'),
+                          backgroundColor: Colors.orange,
+                        ),
+                      );
+                      return;
+                    }
                     if (_formKey.currentState!.validate()) {
                       setState(() => _isSubmitting = true);
                       try {

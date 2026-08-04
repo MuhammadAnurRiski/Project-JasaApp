@@ -20,6 +20,7 @@ class OrderModel {
   final String id;
   final String status;
   final int totalPrice;
+  final int platformFee;
   final int additionalFee;
   final String? description;
   final DateTime? workDate;
@@ -38,6 +39,7 @@ class OrderModel {
     required this.id,
     required this.status,
     required this.totalPrice,
+    this.platformFee = 0,
     this.additionalFee = 0,
     this.description,
     this.workDate,
@@ -74,6 +76,7 @@ class OrderModel {
       id: json['id'] as String,
       status: json['status'] as String? ?? 'pending',
       totalPrice: _parsePrice(json['total_price']),
+      platformFee: _parsePrice(json['platform_fee']),
       additionalFee: _parsePrice(json['additional_fee']),
       description: json['description'] as String?,
       workDate: json['work_date'] != null ? DateTime.tryParse(json['work_date'] as String) : null,
@@ -109,6 +112,7 @@ class OrderModel {
       id: json['id'] as String,
       status: json['status'] as String? ?? 'pending',
       totalPrice: _parsePrice(json['total_price']),
+      platformFee: _parsePrice(json['platform_fee']),
       additionalFee: _parsePrice(json['additional_fee']),
       description: json['description'] as String?,
       workDate: json['work_date'] != null ? DateTime.tryParse(json['work_date'] as String) : null,

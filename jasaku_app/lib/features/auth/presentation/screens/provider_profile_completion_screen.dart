@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/constants/api_endpoints.dart';
+import '../../../../core/utils/service_icons.dart';
 import '../../../provider/presentation/screens/provider_shell.dart';
-import '../../../../core/constants/app_colors.dart';
 
 class _PriceEntry {
   String? pricingUnitId;
@@ -392,31 +392,11 @@ class _ProviderProfileCompletionScreenState
     );
   }
 
-  ({IconData icon, Color color, Color bg}) _iconForService(String name) {
-    final n = name.trim();
-    if (n.contains('Bangunan') || n.contains('bangunan') || n.contains('bangun') || n.contains('Keramik') || n.contains('keramik')) {
-      return (icon: Icons.home_repair_service, color: const Color(0xFFFF6B00), bg: const Color(0xFFFFF0E0));
-    } else if (n.contains('Listrik') || n.contains('listrik')) {
-      return (icon: Icons.electric_bolt, color: const Color(0xFFFFB300), bg: const Color(0xFFFFF8E1));
-    } else if (n.contains('Bersih') || n.contains('bersih') || n.contains('Cuci') || n.contains('cuci')) {
-      return (icon: Icons.cleaning_services, color: const Color(0xFF059669), bg: const Color(0xFFE6F7F0));
-    } else if (n.contains('Pindah') || n.contains('pindah') || n.contains('Angkut') || n.contains('angkut')) {
-      return (icon: Icons.local_shipping, color: AppColors.primary, bg: const Color(0xFFE6EEFF));
-    } else if (n.contains('Kayu') || n.contains('kayu') || n.contains('Furnitur') || n.contains('furnitur')) {
-      return (icon: Icons.handyman, color: const Color(0xFF7C3AED), bg: const Color(0xFFF0E6FF));
-    } else if (n.contains('AC') || n.contains('Elektronik') || n.contains('elektronik')) {
-      return (icon: Icons.ac_unit, color: const Color(0xFF0891B2), bg: const Color(0xFFE0F7FA));
-    } else if (n.contains('Cat') || n.contains('cat') || n.contains('Pengecatan') || n.contains('pengecatan')) {
-      return (icon: Icons.format_paint, color: const Color(0xFFE91E63), bg: const Color(0xFFFCE4EC));
-    } else if (n.contains('Taman') || n.contains('taman') || n.contains('Berkebun') || n.contains('berkebun')) {
-      return (icon: Icons.yard, color: const Color(0xFF4CAF50), bg: const Color(0xFFE8F5E9));
-    } else if (n.contains('Plumbing') || n.contains('plumbing') || n.contains('Pipa') || n.contains('pipa') || n.contains('ledeng')) {
-      return (icon: Icons.plumbing, color: const Color(0xFF00BCD4), bg: const Color(0xFFE0F7FA));
-    } else if (n.contains('Kaca') || n.contains('kaca')) {
-      return (icon: Icons.window, color: const Color(0xFF6366F1), bg: const Color(0xFFEEF2FF));
-    }
-    return (icon: Icons.miscellaneous_services_outlined, color: const Color(0xFF6B7280), bg: const Color(0xFFF3F4F6));
-  }
+  ({IconData icon, Color color, Color bg}) _iconForService(
+    String name,
+    String? categoryName,
+  ) =>
+      serviceIconFor(name, categoryName);
 
   Widget _buildServiceCard(Map<String, dynamic> svc, ColorScheme cs) {
     final svcId = svc['id'] as String;
@@ -424,7 +404,7 @@ class _ProviderProfileCompletionScreenState
     final categoryName = svc['services']?['categories']?['name'] as String? ?? '';
     final validUnits = _validUnitsPerService[svcId] ?? [];
     final entries = _servicePriceEntries[svcId] ?? [];
-    final svcIcon = _iconForService(serviceName);
+    final svcIcon = _iconForService(serviceName, categoryName);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),

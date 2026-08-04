@@ -2,57 +2,57 @@
 !theme plain
 left to right direction
 skinparam backgroundColor #FFFFFF
-skinparam defaultFontName Segoe UI
-skinparam defaultFontSize 14
-skinparam EntityFontSize 16
-skinparam EntityFontStyle bold
-skinparam EntityAttributeFontSize 13
-skinparam EntityAttributeFontStyle bold
-skinparam ArrowFontSize 13
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 20
+skinparam classBackgroundColor #FFFFFF
+skinparam classBorderColor #00695C
+skinparam classFontColor #212121
+skinparam classHeaderBackgroundColor #00897B
+skinparam classHeaderFontColor #FFFFFF
+skinparam classFontSize 24
+skinparam classFontStyle bold
+skinparam classHeaderFontSize 24
+skinparam MinClassWidth 320
+skinparam ArrowFontSize 18
 skinparam ArrowFontStyle bold
+skinparam ArrowColor #00695C
 skinparam linetype polyline
-skinparam nodesep 60
-skinparam ranksep 15
-skinparam padding 1
-skinparam entitymargin 3
-skinparam EntityBackgroundColor #FFFFFF
-skinparam EntityBorderColor #37474F
-skinparam EntityFontColor #212121
-skinparam EntityHeaderBackgroundColor #455A64
-skinparam EntityAttributeIconSize 0
+skinparam nodesep 24
+skinparam ranksep 24
+skinparam padding 8
 
-entity "Role" as role { }
-entity "Pengguna" as pengguna { }
-entity "Profil Pelanggan" as profil_pelanggan { }
-entity "Profil Mitra Jasa" as profil_provider { }
-entity "Lokasi Mitra" as lokasi_provider { }
-entity "Dokumen Mitra" as dokumen_provider { }
-entity "Verifikasi Identitas" as verifikasi_identitas { }
-entity "Metode Payout Mitra" as metode_pembayaran { }
-entity "Kategori" as kategori { }
-entity "Layanan" as layanan { }
-entity "Satuan Harga" as satuan_harga { }
-entity "Tipe Kontrak" as tipe_kontrak { }
-entity "Layanan Mitra" as layanan_provider { }
-entity "Harga Layanan Mitra" as harga_layanan { }
-entity "Layanan-Satuan Harga" as layanan_satuan { }
-entity "Layanan-Tipe Kontrak" as layanan_kontrak { }
-entity "Pesanan" as pesanan { }
-entity "Item Pesanan" as item_pesanan { }
-entity "Lokasi Pesanan" as lokasi_pesanan { }
-entity "Lampiran Pesanan" as lampiran_pesanan { }
-entity "Ekstensi Pesanan" as ekstensi_pesanan { }
-entity "Pembayaran" as pembayaran { }
-entity "Jadwal Mitra" as jadwal_provider { }
-entity "Tugas Kustom" as tugas_kustom { }
-entity "Lokasi Tugas" as lokasi_tugas { }
-entity "Mitra Tugas" as provider_tugas { }
-entity "Ulasan" as ulasan { }
-entity "Laporan" as laporan { }
-entity "Wilayah" as wilayah { }
-entity "Rekening Bank" as rekening_bank { }
-entity "E-Wallet" as ewallet_admin { }
-entity "QRIS" as qris_admin { }
+class "Role" as role
+class "Pengguna" as pengguna
+class "Profil Pelanggan" as profil_pelanggan
+class "Profil Mitra Jasa" as profil_provider
+class "Lokasi Mitra" as lokasi_provider
+class "Dokumen Mitra" as dokumen_provider
+class "Verifikasi Identitas" as verifikasi_identitas
+class "Metode Payout Mitra" as metode_pembayaran
+class "Kategori" as kategori
+class "Layanan" as layanan
+class "Satuan Harga" as satuan_harga
+class "Tipe Kontrak" as tipe_kontrak
+class "Layanan Mitra" as layanan_provider
+class "Harga Layanan Mitra" as harga_layanan
+class "Layanan-Satuan Harga" as layanan_satuan
+class "Layanan-Tipe Kontrak" as layanan_kontrak
+class "Pesanan" as pesanan
+class "Item Pesanan" as item_pesanan
+class "Lokasi Pesanan" as lokasi_pesanan
+class "Lampiran Pesanan" as lampiran_pesanan
+class "Ekstensi Pesanan" as ekstensi_pesanan
+class "Pembayaran" as pembayaran
+class "Jadwal Mitra" as jadwal_provider
+class "Tugas Kustom" as tugas_kustom
+class "Lokasi Tugas" as lokasi_tugas
+class "Mitra Tugas" as provider_tugas
+class "Ulasan" as ulasan
+class "Laporan" as laporan
+class "Wilayah" as wilayah
+class "Rekening Bank" as rekening_bank
+class "E-Wallet" as ewallet_admin
+class "QRIS" as qris_admin
 
 role ||--|{ pengguna : "memiliki"
 pengguna ||--|| profil_pelanggan : "memiliki profil"

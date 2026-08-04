@@ -1,18 +1,26 @@
 import axios from "axios";
 import FormData from "form-data";
-import fs from "fs";
 import { prisma } from "./prisma";
 
 const FACE_SERVICE_URL = process.env.FACE_SERVICE_URL || "http://127.0.0.1:5001";
+
+async function fetchImageBuffer(url: string): Promise<Buffer> {
+  const response = await axios.get(url, { responseType: "arraybuffer", timeout: 15_000 });
+  return Buffer.from(response.data);
+}
 
 export async function compareFaces(
   ktpPath: string,
   selfiePath: string,
 ): Promise<{ similarity: number; match: boolean }> {
   try {
+    const [ktpBuffer, selfieBuffer] = await Promise.all([
+      fetchImageBuffer(ktpPath),
+      fetchImageBuffer(selfiePath),
+    ]);
     const form = new FormData();
-    form.append("ktp_image", fs.createReadStream(ktpPath));
-    form.append("selfie_image", fs.createReadStream(selfiePath));
+    form.append("ktp_image", ktpBuffer, { filename: "ktp.jpg", contentType: "image/jpeg" });
+    form.append("selfie_image", selfieBuffer, { filename: "selfie.jpg", contentType: "image/jpeg" });
 
     const { data } = await axios.post(`${FACE_SERVICE_URL}/compare`, form, {
       headers: form.getHeaders(),

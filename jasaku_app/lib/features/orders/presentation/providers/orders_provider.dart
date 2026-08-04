@@ -52,11 +52,15 @@ class OrderFormNotifier extends StateNotifier<OrderFormState> {
         return;
       }
 
-      await _dio.post(ApiEndpoints.createPayment, data: {
-        'orderId': orderId,
-        'method': paymentMethod,
-        'amount': paymentAmount,
-      });
+      try {
+        await _dio.post(ApiEndpoints.createPayment, data: {
+          'orderId': orderId,
+          'method': paymentMethod,
+          'amount': paymentAmount,
+        });
+      } on DioException catch (e) {
+        log('[ORDER] createPayment gagal, order tetap terdaftar: ${e.response?.data?['message'] ?? e.message}');
+      }
 
       state = OrderFormState(isLoading: false, isSuccess: true, orderId: orderId, paymentMethod: paymentMethod);
     } on DioException catch (e) {

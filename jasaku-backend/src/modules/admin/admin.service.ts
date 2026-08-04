@@ -664,6 +664,11 @@ export class AdminService {
         if (order.status !== 'completed') throw new Error('Order belum selesai');
         if (order.payout_confirmed) throw new Error('Payout sudah dikonfirmasi sebelumnya');
 
+        const payoutMethod = await prisma.provider_payout_methods.findFirst({
+            where: { provider_id: order.provider_id }
+        });
+        if (!payoutMethod) throw new Error('Mitra belum mengatur rekening pembayaran. Payout tidak dapat dikonfirmasi');
+
         const updated = await prisma.orders.update({
             where: { id: orderId },
             data: { payout_confirmed: true, payout_at: new Date() }

@@ -673,10 +673,10 @@
                       </td>
                       <td><span class="badge" :class="statusBadge(o.status)" x-text="statusLabel(o.status)"></span></td>
                       <td class="text-center">
-                        <button x-show="o.status === 'pending_payment'" @click="confirmPayment(o.id)" :disabled="confirming === o.id" class="btn-success btn-sm">
+                        <button x-show="o.status === 'pending_payment'" @click="confirmPayment(o.id)" :disabled="confirming === o.id || !o.payments?.length || !o.payments[0].payment_proof" :title="(o.payments?.length && o.payments[0].payment_proof) ? '' : 'Tunggu customer mengupload bukti pembayaran'" class="btn-success btn-sm">
                           <i x-show="confirming === o.id" class="fas fa-spinner fa-spin mr-1"></i>
                           <i x-show="confirming !== o.id" class="fas fa-check mr-1"></i>
-                          <span x-text="confirming === o.id ? 'Memproses...' : 'Konfirmasi'"></span>
+                          <span x-text="confirming === o.id ? 'Memproses...' : ((o.payments?.length && o.payments[0].payment_proof) ? 'Konfirmasi' : 'Tunggu Bukti')"></span>
                         </button>
                         <span x-show="o.status !== 'pending_payment'" class="text-xs text-gray-400 italic">-</span>
                       </td>
@@ -769,7 +769,7 @@
               <template x-if="!loading && visibleOrders.length > 0">
                 <div class="table-wrap"><table><thead><tr>
                   <template x-if="selectMode"><th class="w-10"><input type="checkbox" @change="toggleSelectAll($event)" :checked="selectedIds.length === confirmedOrders.length && confirmedOrders.length > 0"></th></template>
-                  <th>Pelanggan</th><th>Mitra</th><th>Tanggal</th><th>No. Rekening Mitra</th><th>Total</th><th>Metode</th><th>Status</th><th class="text-center">Aksi</th></tr></thead><tbody>
+                  <th>Pelanggan</th><th>Mitra</th><th>Tanggal</th><th>No. Rekening Mitra</th><th>Fee Aplikasi</th><th>Diterima Mitra</th><th>Metode</th><th>Status</th><th class="text-center">Aksi</th></tr></thead><tbody>
                   <template x-for="o in visibleOrders" :key="o.id">
                     <tr>
                       <template x-if="selectMode"><td class="text-center"><input type="checkbox" :value="o.id" :checked="selectedIds.includes(o.id)" @change="toggleSelect(o.id)"></td></template>
@@ -787,15 +787,16 @@
                           <span class="text-xs text-red-400">Belum diatur</span>
                         </template>
                       </td>
+                      <td class="tabular-nums text-amber-600" x-text="'Rp ' + Number(o.platform_fee || 0).toLocaleString('id-ID')"></td>
                       <td class="font-medium tabular-nums" x-text="'Rp ' + Number(o.total_price).toLocaleString('id-ID')"></td>
                       <td><span class="badge badge-warning" x-text="o.payments?.length ? (o.payments[0].method_label || '-') : '-'"></span></td>
                       <td><span class="badge badge-info">Selesai</span></td>
                       <td class="text-center">
                         <template x-if="!o.payout_confirmed">
-                          <button @click="confirmPayout(o.id)" :disabled="confirming === o.id" class="btn-success btn-sm">
+                          <button @click="confirmPayout(o.id)" :disabled="confirming === o.id || !o.provider_payout?.account_number" :title="o.provider_payout?.account_number ? '' : 'Mitra belum mengatur rekening pembayaran'" class="btn-success btn-sm">
                             <i x-show="confirming === o.id" class="fas fa-spinner fa-spin mr-1"></i>
                             <i x-show="confirming !== o.id" class="fas fa-check mr-1"></i>
-                            <span x-text="confirming === o.id ? 'Memproses...' : 'Konfirmasi'"></span>
+                            <span x-text="confirming === o.id ? 'Memproses...' : (o.provider_payout?.account_number ? 'Konfirmasi' : 'Tunggu Rekening')"></span>
                           </button>
                         </template>
                         <template x-if="o.payout_confirmed">

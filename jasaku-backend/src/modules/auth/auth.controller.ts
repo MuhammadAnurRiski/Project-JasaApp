@@ -118,9 +118,9 @@ const login = async (req: any, res: Response) => {
 
 const loginWithGoogle = async (req: any, res: Response) => {
   try {
-    const { idToken } = req.body;
+    const { idToken, role } = req.body;
     const authService = new AuthService();
-    const result = await authService.loginWithGoogle(idToken);
+    const result = await authService.loginWithGoogle(idToken, role);
     return successResponse(res, result, 'Login dengan Google berhasil');
   }
   catch (err: any) {
@@ -152,6 +152,7 @@ export { registerCustomer, registerProvider, registerAdmin, login, loginWithGoog
 
 const getMe = async (req: AuthRequest, res: Response) => {
   try {
+    if (!req.user) return errorResponse(res, 'Anda harus login', 401);
     const authService = new AuthService();
     const result = await authService.getMe(req.user.userId);
     return successResponse(res, result, 'Data user berhasil diambil');

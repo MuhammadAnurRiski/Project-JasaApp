@@ -21,6 +21,7 @@ interface CreateTaskPayload {
   lat: number;
   lng: number;
   locations: LocationPoint[];
+  image_urls?: string[];
 }
 
 export class CustomTasksService {
@@ -33,7 +34,7 @@ export class CustomTasksService {
     }));
   }
   async createTask(userId: string, payload: CreateTaskPayload) {
-    const { title, description, budget_per_person, required_people, address, location_detail, publish_days, lat, lng, locations } = payload;
+    const { title, description, budget_per_person, required_people, address, location_detail, publish_days, lat, lng, locations, image_urls } = payload;
 
     const publishDays = publish_days || 1;
     const now = new Date();
@@ -407,10 +408,6 @@ export class CustomTasksService {
     });
     if (existing) throw new Error('Anda sudah menerima task ini');
 
-    // Hitung accepted_count baru
-    const newAcceptedCount = task.accepted_count + 1;
-    const isNowFull = newAcceptedCount >= task.required_people;
-
     // Atomic increment + insert
     const result = await prisma.$transaction(async (tx) => {
       const updated = await tx.custom_tasks.updateMany({
@@ -425,6 +422,13 @@ export class CustomTasksService {
       });
 
       if (updated.count === 0) throw new Error('Task sudah penuh atau tidak tersedia');
+
+      // Baca ulang accepted_count setelah increment atomic
+      const refreshedTask = await tx.custom_tasks.findUnique({
+        where: { id: taskId },
+        select: { accepted_count: true, required_people: true }
+      });
+      const isNowFull = refreshedTask ? refreshedTask.accepted_count >= refreshedTask.required_people : false;
 
       // Hanya set in_progress jika task sudah penuh (single atau multi)
       if (isNowFull) {
@@ -490,21 +494,21 @@ export class CustomTasksService {
         }
       });
 
-      return { tp, order };
+      return { tp, order, isNowFull };
     });
 
     // Notifikasi customer — fire & forget
     NotificationService.sendToUser(
       task.customer_id,
       'Task Diterima Provider!',
-      isNowFull
+      result.isNowFull
         ? `Semua provider telah menerima task "${task.title}". Lakukan pembayaran untuk memulai.`
         : `Provider "${profile.full_name}" telah menerima task "${task.title}". Menunggu provider lain.`,
       { taskId, orderId: result.order.id, providerName: profile.full_name, type: 'CUSTOM_TASK_ACCEPTED' }
     ).catch(() => {});
 
     // Jika sudah penuh, notifikasi semua provider lain — parallel, fire & forget
-    if (isNowFull) {
+    if (result.isNowFull) {
       prisma.task_providers.findMany({
         where: { task_id: taskId },
         select: { provider_profiles: { select: { user_id: true } } }

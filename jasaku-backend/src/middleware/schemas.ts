@@ -16,6 +16,7 @@ export const loginSchema = z.object({
 
 export const googleLoginSchema = z.object({
     idToken: z.string().min(1, 'idToken wajib diisi'),
+    role: z.enum(['customer', 'provider']).optional(),
 });
 
 export const createOrderSchema = z.object({
@@ -174,8 +175,14 @@ export const registerProviderSchema = z.object({
     village: z.string().optional(),
     services: z.preprocess(parseJsonArray, z.array(z.object({
         serviceId: z.string().uuid(),
-        pricingUnitId: z.string().uuid().optional(),
-        price: z.number().positive().optional(),
+        description: z.string().optional(),
+        prices: z.array(z.object({
+            pricingUnitId: z.string().uuid(),
+            contractTypeId: z.string().uuid().optional(),
+            price: z.number().positive(),
+            priceWithMaterial: z.number().positive().optional(),
+            plusMaterial: z.boolean().optional().default(false),
+        })).optional().default([]),
     }))).optional().default([]),
     certificates: z.preprocess(parseJsonArray, z.array(z.object({
         categoryId: z.string().uuid(),

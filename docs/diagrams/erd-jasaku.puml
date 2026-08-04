@@ -1,30 +1,40 @@
 @startuml ERD Jasaku
 !theme plain
 left to right direction
-skinparam backgroundColor #FFFFFF
-skinparam EntityBackgroundColor #FFFFFF
-skinparam EntityBorderColor #37474F
-skinparam EntityHeaderBackgroundColor #455A64
-skinparam EntityFontColor #212121
-skinparam defaultFontName Segoe UI
-skinparam defaultFontSize 14
-skinparam EntityFontSize 16
-skinparam EntityFontStyle bold
-skinparam EntityAttributeFontSize 13
-skinparam EntityAttributeFontStyle bold
-skinparam ArrowFontSize 13
-skinparam ArrowFontStyle bold
-skinparam linetype polyline
-skinparam nodesep 60
-skinparam ranksep 15
-skinparam padding 1
-skinparam entitymargin 3
-skinparam packageBorderColor #FFFFFF
-skinparam packageBackgroundColor #FFFFFF
-skinparam packageFontSize 0
-skinparam packageBorderThickness 0
 
-package "Autentikasi" {
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 20
+
+skinparam classBackgroundColor #FFFFFF
+skinparam classBorderColor #0D47A1
+skinparam classFontColor #212121
+skinparam classAttributeFontColor #1A1A1A
+skinparam classHeaderBackgroundColor #1565C0
+skinparam classHeaderFontColor #FFFFFF
+skinparam classFontSize 23
+skinparam classHeaderFontSize 23
+skinparam classAttributeFontSize 28
+skinparam classAttributeFontStyle bold
+skinparam MinClassWidth 320
+
+skinparam ArrowFontSize 18
+skinparam ArrowFontStyle bold
+
+skinparam packageBackgroundColor #E3F2FD
+skinparam packageBorderColor #0D47A1
+skinparam packageFontColor #0D47A1
+skinparam packageFontSize 22
+skinparam packageFontStyle bold
+skinparam packageTitleAlignment left
+
+skinparam linetype polyline
+skinparam nodesep 16
+skinparam ranksep 18
+skinparam padding 6
+skinparam shadowing false
+
+package "1 · Autentikasi" {
   entity "Role" as role {
     * **id** <<PK>>
     --
@@ -58,7 +68,7 @@ package "Autentikasi" {
   }
 }
 
-package "Mitra" {
+package "2 · Mitra" {
   entity "Profil Mitra Jasa" as profil_provider {
     * **id** <<PK>>
     --
@@ -136,7 +146,7 @@ package "Mitra" {
   }
 }
 
-package "Katalog" {
+package "3 · Katalog Layanan" {
   entity "Kategori" as kategori {
     * **id** <<PK>>
     --
@@ -203,7 +213,7 @@ package "Katalog" {
   }
 }
 
-package "Pesanan" {
+package "4 · Pesanan" {
   entity "Pesanan" as pesanan {
     * **id** <<PK>>
     --
@@ -275,7 +285,7 @@ package "Pesanan" {
   }
 }
 
-package "Tugas Kustom" {
+package "5 · Tugas Kustom" {
   entity "Tugas Kustom" as tugas_kustom {
     * **id** <<PK>>
     --
@@ -315,7 +325,7 @@ package "Tugas Kustom" {
   }
 }
 
-package "Review & Laporan" {
+package "6 · Ulasan & Laporan" {
   entity "Ulasan" as ulasan {
     * **id** <<PK>>
     --
@@ -340,7 +350,7 @@ package "Review & Laporan" {
   }
 }
 
-package "Data Pendukung" {
+package "7 · Data Pendukung" {
   entity "Wilayah" as wilayah {
     * **id** <<PK>>
     --

@@ -11,8 +11,17 @@ export const createTask = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.userId;
     if (!userId) return errorResponse(res, 'Anda harus login', 401);
 
-    const result = await service.createTask(userId, req.body);
-    return successResponse(res, result, 'Task berhasil dibuat', 201);
+    let imageUrls: string[] = [];
+    const files = req.files as Express.Multer.File[] | undefined;
+    if (files && files.length > 0) {
+      imageUrls = await Promise.all(
+        files.map(f => uploadToStorage(f.buffer, 'custom-tasks', f.originalname))
+      );
+    }
+
+    const payload = { ...req.body, image_urls: imageUrls };
+    const result = await service.createTask(userId, payload);
+    return successResponse(res, { ...result, image_urls: imageUrls }, 'Task berhasil dibuat', 201);
   } catch (err: any) {
     return errorResponse(res, err.message);
   }

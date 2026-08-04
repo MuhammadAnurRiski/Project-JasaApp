@@ -2,380 +2,365 @@
 !theme plain
 left to right direction
 skinparam backgroundColor #FFFFFF
-skinparam defaultFontName Segoe UI
-skinparam defaultFontSize 14
-skinparam EntityFontSize 16
-skinparam EntityFontStyle bold
-skinparam EntityAttributeFontSize 13
-skinparam EntityAttributeFontStyle bold
-skinparam ArrowFontSize 13
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 20
+skinparam classBackgroundColor #FFFFFF
+skinparam classBorderColor #00695C
+skinparam classFontColor #212121
+skinparam classAttributeFontColor #1A1A1A
+skinparam classHeaderBackgroundColor #00897B
+skinparam classHeaderFontColor #FFFFFF
+skinparam classFontSize 23
+skinparam classFontStyle bold
+skinparam classHeaderFontSize 23
+skinparam classAttributeFontSize 28
+skinparam classAttributeFontStyle bold
+skinparam MinClassWidth 320
+skinparam ArrowFontSize 18
 skinparam ArrowFontStyle bold
+skinparam ArrowColor #00695C
 skinparam linetype polyline
-skinparam nodesep 100
-skinparam ranksep 60
-skinparam padding 1
-skinparam entitymargin 3
-skinparam EntityBackgroundColor #FFFFFF
-skinparam EntityBorderColor #455A64
-skinparam EntityFontColor #212121
-skinparam EntityHeaderBackgroundColor #455A64
-skinparam EntityAttributeIconSize 0
-skinparam packageBorderColor #FFFFFF
-skinparam packageBackgroundColor #FFFFFF
-skinparam packageFontSize 0
-skinparam packageBorderThickness 0
+skinparam nodesep 16
+skinparam ranksep 18
+skinparam padding 6
 
-package "Autentikasi" {
-  entity "roles" as t1 {
-    * **id** <<PK>>
-    --
-    **name**
-    **description**
-  }
-
-  entity "users" as t2 {
-    * **id** <<PK>>
-    --
-    **role_id** <<FK>>
-    **email**
-    **phone**
-    **password_hash**
-    **google_id**
-    **is_phone_verified**
-    **is_email_verified**
-    **status**
-  }
-
-  entity "profiles_customer" as t3 {
-    * **id** <<PK>>
-    --
-    **user_id** <<FK>>
-    **full_name**
-    **nickname**
-    **birth_date**
-    **gender**
-    **address**
-    **avatar_url**
-  }
+class "roles" as t1 {
+  * **id** <<PK>>
+  --
+  **name**
+  **description**
 }
 
-package "Mitra" {
-  entity "provider_profiles" as t4 {
-    * **id** <<PK>>
-    --
-    **user_id** <<FK>>
-    **full_name**
-    **nickname**
-    **gender**
-    **birth_date**
-    **phone**
-    **address**
-    **domicile**
-    **province**
-    **city**
-    **district**
-    **village**
-    **profile_photo**
-    **ktp_photo**
-    **selfie_photo**
-    **is_verified**
-    **verification_status**
-    **is_active**
-    **onboarding_completed**
-    **rating**
-    **total_jobs**
-    **total_reviews**
-  }
-
-  entity "provider_locations" as t5 {
-    * **id** <<PK>>
-    --
-    **provider_id** <<FK>>
-    **address**
-    **location**
-  }
-
-  entity "provider_documents" as t6 {
-    * **id** <<PK>>
-    --
-    **provider_id** <<FK>>
-    **type**
-    **file_url**
-    **category_id**
-    **description**
-  }
-
-  entity "identity_verifications" as t8 {
-    * **id** <<PK>>
-    --
-    **provider_id** <<FK>>
-    **nik**
-    **ocr_full_name**
-    **ocr_birth_date**
-    **face_match_score**
-    **face_match_status**
-    **liveness_status**
-  }
-
-  entity "provider_payout_methods" as t7 {
-    * **id** <<PK>>
-    --
-    **provider_id** <<FK>>
-    **type**
-    **provider_name**
-    **account_number**
-    **account_name**
-  }
-
-  entity "provider_schedules" as t20 {
-    * **id** <<PK>>
-    --
-    **provider_id** <<FK>>
-    **work_date**
-    **is_booked**
-    **order_id** <<FK>>
-  }
+class "users" as t2 {
+  * **id** <<PK>>
+  --
+  **role_id** <<FK>>
+  **email**
+  **phone**
+  **password_hash**
+  **google_id**
+  **is_phone_verified**
+  **is_email_verified**
+  **status**
 }
 
-package "Katalog" {
-  entity "categories" as t10 {
-    * **id** <<PK>>
-    --
-    **name**
-    **description**
-    **icon_url**
-  }
-
-  entity "services" as t12 {
-    * **id** <<PK>>
-    --
-    **category_id** <<FK>>
-    **name**
-    **description**
-  }
-
-  entity "pricing_units" as t11 {
-    * **id** <<PK>>
-    --
-    **name**
-    **unit**
-    **description**
-  }
-
-  entity "contract_types" as t11c {
-    * **id** <<PK>>
-    --
-    **name**
-    **description**
-  }
-
-  entity "service_pricing_units" as t12s {
-    * **id** <<PK>>
-    --
-    **service_id** <<FK>>
-    **pricing_unit_id** <<FK>>
-  }
-
-  entity "service_contract_types" as t12c {
-    * **id** <<PK>>
-    --
-    **service_id** <<FK>>
-    **contract_type_id** <<FK>>
-  }
-
-  entity "provider_services" as t13 {
-    * **id** <<PK>>
-    --
-    **provider_id**
-    **service_id** <<FK>>
-    **description**
-  }
-
-  entity "provider_service_prices" as t14 {
-    * **id** <<PK>>
-    --
-    **provider_service_id** <<FK>>
-    **pricing_unit_id** <<FK>>
-    **contract_type_id** <<FK>>
-    **price**
-    **price_with_material**
-    **plus_material**
-    **unit**
-  }
+class "profiles_customer" as t3 {
+  * **id** <<PK>>
+  --
+  **user_id** <<FK>>
+  **full_name**
+  **nickname**
+  **birth_date**
+  **gender**
+  **address**
+  **avatar_url**
 }
 
-package "Pesanan" {
-  entity "orders" as t15 {
-    * **id** <<PK>>
-    --
-    **customer_id** <<FK>>
-    **provider_id** <<FK>>
-    **custom_task_id** <<FK>>
-    **task_provider_id** <<FK>>
-    **status**
-    **total_price**
-    **platform_fee**
-    **additional_fee**
-    **work_date**
-    **start_date**
-    **end_date**
-    **assignment_type**
-    **payout_confirmed**
-  }
-
-  entity "order_items" as t16 {
-    * **id** <<PK>>
-    --
-    **order_id** <<FK>>
-    **service_id** <<FK>>
-    **pricing_unit_id** <<FK>>
-    **contract_type_id** <<FK>>
-    **quantity**
-    **price**
-    **subtotal**
-    **with_material**
-  }
-
-  entity "order_locations" as t17 {
-    * **id** <<PK>>
-    --
-    **order_id** <<FK>>
-    **address**
-    **location**
-  }
-
-  entity "order_attachments" as t18 {
-    * **id** <<PK>>
-    --
-    **order_id** <<FK>>
-    **file_url**
-  }
-
-  entity "order_extensions" as t19 {
-    * **id** <<PK>>
-    --
-    **order_id** <<FK>>
-    **provider_id**
-    **customer_id**
-    **requested_date**
-    **additional_cost**
-    **platform_fee_rate**
-    **extension_count**
-    **status**
-    **response_note**
-  }
-
-  entity "payments" as t21 {
-    * **id** <<PK>>
-    --
-    **order_id** <<FK>>
-    **method**
-    **status**
-    **amount**
-    **payment_proof**
-  }
+class "provider_profiles" as t4 {
+  * **id** <<PK>>
+  --
+  **user_id** <<FK>>
+  **full_name**
+  **nickname**
+  **gender**
+  **birth_date**
+  **phone**
+  **address**
+  **domicile**
+  **province**
+  **city**
+  **district**
+  **village**
+  **profile_photo**
+  **ktp_photo**
+  **selfie_photo**
+  **is_verified**
+  **verification_status**
+  **is_active**
+  **onboarding_completed**
+  **rating**
+  **total_jobs**
+  **total_reviews**
 }
 
-package "Tugas Kustom" {
-  entity "custom_tasks" as t25 {
-    * **id** <<PK>>
-    --
-    **customer_id** <<FK>>
-    **title**
-    **description**
-    **budget_per_person**
-    **required_people**
-    **accepted_count**
-    **platform_fee_rate**
-    **address**
-    **location_detail**
-    **publish_days**
-    **expires_at**
-    **payment_status**
-    **status**
-  }
-
-  entity "task_locations" as t26 {
-    * **id** <<PK>>
-    --
-    **task_id** <<FK>>
-    **label**
-    **address**
-    **location**
-    **stop_order**
-  }
-
-  entity "task_providers" as t27 {
-    * **id** <<PK>>
-    --
-    **task_id** <<FK>>
-    **provider_id** <<FK>>
-    **status**
-    **work_status**
-    **payout_confirmed**
-  }
+class "provider_locations" as t5 {
+  * **id** <<PK>>
+  --
+  **provider_id** <<FK>>
+  **address**
+  **location**
 }
 
-package "Review & Laporan" {
-  entity "reviews" as t28 {
-    * **id** <<PK>>
-    --
-    **order_id** <<FK>>
-    **customer_id** <<FK>>
-    **provider_id** <<FK>>
-    **rating**
-    **review**
-  }
-
-  entity "reports" as t29 {
-    * **id** <<PK>>
-    --
-    **reporter_id** <<FK>>
-    **reporter_role**
-    **order_id**
-    **subject**
-    **description**
-    **attachments**
-    **status**
-    **admin_response**
-  }
+class "provider_documents" as t6 {
+  * **id** <<PK>>
+  --
+  **provider_id** <<FK>>
+  **type**
+  **file_url**
+  **category_id**
+  **description**
 }
 
-package "Data Pendukung" {
-  entity "wilayah" as t10w {
-    * **id** <<PK>>
-    --
-    **code**
-    **name**
-    **level**
-    **parent_code**
-  }
+class "identity_verifications" as t8 {
+  * **id** <<PK>>
+  --
+  **provider_id** <<FK>>
+  **nik**
+  **ocr_full_name**
+  **ocr_birth_date**
+  **face_match_score**
+  **face_match_status**
+  **liveness_status**
+}
 
-  entity "admin_bank_accounts" as t22 {
-    * **id** <<PK>>
-    --
-    **provider_name**
-    **account_number**
-    **account_name**
-    **is_active**
-  }
+class "provider_payout_methods" as t7 {
+  * **id** <<PK>>
+  --
+  **provider_id** <<FK>>
+  **type**
+  **provider_name**
+  **account_number**
+  **account_name**
+}
 
-  entity "admin_ewallet_accounts" as t23 {
-    * **id** <<PK>>
-    --
-    **provider_name**
-    **account_number**
-    **account_name**
-    **is_active**
-  }
+class "provider_schedules" as t20 {
+  * **id** <<PK>>
+  --
+  **provider_id** <<FK>>
+  **work_date**
+  **is_booked**
+  **order_id** <<FK>>
+}
 
-  entity "admin_qris_accounts" as t24 {
-    * **id** <<PK>>
-    --
-    **provider_name**
-    **qris_image_url**
-    **is_active**
-  }
+class "categories" as t10 {
+  * **id** <<PK>>
+  --
+  **name**
+  **description**
+  **icon_url**
+}
+
+class "services" as t12 {
+  * **id** <<PK>>
+  --
+  **category_id** <<FK>>
+  **name**
+  **description**
+}
+
+class "pricing_units" as t11 {
+  * **id** <<PK>>
+  --
+  **name**
+  **unit**
+  **description**
+}
+
+class "contract_types" as t11c {
+  * **id** <<PK>>
+  --
+  **name**
+  **description**
+}
+
+class "service_pricing_units" as t12s {
+  * **id** <<PK>>
+  --
+  **service_id** <<FK>>
+  **pricing_unit_id** <<FK>>
+}
+
+class "service_contract_types" as t12c {
+  * **id** <<PK>>
+  --
+  **service_id** <<FK>>
+  **contract_type_id** <<FK>>
+}
+
+class "provider_services" as t13 {
+  * **id** <<PK>>
+  --
+  **provider_id**
+  **service_id** <<FK>>
+  **description**
+}
+
+class "provider_service_prices" as t14 {
+  * **id** <<PK>>
+  --
+  **provider_service_id** <<FK>>
+  **pricing_unit_id** <<FK>>
+  **contract_type_id** <<FK>>
+  **price**
+  **price_with_material**
+  **plus_material**
+  **unit**
+}
+
+class "orders" as t15 {
+  * **id** <<PK>>
+  --
+  **customer_id** <<FK>>
+  **provider_id** <<FK>>
+  **custom_task_id** <<FK>>
+  **task_provider_id** <<FK>>
+  **status**
+  **total_price**
+  **platform_fee**
+  **additional_fee**
+  **work_date**
+  **start_date**
+  **end_date**
+  **assignment_type**
+  **payout_confirmed**
+}
+
+class "order_items" as t16 {
+  * **id** <<PK>>
+  --
+  **order_id** <<FK>>
+  **service_id** <<FK>>
+  **pricing_unit_id** <<FK>>
+  **contract_type_id** <<FK>>
+  **quantity**
+  **price**
+  **subtotal**
+  **with_material**
+}
+
+class "order_locations" as t17 {
+  * **id** <<PK>>
+  --
+  **order_id** <<FK>>
+  **address**
+  **location**
+}
+
+class "order_attachments" as t18 {
+  * **id** <<PK>>
+  --
+  **order_id** <<FK>>
+  **file_url**
+}
+
+class "order_extensions" as t19 {
+  * **id** <<PK>>
+  --
+  **order_id** <<FK>>
+  **provider_id**
+  **customer_id**
+  **requested_date**
+  **additional_cost**
+  **platform_fee_rate**
+  **extension_count**
+  **status**
+  **response_note**
+}
+
+class "payments" as t21 {
+  * **id** <<PK>>
+  --
+  **order_id** <<FK>>
+  **method**
+  **status**
+  **amount**
+  **payment_proof**
+}
+
+class "custom_tasks" as t25 {
+  * **id** <<PK>>
+  --
+  **customer_id** <<FK>>
+  **title**
+  **description**
+  **budget_per_person**
+  **required_people**
+  **accepted_count**
+  **platform_fee_rate**
+  **address**
+  **location_detail**
+  **publish_days**
+  **expires_at**
+  **payment_status**
+  **status**
+}
+
+class "task_locations" as t26 {
+  * **id** <<PK>>
+  --
+  **task_id** <<FK>>
+  **label**
+  **address**
+  **location**
+  **stop_order**
+}
+
+class "task_providers" as t27 {
+  * **id** <<PK>>
+  --
+  **task_id** <<FK>>
+  **provider_id** <<FK>>
+  **status**
+  **work_status**
+  **payout_confirmed**
+}
+
+class "reviews" as t28 {
+  * **id** <<PK>>
+  --
+  **order_id** <<FK>>
+  **customer_id** <<FK>>
+  **provider_id** <<FK>>
+  **rating**
+  **review**
+}
+
+class "reports" as t29 {
+  * **id** <<PK>>
+  --
+  **reporter_id** <<FK>>
+  **reporter_role**
+  **order_id**
+  **subject**
+  **description**
+  **attachments**
+  **status**
+  **admin_response**
+}
+
+class "wilayah" as t10w {
+  * **id** <<PK>>
+  --
+  **code**
+  **name**
+  **level**
+  **parent_code**
+}
+
+class "admin_bank_accounts" as t22 {
+  * **id** <<PK>>
+  --
+  **provider_name**
+  **account_number**
+  **account_name**
+  **is_active**
+}
+
+class "admin_ewallet_accounts" as t23 {
+  * **id** <<PK>>
+  --
+  **provider_name**
+  **account_number**
+  **account_name**
+  **is_active**
+}
+
+class "admin_qris_accounts" as t24 {
+  * **id** <<PK>>
+  --
+  **provider_name**
+  **qris_image_url**
+  **is_active**
 }
 
 t1 ||--|{ t2

@@ -40,7 +40,7 @@ export class AuthService {
       });
 
       const profile = await tx.profiles_customer.create({
-        data: { user_id: newUser.id, full_name: name, gender: gender, birth_date: birthDate }
+        data: { user_id: newUser.id, full_name: name, gender: gender, birth_date: birthDate ? new Date(birthDate) : undefined }
       });
       
       return { newUser, profile };
@@ -326,7 +326,7 @@ async registerProvider(
   // ==========================================
   // 5. FITUR BARU: LOGIN & REGISTER VIA GOOGLE
   // ==========================================
-  async loginWithGoogle(idToken: string) {
+  async loginWithGoogle(idToken: string, expectedRole?: string) {
     // 1. Verifikasi token ke Google
     const ticket = await client.verifyIdToken({
       idToken: idToken,
@@ -344,32 +344,42 @@ async registerProvider(
       include: { roles: true, profiles_customer: true, provider_profiles: true }
     });
 
-    let roleName = 'customer'; // Default role jika membuat akun baru via Google
+    let roleName = 'customer';
 
     if (!user) {
-      // 3. Jika belum terdaftar, daftarkan otomatis sebagai CUSTOMER via Prisma Transaction
-      const role = await prisma.roles.findUnique({ where: { name: 'customer' } });
-      if (!role) throw new Error('Role customer tidak ditemukan');
+      // 3. Jika belum terdaftar, gunakan expectedRole jika valid, default ke customer
+      const targetRole = (expectedRole === 'provider') ? 'provider' : 'customer';
+      const role = await prisma.roles.findUnique({ where: { name: targetRole } });
+      if (!role) throw new Error(`Role ${targetRole} tidak ditemukan`);
 
       user = await prisma.$transaction(async (tx) => {
         const newUser = await tx.users.create({
           data: {
             email,
-            password_hash: null, // Kosongkan password karena login menggunakan Google OAuth
+            password_hash: null,
             role_id: role.id,
           },
           include: { roles: true, profiles_customer: true, provider_profiles: true }
         });
 
-        const newProfile = await tx.profiles_customer.create({
-          data: {
-            user_id: newUser.id,
-            full_name: name || 'Google User',
-          }
-        });
+        if (targetRole === 'provider') {
+          const newProfile = await tx.provider_profiles.create({
+            data: {
+              user_id: newUser.id,
+              full_name: name || 'Google User',
+            }
+          });
+          newUser.provider_profiles = newProfile;
+        } else {
+          const newProfile = await tx.profiles_customer.create({
+            data: {
+              user_id: newUser.id,
+              full_name: name || 'Google User',
+            }
+          });
+          newUser.profiles_customer = newProfile;
+        }
 
-        // Masukkan kembali profil yang baru dibuat ke objek user agar strukturnya konsisten saat dikembalikan
-        newUser.profiles_customer = newProfile;
         return newUser;
       });
 
@@ -383,12 +393,10 @@ async registerProvider(
         if (profile.verification_status === 'pending') {
           throw new Error('Akun Anda belum diverifikasi oleh admin. Silakan tunggu konfirmasi.');
         }
-        // Rejected: biarkan login, Flutter akan nampilin screen penolakan
-        // Auto-set onboarding_completed untuk provider LAMA (sudah punya tarif, bukan baru daftar 5-step)
         if (profile.verification_status === 'verified' && !profile.onboarding_completed) {
           const hasPricing = await prisma.provider_service_prices.count({
             where: {
-              provider_services: { provider_id: user.id }
+              provider_services: { provider_id: profile.id }
             }
           }) > 0;
           if (hasPricing) {

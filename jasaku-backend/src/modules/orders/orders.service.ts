@@ -204,7 +204,21 @@ export class OrdersService {
     }
 
 
-    async getOrderExtensions(orderId: string) {
+    async getOrderExtensions(orderId: string, userId?: string) {
+        const order = await prisma.orders.findUnique({
+            where: { id: orderId },
+            select: {
+                customer_id: true,
+                profiles_customer: { select: { user_id: true } },
+                provider_profiles: { select: { user_id: true } }
+            }
+        });
+        if (!order) throw new Error('Order tidak ditemukan');
+        if (userId) {
+            const isCustomer = order.profiles_customer?.user_id === userId;
+            const isProvider = order.provider_profiles?.user_id === userId;
+            if (!isCustomer && !isProvider) throw new Error('Anda tidak berhak mengakses ekstensi order ini');
+        }
         return await prisma.order_extensions.findMany({
             where: { order_id: orderId },
             orderBy: { created_at: 'desc' },
@@ -232,12 +246,13 @@ export class OrdersService {
         });
     }
 
-    async getOrderDetails(orderId: string) {
-        return await prisma.orders.findUnique({
+    async getOrderDetails(orderId: string, userId?: string) {
+        const order = await prisma.orders.findUnique({
             where: { id: orderId },
             select: {
                 id: true,
                 total_price: true,
+                platform_fee: true,
                 additional_fee: true,
                 description: true,
                 work_date: true,
@@ -250,6 +265,7 @@ export class OrdersService {
                         full_name: true,
                         nickname: true,
                         created_at: true,
+                        user_id: true,
                         users: {
                             select: { phone: true }
                         }
@@ -260,7 +276,8 @@ export class OrdersService {
                         id: true,
                         full_name: true,
                         nickname: true,
-                        created_at: true
+                        created_at: true,
+                        user_id: true
                     }
                 },
                 order_attachments: {
@@ -296,6 +313,15 @@ export class OrdersService {
                 }
             }
         });
+        if (!order) return null;
+        if (userId) {
+            const customerUserId = order.profiles_customer?.user_id;
+            const providerUserId = order.provider_profiles?.user_id;
+            if (userId !== customerUserId && userId !== providerUserId) {
+                throw new Error('Anda tidak berhak mengakses order ini');
+            }
+        }
+        return order;
     }
 
     async getOrderTracking(orderId: string) {
@@ -405,6 +431,7 @@ export class OrdersService {
                 work_date: true,
                 end_date: true,
                 additional_fee: true,
+                platform_fee: true,
                 status: true,
                 total_price: true,
                 description: true,
@@ -1013,7 +1040,7 @@ export class OrdersService {
             }
         });
         if (!ext) throw new Error("Extension tidak ditemukan");
-        if (ext.status !== 'pending') {
+        if (ext.status !== 'pending_customer') {
             throw new Error(`Extension sudah ${ext.status}`);
         }
 
@@ -1196,7 +1223,7 @@ export class OrdersService {
         }
 
         const payment = await prisma.payments.findFirst({
-            where: { order_id: ext.order_id, method: 'extension', status: 'pending' }
+            where: { order_id: ext.order_id, method: 'extension', status: { in: ['pending', 'proof_uploaded'] } }
         });
         if (!payment) throw new Error("Pembayaran tidak ditemukan");
 
@@ -1286,6 +1313,15 @@ export class OrdersService {
             throw new Error(`Order dengan status ${order.status} tidak dapat dikonfirmasi pembayarannya`);
         }
 
+        const paymentWithProof = await prisma.payments.findFirst({
+            where: { order_id: orderId, method: { not: 'extension' }, payment_proof: { not: null } }
+        });
+        if (!paymentWithProof) {
+            const err: any = new Error("Bukti pembayaran belum diupload oleh customer");
+            err.status = 400;
+            throw err;
+        }
+
         await prisma.$transaction(async (tx) => {
             await tx.orders.update({
                 where: { id: orderId },
@@ -1368,7 +1404,7 @@ export class OrdersService {
 
         await prisma.payments.update({
             where: { id: payment.id },
-            data: { proof_url: proofUrl, status: 'proof_uploaded' }
+            data: { payment_proof: proofUrl, status: 'proof_uploaded' }
         });
 
         // Notifikasi admin

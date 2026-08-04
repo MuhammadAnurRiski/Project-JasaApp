@@ -41,7 +41,42 @@ export class PaymentsService {
         ];
     }
 
-    async createPayment(orderId: string, method: string, amount: number) {
+    async createPayment(orderId: string, method: string, amount: number, customerProfileId: string) {
+        const order = await prisma.orders.findUnique({
+            where: { id: orderId },
+            select: { id: true, customer_id: true, custom_task_id: true, status: true, total_price: true, platform_fee: true }
+        });
+        if (!order || order.custom_task_id) {
+            const err: any = new Error('Order tidak ditemukan');
+            err.status = 404;
+            throw err;
+        }
+        if (order.customer_id !== customerProfileId) {
+            const err: any = new Error('Anda tidak berhak atas order ini');
+            err.status = 403;
+            throw err;
+        }
+        if (order.status !== 'pending_payment') {
+            const err: any = new Error('Order tidak dalam status menunggu pembayaran');
+            err.status = 400;
+            throw err;
+        }
+        const expected = Number(order.total_price || 0) + Number(order.platform_fee || 0);
+        if (Math.abs(Number(amount) - expected) > 0.001) {
+            const err: any = new Error(`Nominal pembayaran tidak sesuai. Total yang harus dibayar adalah ${expected.toLocaleString('id-ID')}`);
+            err.status = 400;
+            throw err;
+        }
+
+        const existing = await prisma.payments.findFirst({
+            where: { order_id: orderId, method: { not: 'extension' } }
+        });
+        if (existing) {
+            return await prisma.payments.update({
+                where: { id: existing.id },
+                data: { method, amount }
+            });
+        }
         return await prisma.payments.create({
             data: {
                 order_id: orderId,
@@ -67,7 +102,27 @@ export class PaymentsService {
         });
     }
 
-    async uploadPaymentProof(orderId: string, fileUrl: string) {
+    async uploadPaymentProof(orderId: string, fileUrl: string, customerProfileId: string) {
+        const order = await prisma.orders.findUnique({
+            where: { id: orderId },
+            select: { id: true, customer_id: true, custom_task_id: true, status: true }
+        });
+        if (!order || order.custom_task_id) {
+            const err: any = new Error('Order tidak ditemukan');
+            err.status = 404;
+            throw err;
+        }
+        if (order.customer_id !== customerProfileId) {
+            const err: any = new Error('Anda tidak berhak atas order ini');
+            err.status = 403;
+            throw err;
+        }
+        if (!['pending_payment', 'pending'].includes(order.status || '')) {
+            const err: any = new Error('Order sudah tidak menerima bukti pembayaran');
+            err.status = 400;
+            throw err;
+        }
+
         let payment = await prisma.payments.findFirst({
             where: { order_id: orderId }
         });

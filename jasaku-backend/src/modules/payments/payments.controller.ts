@@ -21,21 +21,44 @@ const createPayment = async (req: AuthRequest, res: Response) => {
     if (!orderId || !method || !amount) {
       return errorResponse(res, "orderId, method, dan amount wajib diisi", 400);
     }
-    const result = await new PaymentsService().createPayment(orderId, method, amount);
+    const profile = await prisma.profiles_customer.findUnique({
+      where: { user_id: req.user!.userId }
+    });
+    if (!profile) return errorResponse(res, "Profil customer tidak ditemukan", 403);
+
+    const result = await new PaymentsService().createPayment(orderId, method, amount, profile.id);
     return successResponse(res, result, "Pembayaran berhasil dibuat", 201);
   } catch (err: any) {
-    return errorResponse(res, err.message);
+    return errorResponse(res, err.message, err.status || 500);
   }
 };
 
 const getPaymentByOrder = async (req: AuthRequest, res: Response) => {
   try {
     const orderId = String(req.params.orderId);
+    const order = await prisma.orders.findUnique({
+      where: { id: orderId },
+      select: { customer_id: true, provider_id: true }
+    });
+    if (!order) return errorResponse(res, "Order tidak ditemukan", 404);
+
+    const isAdmin = req.user!.role === 'admin';
+    const customerProfile = await prisma.profiles_customer.findUnique({
+      where: { user_id: req.user!.userId }
+    });
+    const providerProfile = await prisma.provider_profiles.findUnique({
+      where: { user_id: req.user!.userId }
+    });
+    const isOwner =
+      (customerProfile && order.customer_id === customerProfile.id) ||
+      (providerProfile && order.provider_id === providerProfile.id);
+    if (!isAdmin && !isOwner) return errorResponse(res, "Anda tidak berhak melihat pembayaran ini", 403);
+
     const result = await new PaymentsService().getPaymentByOrder(orderId);
     if (!result) return errorResponse(res, "Pembayaran tidak ditemukan", 404);
     return successResponse(res, result, "Detail pembayaran berhasil diambil");
   } catch (err: any) {
-    return errorResponse(res, err.message);
+    return errorResponse(res, err.message, err.status || 500);
   }
 };
 
@@ -83,10 +106,15 @@ const uploadPaymentProof = async (req: AuthRequest, res: Response) => {
     const file = req.file;
     if (!file) return errorResponse(res, "Upload bukti pembayaran terlebih dahulu", 400);
 
+    const profile = await prisma.profiles_customer.findUnique({
+      where: { user_id: req.user!.userId }
+    });
+    if (!profile) return errorResponse(res, "Profil customer tidak ditemukan", 403);
+
     const fileUrl = await uploadToStorage(file.buffer, 'payment-proofs', file.originalname);
-    const result = await new PaymentsService().uploadPaymentProof(orderId, fileUrl);
+    const result = await new PaymentsService().uploadPaymentProof(orderId, fileUrl, profile.id);
     return successResponse(res, result, "Bukti pembayaran berhasil diupload");
   } catch (err: any) {
-    return errorResponse(res, err.message);
+    return errorResponse(res, err.message, err.status || 500);
   }
 };
