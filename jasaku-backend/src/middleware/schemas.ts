@@ -23,7 +23,7 @@ export const createOrderSchema = z.object({
     providerId: z.string().uuid('providerId tidak valid'),
     serviceId: z.string().uuid('serviceId tidak valid'),
     pricingUnitId: z.string().uuid('pricingUnitId tidak valid'),
-    contractTypeId: z.string().uuid('contractTypeId tidak valid').optional(),
+    contractTypeId: z.string().uuid('contractTypeId tidak valid').nullish(),
     withMaterial: z.boolean().optional().default(false),
     quantity: z.number().int().positive('Kuantitas harus lebih dari 0'),
     description: z.string().optional(),
