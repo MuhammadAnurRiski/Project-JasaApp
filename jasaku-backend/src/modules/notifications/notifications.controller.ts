@@ -33,7 +33,11 @@ const registerDevice = async (req: AuthRequest, res: Response) => {
     if (existing) {
       await prisma.user_devices.update({
         where: { id: existing.id },
-        data: { device_name: deviceName || existing.device_name }
+        data: {
+          user_id: userId,
+          device_type: deviceType,
+          device_name: deviceName || existing.device_name
+        }
       });
     } else {
       await prisma.user_devices.create({

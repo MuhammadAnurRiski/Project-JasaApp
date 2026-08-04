@@ -66,6 +66,7 @@ dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
   implementation(platform("com.google.firebase:firebase-bom:34.14.1"))
   implementation("com.google.firebase:firebase-analytics")
+  implementation("com.google.firebase:firebase-messaging")
   // Add the dependencies for any other desired Firebase products
   // https://firebase.google.com/docs/android/setup#available-libraries
 }

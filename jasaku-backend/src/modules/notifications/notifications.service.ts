@@ -9,7 +9,10 @@ export class NotificationService {
         select: { id: true, fcm_token: true }
       });
 
-      if (devices.length === 0) return;
+      if (devices.length === 0) {
+        console.warn(`[NOTIF] Tidak ada device terdaftar untuk user ${userId}. Notifikasi "${title}" tidak terkirim.`);
+        return;
+      }
 
       const tokens = devices.map(d => d.fcm_token);
 
@@ -27,12 +30,14 @@ export class NotificationService {
       };
 
       const response = await messaging.sendEachForMulticast(message);
+      console.log(`[NOTIF] "${title}" -> user ${userId}: success=${response.successCount}/${tokens.length}, failure=${response.failureCount}`);
 
       if (response.failureCount > 0) {
         const tokensToDelete: string[] = [];
         response.responses.forEach((resp: any, idx: number) => {
           if (!resp.success && resp.error) {
             const code = resp.error.code;
+            console.warn(`[NOTIF] Token #${idx} gagal: ${code} - ${resp.error.message}`);
             if (code === 'messaging/invalid-registration-token' || code === 'messaging/registration-token-not-registered') {
               tokensToDelete.push(tokens[idx]);
             }
@@ -43,6 +48,7 @@ export class NotificationService {
           await prisma.user_devices.deleteMany({
             where: { fcm_token: { in: tokensToDelete } }
           });
+          console.warn(`[NOTIF] ${tokensToDelete.length} token tidak valid dihapus`);
         }
       }
     } catch (error) {

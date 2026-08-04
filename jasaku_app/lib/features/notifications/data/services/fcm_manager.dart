@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -43,14 +44,20 @@ class FcmManager {
       onDidReceiveNotificationResponse: _onNotificationTap,
     );
 
+    await _createNotificationChannel();
+
     FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
 
     final token = await _messaging.getToken();
+    developer.log('[FCM] Token: ${token ?? 'NULL'}');
     if (token != null) {
       await _registerDevice(token);
     }
 
-    _messaging.onTokenRefresh.listen(_registerDevice);
+    _messaging.onTokenRefresh.listen((token) {
+      developer.log('[FCM] Token refresh');
+      _registerDevice(token);
+    });
 
     FirebaseMessaging.onMessage.listen(_onForegroundMessage);
 
@@ -65,20 +72,51 @@ class FcmManager {
   }
 
   Future<void> _requestPermission() async {
-    await _messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    try {
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        final androidPlugin = _localNotif.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+        final granted = await androidPlugin?.requestNotificationsPermission();
+        developer.log('[FCM] Android notification permission: ${granted ?? false}');
+      } else {
+        await _messaging.requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+      }
+    } catch (e) {
+      developer.log('[FCM] Error request permission: $e');
+    }
+  }
+
+  Future<void> _createNotificationChannel() async {
+    try {
+      final androidPlugin = _localNotif.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      await androidPlugin?.createNotificationChannel(
+        const AndroidNotificationChannel(
+          'jasaku_channel',
+          'Jasaku Notifications',
+          description: 'Notifikasi Jasaku',
+          importance: Importance.high,
+        ),
+      );
+    } catch (e) {
+      developer.log('[FCM] Error create channel: $e');
+    }
   }
 
   Future<void> _registerDevice(String token) async {
     try {
-      await _dio.post(ApiEndpoints.registerDevice, data: {
+      final response = await _dio.post(ApiEndpoints.registerDevice, data: {
         'fcmToken': token,
         'deviceType': defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
       });
-    } catch (_) {}
+      developer.log('[FCM] Device registered: ${response.statusCode}');
+    } catch (e) {
+      developer.log('[FCM] Device register gagal: $e');
+    }
   }
 
   Future<void> _onForegroundMessage(RemoteMessage message) async {
